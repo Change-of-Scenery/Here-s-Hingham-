@@ -6,43 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXContainerItemProxy section */
-		9B63F2482DB68BC2001E5857 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 9B63F2302DB68BC0001E5857 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 9B63F2372DB68BC0001E5857;
-			remoteInfo = "Here's Hingham!";
-		};
-		9B63F2522DB68BC2001E5857 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 9B63F2302DB68BC0001E5857 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 9B63F2372DB68BC0001E5857;
-			remoteInfo = "Here's Hingham!";
-		};
-/* End PBXContainerItemProxy section */
+/* Begin PBXBuildFile section */
+		9B63F2702DB6C365001E5857 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B63F26F2DB6C365001E5857 /* MapKit.framework */; };
+/* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		9B63F2382DB68BC0001E5857 /* Here's Hingham!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Here's Hingham!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9B63F2472DB68BC2001E5857 /* Here's Hingham!Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Here's Hingham!Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9B63F2512DB68BC2001E5857 /* Here's Hingham!UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Here's Hingham!UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B63F26F2DB6C365001E5857 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9B63F23A2DB68BC0001E5857 /* Here's Hingham! */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Here's Hingham!";
-			sourceTree = "<group>";
-		};
-		9B63F24A2DB68BC2001E5857 /* Here's Hingham!Tests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Here's Hingham!Tests";
-			sourceTree = "<group>";
-		};
-		9B63F2542DB68BC2001E5857 /* Here's Hingham!UITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Here's Hingham!UITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -52,20 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9B63F2442DB68BC2001E5857 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9B63F24E2DB68BC2001E5857 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				9B63F2702DB6C365001E5857 /* MapKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,8 +39,7 @@
 			isa = PBXGroup;
 			children = (
 				9B63F23A2DB68BC0001E5857 /* Here's Hingham! */,
-				9B63F24A2DB68BC2001E5857 /* Here's Hingham!Tests */,
-				9B63F2542DB68BC2001E5857 /* Here's Hingham!UITests */,
+				9B63F26E2DB6C365001E5857 /* Frameworks */,
 				9B63F2392DB68BC0001E5857 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -86,10 +48,16 @@
 			isa = PBXGroup;
 			children = (
 				9B63F2382DB68BC0001E5857 /* Here's Hingham!.app */,
-				9B63F2472DB68BC2001E5857 /* Here's Hingham!Tests.xctest */,
-				9B63F2512DB68BC2001E5857 /* Here's Hingham!UITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		9B63F26E2DB6C365001E5857 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9B63F26F2DB6C365001E5857 /* MapKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -117,52 +85,6 @@
 			productReference = 9B63F2382DB68BC0001E5857 /* Here's Hingham!.app */;
 			productType = "com.apple.product-type.application";
 		};
-		9B63F2462DB68BC2001E5857 /* Here's Hingham!Tests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 9B63F25E2DB68BC2001E5857 /* Build configuration list for PBXNativeTarget "Here's Hingham!Tests" */;
-			buildPhases = (
-				9B63F2432DB68BC2001E5857 /* Sources */,
-				9B63F2442DB68BC2001E5857 /* Frameworks */,
-				9B63F2452DB68BC2001E5857 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				9B63F2492DB68BC2001E5857 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				9B63F24A2DB68BC2001E5857 /* Here's Hingham!Tests */,
-			);
-			name = "Here's Hingham!Tests";
-			packageProductDependencies = (
-			);
-			productName = "Here's Hingham!Tests";
-			productReference = 9B63F2472DB68BC2001E5857 /* Here's Hingham!Tests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		9B63F2502DB68BC2001E5857 /* Here's Hingham!UITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 9B63F2612DB68BC2001E5857 /* Build configuration list for PBXNativeTarget "Here's Hingham!UITests" */;
-			buildPhases = (
-				9B63F24D2DB68BC2001E5857 /* Sources */,
-				9B63F24E2DB68BC2001E5857 /* Frameworks */,
-				9B63F24F2DB68BC2001E5857 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				9B63F2532DB68BC2001E5857 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				9B63F2542DB68BC2001E5857 /* Here's Hingham!UITests */,
-			);
-			name = "Here's Hingham!UITests";
-			packageProductDependencies = (
-			);
-			productName = "Here's Hingham!UITests";
-			productReference = 9B63F2512DB68BC2001E5857 /* Here's Hingham!UITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -175,14 +97,6 @@
 				TargetAttributes = {
 					9B63F2372DB68BC0001E5857 = {
 						CreatedOnToolsVersion = 16.3;
-					};
-					9B63F2462DB68BC2001E5857 = {
-						CreatedOnToolsVersion = 16.3;
-						TestTargetID = 9B63F2372DB68BC0001E5857;
-					};
-					9B63F2502DB68BC2001E5857 = {
-						CreatedOnToolsVersion = 16.3;
-						TestTargetID = 9B63F2372DB68BC0001E5857;
 					};
 				};
 			};
@@ -201,28 +115,12 @@
 			projectRoot = "";
 			targets = (
 				9B63F2372DB68BC0001E5857 /* Here's Hingham! */,
-				9B63F2462DB68BC2001E5857 /* Here's Hingham!Tests */,
-				9B63F2502DB68BC2001E5857 /* Here's Hingham!UITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		9B63F2362DB68BC0001E5857 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9B63F2452DB68BC2001E5857 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9B63F24F2DB68BC2001E5857 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -239,34 +137,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		9B63F2432DB68BC2001E5857 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9B63F24D2DB68BC2001E5857 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		9B63F2492DB68BC2001E5857 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 9B63F2372DB68BC0001E5857 /* Here's Hingham! */;
-			targetProxy = 9B63F2482DB68BC2001E5857 /* PBXContainerItemProxy */;
-		};
-		9B63F2532DB68BC2001E5857 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 9B63F2372DB68BC0001E5857 /* Here's Hingham! */;
-			targetProxy = 9B63F2522DB68BC2001E5857 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		9B63F2592DB68BC2001E5857 /* Debug */ = {
@@ -400,6 +271,8 @@
 				DEVELOPMENT_TEAM = 6Y57QV4NW5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Here's Hingham!";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -428,6 +301,8 @@
 				DEVELOPMENT_TEAM = 6Y57QV4NW5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Here's Hingham!";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -443,78 +318,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		9B63F25F2DB68BC2001E5857 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6Y57QV4NW5;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "cambuilt.Here-s-Hingham-Tests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Here's Hingham!.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Here's Hingham!";
-			};
-			name = Debug;
-		};
-		9B63F2602DB68BC2001E5857 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6Y57QV4NW5;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "cambuilt.Here-s-Hingham-Tests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Here's Hingham!.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Here's Hingham!";
-			};
-			name = Release;
-		};
-		9B63F2622DB68BC2001E5857 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6Y57QV4NW5;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "cambuilt.Here-s-Hingham-UITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "Here's Hingham!";
-			};
-			name = Debug;
-		};
-		9B63F2632DB68BC2001E5857 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6Y57QV4NW5;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "cambuilt.Here-s-Hingham-UITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "Here's Hingham!";
 			};
 			name = Release;
 		};
@@ -535,24 +338,6 @@
 			buildConfigurations = (
 				9B63F25C2DB68BC2001E5857 /* Debug */,
 				9B63F25D2DB68BC2001E5857 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		9B63F25E2DB68BC2001E5857 /* Build configuration list for PBXNativeTarget "Here's Hingham!Tests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				9B63F25F2DB68BC2001E5857 /* Debug */,
-				9B63F2602DB68BC2001E5857 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		9B63F2612DB68BC2001E5857 /* Build configuration list for PBXNativeTarget "Here's Hingham!UITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				9B63F2622DB68BC2001E5857 /* Debug */,
-				9B63F2632DB68BC2001E5857 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
