@@ -1,0 +1,22 @@
+[
+  {"areaId": 1, "centerCoordinateLat":42.24229,"centerCoordinateLng":-70.88927,"iconCoordinateLat":42.24059,"iconCoordinateLng":-70.88741,"name":"Hingham Square","shortName":"Square","tilt":66,"zoom":20.0
+  },
+  {"areaId": 2, "centerCoordinateLat":42.18401,"centerCoordinateLng":-70.8849,"iconCoordinateLat":42.18601,"iconCoordinateLng":-70.89354,"name":"South Hingham","shortName":"Historic","tilt":66,"zoom":15.0
+  },
+  {"areaId": 3, "centerCoordinateLat":42.24945,"centerCoordinateLng":-70.90422,"iconCoordinateLat":42.24965,"iconCoordinateLng":-70.90422,"name":"Crow Point","shortName":"Crow","tilt":66,"zoom":18.0
+  },
+  {"areaId": 4, "centerCoordinateLat":42.23611,"centerCoordinateLng":-70.87101,"iconCoordinateLat":42.23611,"iconCoordinateLng":-70.86601,"name":"East Hingham","shortName":"Historic","tilt":66,"zoom":15.0
+  },
+  {"areaId": 5, "centerCoordinateLat":42.24482,"centerCoordinateLng":-70.88484,"iconCoordinateLat":42.24642,"iconCoordinateLng":-70.88214,"name":"Hingham Harbor","shortName":"Harbor","tilt":66,"zoom":17.0
+  },
+  {"areaId": 6, "centerCoordinateLat":42.25081,"centerCoordinateLng":-70.92255,"iconCoordinateLat":42.25111,"iconCoordinateLng":-70.92055,"name":"Hingham Shipyard","shortName":"Shipyard","tilt":66,"zoom":19.0
+  },
+  {"areaId": 7, "centerCoordinateLat":42.21801,"centerCoordinateLng":-70.8849,"iconCoordinateLat":42.21801,"iconCoordinateLng":-70.8849,"name":"Hingham High St","shortName":"Historic","tilt":66,"zoom":15.0
+  },
+  {"areaId": 8, "centerCoordinateLat":42.23882,"centerCoordinateLng":-70.90073,"iconCoordinateLat":42.23522,"iconCoordinateLng":-70.90811,"name":"West Hingham","shortName":"Historic","tilt":66,"zoom":15.0
+  },
+  {"areaId": 9, "centerCoordinateLat":42.24477,"centerCoordinateLng":-70.89339,"iconCoordinateLat":42.24259,"iconCoordinateLng":-70.89757,"name":"Fearing Farm","shortName":"Fearing","tilt":66,"zoom":18.0
+  },
+  {"areaId": 10, "centerCoordinateLat":42.23312,"centerCoordinateLng":-70.87957,"iconCoordinateLat":42.23357,"iconCoordinateLng":-70.879757,"name":"Hingham Center","shortName":"Center","tilt":66,"zoom":19.0
+  }
+]
