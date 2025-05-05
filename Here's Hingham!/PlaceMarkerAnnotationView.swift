@@ -11,7 +11,7 @@ class PlaceMarkerAnnotationView: MKMarkerAnnotationView {
   var placeName = "Joe's Place"
   var placeAddress = "Main St"
   var googlePlaceId = ""
- 
+  
   required init?(coder aDecoder: NSCoder) {
     super.init(coder: aDecoder)
   }

@@ -34,51 +34,37 @@
             endingLineNumber = "240"
             landmarkName = "migrateV1toV2"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "B214B38D-CA32-47B7-AC31-FB58C167DB85 - a247f7309a1d8f26"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (SwiftData.ModelContext) throws -&gt; () in variable initialization expression of static Here_s_Hingham_.BusinessMigrationPlan.migrateV1toV2 : SwiftData.MigrationStage"
-                  moduleName = "Here&apos;s Hingham!.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cconway/Here&apos;s%20Hingham!/Here&apos;s%20Hingham!/Models/Business.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "240"
-                  endingLineNumber = "240">
-               </Location>
-               <Location
-                  uuid = "B214B38D-CA32-47B7-AC31-FB58C167DB85 - a247f7309a1d8f26"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (SwiftData.ModelContext) throws -&gt; () in variable initialization expression of static Here_s_Hingham_.BusinessMigrationPlan.migrateV1toV2 : SwiftData.MigrationStage"
-                  moduleName = "Here&apos;s Hingham!.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cconway/Here&apos;s%20Hingham!/Here&apos;s%20Hingham!/Models/Business.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "240"
-                  endingLineNumber = "240">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "F6289731-5331-4568-861D-4D83BBCB2CD1"
+            uuid = "E2AC9B4B-633D-4FF5-8C4D-75F06AF534FD"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Here&apos;s Hingham!/Models/Models.swift"
+            filePath = "Here&apos;s Hingham!/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "161"
-            endingLineNumber = "161"
-            landmarkName = "encode(to:)"
+            startingLineNumber = "23"
+            endingLineNumber = "23"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9B6FC767-04FA-4AFD-9CD2-09BF31737991"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Here&apos;s Hingham!/DataServices/AreasDataService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "19"
+            endingLineNumber = "19"
+            landmarkName = "init()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

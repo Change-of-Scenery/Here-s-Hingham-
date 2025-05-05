@@ -116,8 +116,9 @@ enum SchemaV1: VersionedSchema {
   }
   
   @Model
-  final class Area: Codable {
+  final class Area: Identifiable, Codable, Equatable {
     enum CodingKeys: CodingKey {
+      case id
       case areaId
       case centerCoordinateLat
       case centerCoordinateLng
@@ -128,7 +129,9 @@ enum SchemaV1: VersionedSchema {
       case tilt
       case timestamp
       case zoom
+      case wikiName
     }
+    var id: String { name + "Hingham" }
     var areaId = 0
     var centerCoordinateLat = 0.0
     var centerCoordinateLng = 0.0
@@ -136,11 +139,23 @@ enum SchemaV1: VersionedSchema {
     var iconCoordinateLng = 0.0
     @Attribute(.unique) var name = ""
     var shortName = ""
+    var desc = ""
     var tilt = 0
     var timestamp: Date
     var zoom = 0.0
+    var wikiName = ""
     
-    @Relationship() var businesses: [SchemaV1.Business]
+    var centerCoordinates: CLLocationCoordinate2D {
+      CLLocationCoordinate2D(latitude: centerCoordinateLat, longitude: centerCoordinateLng)
+    }
+    var iconCoordinate: CLLocationCoordinate2D {
+      CLLocationCoordinate2D(latitude: iconCoordinateLat, longitude: iconCoordinateLng)
+    }
+    var coordinates: CLLocationCoordinate2D {
+      CLLocationCoordinate2D(latitude: iconCoordinateLat, longitude: iconCoordinateLng)
+    }
+
+    @Relationship() var businesses: [SchemaV1.Business] = []
     
     required init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -154,12 +169,32 @@ enum SchemaV1: VersionedSchema {
       self.tilt = try container.decode(Int.self, forKey: .tilt)
       self.timestamp = Date.now
       self.zoom = try container.decode(Double.self, forKey: .zoom)
-      businesses = []
+    }
+    
+    init() {
+      self.name = "Hingham Square"
+      self.timestamp = Date.now
+    }
+    
+    init(name: String, shortName: String, desc: String, iconCoordinateLat: Double, iconCoordinateLng: Double, centerCoordinateLat: Double, centerCoordinateLng: Double, wikiName: String) {
+      self.name = name
+      self.shortName = shortName
+      self.desc = desc
+      self.iconCoordinateLat = iconCoordinateLat
+      self.iconCoordinateLng = iconCoordinateLng
+      self.centerCoordinateLat = centerCoordinateLat
+      self.centerCoordinateLng = centerCoordinateLng
+      self.wikiName = wikiName
+      self.timestamp = Date.now
     }
     
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(name, forKey: .name)
+    }
+    
+    static func == (lhs: Area, rhs: Area) -> Bool {
+      lhs.id == rhs.id
     }
   }
   
@@ -251,6 +286,8 @@ enum SchemaV1: VersionedSchema {
     }
   }
 }
+
+
 
 //enum ModelMigrationPlan: SchemaMigrationPlan {
 //  static var schemas: [any VersionedSchema.Type] {
