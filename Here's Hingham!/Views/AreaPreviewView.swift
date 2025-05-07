@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AreaPreviewView: View {
-  @EnvironmentObject private var vm: AreasViewModel
+  @EnvironmentObject private var areasViewModel: AreasViewModel
   let area: SchemaV1.Area
   
   var body: some View {
@@ -17,12 +17,12 @@ struct AreaPreviewView: View {
         imageSection
         titleSection
       }
-      .frame(width: .infinity, height: 225)
+      .frame(width: nil, height: 225)
       VStack {
         learnMoreButton
         nextButton
       }
-      .frame(width: .infinity, height: 225)
+      .frame(width: nil, height: 225)
     }
     .padding(20)
     .background(
@@ -78,7 +78,7 @@ extension AreaPreviewView {
   
   private var learnMoreButton: some View {
     Button {
-      vm.sheetArea = area
+      areasViewModel.sheetArea = area
     } label: {
       Text("Learn more")
         .font(.headline)
@@ -89,7 +89,7 @@ extension AreaPreviewView {
   
   private var nextButton: some View {
     Button {
-      vm.nextButtonPressed()
+      areasViewModel.nextButtonPressed()
     } label: {
       Text("Next")
         .font(.headline)

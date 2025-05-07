@@ -10,13 +10,13 @@ import SwiftData
 
 struct AreasListView: View {
   
-  @EnvironmentObject private var vm: AreasViewModel
+  @EnvironmentObject private var areasViewModel: AreasViewModel
   
   var body: some View {
     List {
-      ForEach(vm.areas) { area in
+      ForEach(areasViewModel.areas) { area in
         Button {
-          vm.showNextArea(area)
+          areasViewModel.showNextArea(area)
         } label: {
           listRowView(area)
         }
@@ -38,7 +38,7 @@ extension AreasListView {
   private func listRowView(_ area: SchemaV1.Area) -> some View {
     HStack {
       ZStack {
-        Image("\(area.shortName)/Area")
+        Image("\(area.shortName)/Area0")
           .resizable()
           .scaledToFill()
           .frame(width: 45, height: 45)

@@ -10,33 +10,32 @@ import SwiftData
 
 @main
 struct Here_s_Hingham_App: App {
-  @Environment(\.modelContext) private var modelContext
-  @Query private var areas: [SchemaV1.Area]
-  @StateObject private var vm = AreasViewModel()
+  @StateObject private var areasViewModel = AreasViewModel()
+  @StateObject private var businessesViewModel = BusinessesViewModel()
     
-  var sharedModelContainer: ModelContainer = {
-    let schema = Schema([
-      SchemaV1.Area.self,
-      SchemaV1.Business.self,
-      SchemaV1.CivicBuilding.self,
-      SchemaV1.HistoricHouse.self
-    ])
-    
-    let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-    do {
-      return try ModelContainer(for: schema, configurations: [modelConfiguration])
-    } catch {
-      fatalError("Could not create ModelContainer: \(error)")
-    }
-  }()
+//  var sharedModelContainer: ModelContainer = {
+//    let schema = Schema([
+//      SchemaV1.Area.self,
+//      SchemaV1.Business.self,
+//      SchemaV1.CivicBuilding.self,
+//      SchemaV1.HistoricHouse.self
+//    ])
+//    
+//    let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+//
+//    do {
+//      return try ModelContainer(for: schema, configurations: [modelConfiguration])
+//    } catch {
+//      fatalError("Could not create ModelContainer: \(error)")
+//    }
+//  }()
 
   var body: some Scene {
     WindowGroup {
 //    ContentView()
       AreasView()
-        .modelContext(modelContext)
-        .environmentObject(vm)
+        .environmentObject(areasViewModel)
+        .environmentObject(businessesViewModel)
     }
     .modelContainer(for: [SchemaV1.Business.self, SchemaV1.Area.self]) { result in
       do {
@@ -52,18 +51,18 @@ struct Here_s_Hingham_App: App {
           {
             // vm.areas = try container.mainContext.fetch(areaDescriptor)
             let businessDescriptor = FetchDescriptor<SchemaV1.Business>()
-            vm.businesses = try container.mainContext.fetch(businessDescriptor)
+            businessesViewModel.businesses = try container.mainContext.fetch(businessDescriptor)
             return
           }
 
-          guard let url = Bundle.main.url(forResource: "Areas", withExtension: "json") else {
-            fatalError("Failed to find Areas.json")
-          }
+//          guard let url = Bundle.main.url(forResource: "Areas", withExtension: "json") else {
+//            fatalError("Failed to find Areas.json")
+//          }
           
 //          let data = try Data(contentsOf: url)
 //          let areas = try JSONDecoder().decode([SchemaV1.Area].self, from: data)
           
-          for area in vm.areas {
+          for area in areasViewModel.areas {
             container.mainContext.insert(area)
           }
 

@@ -23,7 +23,7 @@ enum SchemaV1: VersionedSchema {
       case areaId
       case backgroundColor
       case desc
-      case googlePlaceId
+      case googleId
       case googleRating
       case googleReviews
       case hours
@@ -42,14 +42,15 @@ enum SchemaV1: VersionedSchema {
       case yelpId
       case yelpRating
       case yelpReviews
+      case yelpPrice
       case yelpUrl
     }
     
     var address = ""
-    var areaId = 0
+    var areaId = ""
     var backgroundColor = ""
     var desc = ""
-    var googlePlaceId = ""
+    var googleId = ""
     var googleRating = 0.0
     var googleReviews = 0
     var hours = ""
@@ -69,12 +70,21 @@ enum SchemaV1: VersionedSchema {
     var yelpId = ""
     var yelpRating = 0.0
     var yelpReviews = 0
+    var yelpPrice = ""
     var yelpUrl = ""
     
     @Transient var placeMarkerAnnotationView: PlaceMarkerAnnotationView?
     @Transient var sizeHeight: Double?
     @Transient var sizeWidth: Double?
     @Transient var hasSpecial = false
+    
+    var coordinates: CLLocationCoordinate2D {
+      CLLocationCoordinate2D(latitude: locationLat, longitude: locationLng)
+    }
+    
+    init() {
+      self.timestamp = Date.now
+    }
     
     init(timestamp: Date) {
       self.timestamp = timestamp
@@ -83,10 +93,10 @@ enum SchemaV1: VersionedSchema {
     required init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       self.address = try container.decode(String.self, forKey: .address)
-      self.areaId = try container.decode(Int.self, forKey: .areaId)
+      self.areaId = try container.decode(String.self, forKey: .areaId)
       self.backgroundColor = try container.decode(String.self, forKey: .backgroundColor)
       self.desc = try container.decode(String.self, forKey: .desc)
-      self.googlePlaceId = try container.decode(String.self, forKey: .googlePlaceId)
+      self.googleId = try container.decode(String.self, forKey: .googleId)
       self.googleRating = try container.decode(Double.self, forKey: .googleRating)
       self.googleReviews = try container.decode(Int.self, forKey: .googleReviews)
       self.hours = try container.decode(String.self, forKey: .hours)
@@ -105,7 +115,38 @@ enum SchemaV1: VersionedSchema {
       self.yelpId = try container.decode(String.self, forKey: .yelpId)
       self.yelpRating = try container.decode(Double.self, forKey: .yelpRating)
       self.yelpReviews = try container.decode(Int.self, forKey: .yelpReviews)
+      self.yelpPrice = try container.decode(String.self, forKey: .yelpPrice)
       self.yelpUrl = try container.decode(String.self, forKey: .yelpUrl)
+      self.timestamp = Date.now
+    }
+    
+    init(address: String, areaId: String, desc: String, googleId: String, googleRating: Double, googleReviews: Int, hours: String, imageCount: Int, likes: Int, locationLat: Double, locationLng: Double, name: String, nickname: String, notes: String, phone: String, shortName: String, type: Int, website: String, yelpCategory: String, yelpId: String, yelpPrice: String, yelpRating: Double, yelpReviews: Int, yelpUrl: String) {
+
+      self.address = address
+      self.areaId = areaId
+      self.backgroundColor = ""
+      self.desc = desc
+      self.googleId = googleId
+      self.googleRating = googleRating
+      self.googleReviews = googleReviews
+      self.hours = hours
+      self.imageCount = imageCount
+      self.likes = 0
+      self.locationLat = locationLat
+      self.locationLng = locationLng
+      self.name = name
+      self.nickname = nickname
+      self.notes = notes
+      self.phone = phone
+      self.shortName = shortName
+      self.type = type
+      self.website = website
+      self.yelpCategory = yelpCategory
+      self.yelpId = yelpId
+      self.yelpRating = yelpRating
+      self.yelpReviews = yelpReviews
+      self.yelpPrice = yelpPrice
+      self.yelpUrl = yelpUrl
       self.timestamp = Date.now
     }
     
@@ -131,7 +172,7 @@ enum SchemaV1: VersionedSchema {
       case zoom
       case wikiName
     }
-    var id: String { name + "Hingham" }
+    var id: String { name }
     var areaId = 0
     var centerCoordinateLat = 0.0
     var centerCoordinateLng = 0.0

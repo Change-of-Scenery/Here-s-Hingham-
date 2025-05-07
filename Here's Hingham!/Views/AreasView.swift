@@ -10,7 +10,7 @@ import SwiftData
 import MapKit
 
 struct AreasView: View {
-  @EnvironmentObject private var vm: AreasViewModel
+  @EnvironmentObject private var areasViewModel: AreasViewModel
   @State private var position = MapCameraPosition.region(
     MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.23227,longitude: -70.89828), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)))
   
@@ -26,7 +26,7 @@ struct AreasView: View {
         areasPreviewStack        
       }
     }
-    .sheet(item: $vm.sheetArea) { area in
+    .sheet(item: $areasViewModel.sheetArea) { area in
       AreaDetailView(area: area)
     }
   }
@@ -43,24 +43,24 @@ extension AreasView {
   
   private var header: some View {
     VStack {
-      Button(action: vm.toggleAreasList) {
-        Text(vm.mapArea.name)
+      Button(action: areasViewModel.toggleAreasList) {
+        Text(areasViewModel.mapArea.name)
           .font(.title2)
           .fontWeight(.black)
           .foregroundColor(.primary)
           .frame(height: 55)
           .frame(maxWidth: .infinity)
-          .animation(.none, value: vm.mapArea)
+          .animation(.none, value: areasViewModel.mapArea)
           .overlay(alignment: .leading) {
             Image(systemName: "arrow.down")
               .font(.headline)
               .foregroundColor(.primary)
               .padding()
-              .rotationEffect(Angle(degrees: vm.showAreasList ? 180 : 0))
+              .rotationEffect(Angle(degrees: areasViewModel.showAreasList ? 180 : 0))
           }
       }
       
-      if vm.showAreasList {
+      if areasViewModel.showAreasList {
         AreasListView()
       }
     }
@@ -70,16 +70,17 @@ extension AreasView {
   }
   
   private var mapLayer: some View {
-    Map(position: $position) {
-      ForEach(vm.areas) { area in
+    Map(position: $areasViewModel.mapCameraPosition) {
+      ForEach(areasViewModel.areas) { area in
         Annotation(area.name, coordinate: area.coordinates) {
           AreaAnnotationView()
-            .scaleEffect(vm.mapArea == area ? 1 : 0.7)
+            .scaleEffect(areasViewModel.mapArea == area ? 1.2 : 0.7)
             .shadow(radius: 10)
             .onTapGesture {
-              vm.showNextArea(area)
+              areasViewModel.showNextArea(area)
             }
         }
+        .annotationTitles(.visible)
       }
     }
     .ignoresSafeArea()
@@ -87,8 +88,8 @@ extension AreasView {
   
   private var areasPreviewStack: some View {
     ZStack {
-      ForEach(vm.areas) { area in
-        if vm.mapArea == area {
+      ForEach(areasViewModel.areas) { area in
+        if areasViewModel.mapArea == area {
           AreaPreviewView(area: area)
             .shadow(color: .black.opacity(0.3), radius: 20)
             .padding()
