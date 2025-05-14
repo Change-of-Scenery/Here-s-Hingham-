@@ -260,7 +260,7 @@ extension AreaDetailView {
   }
   
   private var mapLayer: some View {
-    let businesses = businessesViewModel.businesses.filter { $0.areaId == area.name}
+    let businesses = businessesViewModel.businesses.filter { $0.areaId == area.areaId}
 
     if let latitude = businessesViewModel.mapCameraPosition.region?.center.latitude {
       if latitude == 0.0 {

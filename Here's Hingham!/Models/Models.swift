@@ -47,7 +47,7 @@ enum SchemaV1: VersionedSchema {
     }
     
     var address = ""
-    var areaId = ""
+    var areaId = 0
     var desc = ""
     var googleId = ""
     var googleRating = 0.0
@@ -93,7 +93,7 @@ enum SchemaV1: VersionedSchema {
     required init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       self.address = try container.decode(String.self, forKey: .address)
-      self.areaId = try container.decode(String.self, forKey: .areaId)
+      self.areaId = try container.decode(Int.self, forKey: .areaId)
       self.desc = try container.decode(String.self, forKey: .desc)
       self.googleId = try container.decode(String.self, forKey: .googleId)
       self.googleRating = try container.decode(Double.self, forKey: .googleRating)
@@ -119,7 +119,7 @@ enum SchemaV1: VersionedSchema {
       self.timestamp = Date.now
     }
     
-    init(address: String, areaId: String, desc: String, googleId: String, googleRating: Double, googleReviews: Int, googleUrl: String, hours: String, imageCount: Int, likes: Int, locationLat: Double, locationLng: Double, name: String, nickname: String, notes: String, phone: String, shortName: String, type: Int, website: String, yelpCategory: String, yelpId: String, yelpPrice: String, yelpRating: Double, yelpReviews: Int, yelpUrl: String) {
+    init(address: String, areaId: Int, desc: String, googleId: String, googleRating: Double, googleReviews: Int, googleUrl: String, hours: String, imageCount: Int, likes: Int, locationLat: Double, locationLng: Double, name: String, nickname: String, notes: String, phone: String, shortName: String, type: Int, website: String, yelpCategory: String, yelpId: String, yelpPrice: String, yelpRating: Double, yelpReviews: Int, yelpUrl: String) {
 
       self.address = address
       self.areaId = areaId
@@ -205,6 +205,7 @@ enum SchemaV1: VersionedSchema {
     required init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       self.areaId = try container.decode(Int.self, forKey: .areaId)
+      self.desc = try container.decode(String.self, forKey: .desc)
       self.centerCoordinateLat = try container.decode(Double.self, forKey: .centerCoordinateLat)
       self.centerCoordinateLng = try container.decode(Double.self, forKey: .centerCoordinateLng)
       self.iconCoordinateLat = try container.decode(Double.self, forKey: .iconCoordinateLat)
