@@ -11,7 +11,7 @@ import MapKit
 
 enum SchemaV1: VersionedSchema {
   static var models: [any PersistentModel.Type] {
-    [Business.self, Area.self, HistoricHouse.self, CivicBuilding.self]
+    [Business.self, Area.self, HistoricHouse.self, CivicAsset.self]
   }
   
   static var versionIdentifier = Schema.Version(1, 0, 0)
@@ -21,11 +21,11 @@ enum SchemaV1: VersionedSchema {
     enum CodingKeys: CodingKey {
       case address
       case areaId
-      case backgroundColor
       case desc
       case googleId
       case googleRating
       case googleReviews
+      case googleUrl
       case hours
       case imageCount
       case likes
@@ -48,11 +48,11 @@ enum SchemaV1: VersionedSchema {
     
     var address = ""
     var areaId = ""
-    var backgroundColor = ""
     var desc = ""
     var googleId = ""
     var googleRating = 0.0
     var googleReviews = 0
+    var googleUrl = ""
     var hours = ""
     var imageCount = 0
     var likes = 0
@@ -94,7 +94,6 @@ enum SchemaV1: VersionedSchema {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       self.address = try container.decode(String.self, forKey: .address)
       self.areaId = try container.decode(String.self, forKey: .areaId)
-      self.backgroundColor = try container.decode(String.self, forKey: .backgroundColor)
       self.desc = try container.decode(String.self, forKey: .desc)
       self.googleId = try container.decode(String.self, forKey: .googleId)
       self.googleRating = try container.decode(Double.self, forKey: .googleRating)
@@ -120,15 +119,15 @@ enum SchemaV1: VersionedSchema {
       self.timestamp = Date.now
     }
     
-    init(address: String, areaId: String, desc: String, googleId: String, googleRating: Double, googleReviews: Int, hours: String, imageCount: Int, likes: Int, locationLat: Double, locationLng: Double, name: String, nickname: String, notes: String, phone: String, shortName: String, type: Int, website: String, yelpCategory: String, yelpId: String, yelpPrice: String, yelpRating: Double, yelpReviews: Int, yelpUrl: String) {
+    init(address: String, areaId: String, desc: String, googleId: String, googleRating: Double, googleReviews: Int, googleUrl: String, hours: String, imageCount: Int, likes: Int, locationLat: Double, locationLng: Double, name: String, nickname: String, notes: String, phone: String, shortName: String, type: Int, website: String, yelpCategory: String, yelpId: String, yelpPrice: String, yelpRating: Double, yelpReviews: Int, yelpUrl: String) {
 
       self.address = address
       self.areaId = areaId
-      self.backgroundColor = ""
       self.desc = desc
       self.googleId = googleId
       self.googleRating = googleRating
       self.googleReviews = googleReviews
+      self.googleUrl = googleUrl
       self.hours = hours
       self.imageCount = imageCount
       self.likes = 0
@@ -171,6 +170,9 @@ enum SchemaV1: VersionedSchema {
       case timestamp
       case zoom
       case wikiName
+      case imageCount
+      case desc
+      case attributedDesc
     }
     var id: String { name }
     var areaId = 0
@@ -185,6 +187,8 @@ enum SchemaV1: VersionedSchema {
     var timestamp: Date
     var zoom = 0.0
     var wikiName = ""
+    var imageCount = 0
+    var fontStyle = "<style>html { font-family: Helvetica, Arial, sans-serif; font-size: 16px; color: gray; } a:link { color: red; text-decoration: none; }</style>"
     
     var centerCoordinates: CLLocationCoordinate2D {
       CLLocationCoordinate2D(latitude: centerCoordinateLat, longitude: centerCoordinateLng)
@@ -288,12 +292,12 @@ enum SchemaV1: VersionedSchema {
   }
   
   @Model
-  final class CivicBuilding: Codable {
+  final class CivicAsset: Codable {
     enum CodingKeys: CodingKey {
       case name
     }
     var timestamp: Date
-    var areaID = 0
+    var areaId = 0
     var name = ""
     var shortName = ""
     var address = ""

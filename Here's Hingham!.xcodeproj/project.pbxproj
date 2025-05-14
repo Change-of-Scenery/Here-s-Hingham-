@@ -272,7 +272,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Here-s-Hingham--Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Here's Hingham!";
+				INFOPLIST_KEY_CFBundleDisplayName = "Hingham Map";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -303,7 +303,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Here-s-Hingham--Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Here's Hingham!";
+				INFOPLIST_KEY_CFBundleDisplayName = "Hingham Map";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

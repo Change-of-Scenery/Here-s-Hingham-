@@ -49,5 +49,5 @@ struct ContentView: View {
 //
 //#Preview {
 //  ContentView(annotations: [SchemaV1.Area])
-//    .modelContainer(for: [SchemaV1.Area.self, SchemaV1.Business.self, SchemaV1.CivicBuilding.self, SchemaV1.HistoricHouse.self], inMemory: true)
+//    .modelContainer(for: [SchemaV1.Area.self, SchemaV1.Business.self, SchemaV1.CivicAsset.self, SchemaV1.HistoricHouse.self], inMemory: true)
 //}

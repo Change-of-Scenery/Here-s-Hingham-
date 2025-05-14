@@ -16,16 +16,20 @@ struct BusinessAnnotationView: View {
   var body: some View {
     var size: Double
     
-    if shortName == "Church" {
+    if shortName == "Bank" {
+      size = 156.0
+    } else if shortName == "Church" {
       size = 121.0
-    } else if businessName == "La Petite Maison" {
+    } else if shortName == "Old Derby" {
+      size = 110.0
+    } else if businessName == "La Petite Maison" || businessName == "Square Cafe" || shortName == "Lawyer" {
       size = 86.0
     } else {
       size = 64.0
     }
     
     return VStack(spacing: 0) {
-      Image("\(areaName)/\(businessName)")
+      Image("\(areaName)/\(businessName)/icon")
         .resizable()
         .scaledToFit()
         .frame(width: size, height: size)
