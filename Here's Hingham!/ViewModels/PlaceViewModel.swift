@@ -10,14 +10,12 @@ import MapKit
 import SwiftUI
 import SwiftData
 
-class BusinessesViewModel: ObservableObject {
+class PlaceViewModel: ObservableObject {
   @Published var mapCameraPosition: MapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)))
-  
-  @Published var businesses: [SchemaV1.Business] = []
-  
-  @Published var mapBusiness: SchemaV1.Business {
+  @Published var places: [SchemaV1.Place] = []
+  @Published var mapPlace: SchemaV1.Place {
     didSet {
-      let coord = CLLocationCoordinate2D(latitude: mapBusiness.coordinates.latitude - 0.0002, longitude: mapBusiness.coordinates.longitude - 0.00005)
+      let coord = CLLocationCoordinate2D(latitude: mapPlace.coordinates.latitude - 0.0002, longitude: mapPlace.coordinates.longitude - 0.00005)
       updateRegion(coord)
     }
   }
@@ -25,7 +23,7 @@ class BusinessesViewModel: ObservableObject {
   let span = MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
   
   init() {
-    mapBusiness = SchemaV1.Business()
+    mapPlace = SchemaV1.Place()
 //    let coordinates = CLLocationCoordinate2D(latitude: 0,longitude: 0)
 //    updateRegion(coordinates)
   }
@@ -36,17 +34,17 @@ class BusinessesViewModel: ObservableObject {
     }
   }
   
-  func showNextBusiness(_ area: SchemaV1.Area, _ business: SchemaV1.Business) {    
-    if business.imageCount == 0 {
+  func showNextPlace(_ area: SchemaV1.Area, _ place: SchemaV1.Place) {
+    if place.imageCount == 0 {
       var imageCounter = 0
-      while UIImage(named: ("\(area.shortName)/\(business.name)/\(imageCounter)")) != nil {
+      while UIImage(named: ("\(area.shortName)/\(place.name)/\(imageCounter)")) != nil {
         imageCounter += 1
       }
-      business.imageCount = imageCounter
+      place.imageCount = imageCounter
     }
     
     withAnimation(.easeInOut) {
-      mapBusiness = business
+      mapPlace = place
     }
   }
 

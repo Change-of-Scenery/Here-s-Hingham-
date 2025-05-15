@@ -11,17 +11,19 @@ import MapKit
 
 enum SchemaV1: VersionedSchema {
   static var models: [any PersistentModel.Type] {
-    [Business.self, Area.self, HistoricHouse.self, CivicAsset.self]
+    [Place.self, Area.self]
   }
   
   static var versionIdentifier = Schema.Version(1, 0, 0)
   
   @Model
-  final class Business: Codable {
+  final class Place: Codable {
     enum CodingKeys: CodingKey {
       case address
+      case archStyle
       case areaId
       case desc
+      case estimatedValue
       case googleId
       case googleRating
       case googleReviews
@@ -31,13 +33,16 @@ enum SchemaV1: VersionedSchema {
       case likes
       case locationLat
       case locationLng
+      case lotSize
       case name
       case nickname
       case notes
       case phone
       case shortName
+      case squareFeet
       case type
       case website
+      case yearBuilt
       case yelpCategory
       case yelpId
       case yelpRating
@@ -47,6 +52,7 @@ enum SchemaV1: VersionedSchema {
     }
     
     var address = ""
+    var archStyle = ""
     var areaId = 0
     var desc = ""
     var googleId = ""
@@ -72,7 +78,11 @@ enum SchemaV1: VersionedSchema {
     var yelpReviews = 0
     var yelpPrice = ""
     var yelpUrl = ""
-    
+    var estimatedValue = ""
+    var lotSize = 0.0
+    var squareFeet = 0
+    var yearBuilt = 0
+
     @Transient var placeMarkerAnnotationView: PlaceMarkerAnnotationView?
     @Transient var sizeHeight: Double?
     @Transient var sizeWidth: Double?
@@ -116,36 +126,11 @@ enum SchemaV1: VersionedSchema {
       self.yelpReviews = try container.decode(Int.self, forKey: .yelpReviews)
       self.yelpPrice = try container.decode(String.self, forKey: .yelpPrice)
       self.yelpUrl = try container.decode(String.self, forKey: .yelpUrl)
-      self.timestamp = Date.now
-    }
-    
-    init(address: String, areaId: Int, desc: String, googleId: String, googleRating: Double, googleReviews: Int, googleUrl: String, hours: String, imageCount: Int, likes: Int, locationLat: Double, locationLng: Double, name: String, nickname: String, notes: String, phone: String, shortName: String, type: Int, website: String, yelpCategory: String, yelpId: String, yelpPrice: String, yelpRating: Double, yelpReviews: Int, yelpUrl: String) {
-
-      self.address = address
-      self.areaId = areaId
-      self.desc = desc
-      self.googleId = googleId
-      self.googleRating = googleRating
-      self.googleReviews = googleReviews
-      self.googleUrl = googleUrl
-      self.hours = hours
-      self.imageCount = imageCount
-      self.likes = 0
-      self.locationLat = locationLat
-      self.locationLng = locationLng
-      self.name = name
-      self.nickname = nickname
-      self.notes = notes
-      self.phone = phone
-      self.shortName = shortName
-      self.type = type
-      self.website = website
-      self.yelpCategory = yelpCategory
-      self.yelpId = yelpId
-      self.yelpRating = yelpRating
-      self.yelpReviews = yelpReviews
-      self.yelpPrice = yelpPrice
-      self.yelpUrl = yelpUrl
+      self.archStyle = try container.decode(String.self, forKey: .archStyle)
+      self.estimatedValue = try container.decode(String.self, forKey: .estimatedValue)
+      self.lotSize = try container.decode(Double.self, forKey: .lotSize)
+      self.squareFeet = try container.decode(Int.self, forKey: .squareFeet)
+      self.yearBuilt = try container.decode(Int.self, forKey: .yearBuilt)
       self.timestamp = Date.now
     }
     
@@ -154,7 +139,7 @@ enum SchemaV1: VersionedSchema {
       try container.encode(name, forKey: .name)
     }
   }
-  
+
   @Model
   final class Area: Identifiable, Codable, Equatable {
     enum CodingKeys: CodingKey {
@@ -193,14 +178,11 @@ enum SchemaV1: VersionedSchema {
     var centerCoordinates: CLLocationCoordinate2D {
       CLLocationCoordinate2D(latitude: centerCoordinateLat, longitude: centerCoordinateLng)
     }
-    var iconCoordinate: CLLocationCoordinate2D {
-      CLLocationCoordinate2D(latitude: iconCoordinateLat, longitude: iconCoordinateLng)
-    }
     var coordinates: CLLocationCoordinate2D {
       CLLocationCoordinate2D(latitude: iconCoordinateLat, longitude: iconCoordinateLng)
     }
 
-    @Relationship() var businesses: [SchemaV1.Business] = []
+    @Relationship() var businesses: [SchemaV1.Place] = []
     
     required init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -222,18 +204,6 @@ enum SchemaV1: VersionedSchema {
       self.timestamp = Date.now
     }
     
-    init(name: String, shortName: String, desc: String, iconCoordinateLat: Double, iconCoordinateLng: Double, centerCoordinateLat: Double, centerCoordinateLng: Double, wikiName: String) {
-      self.name = name
-      self.shortName = shortName
-      self.desc = desc
-      self.iconCoordinateLat = iconCoordinateLat
-      self.iconCoordinateLng = iconCoordinateLng
-      self.centerCoordinateLat = centerCoordinateLat
-      self.centerCoordinateLng = centerCoordinateLng
-      self.wikiName = wikiName
-      self.timestamp = Date.now
-    }
-    
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(name, forKey: .name)
@@ -241,94 +211,6 @@ enum SchemaV1: VersionedSchema {
     
     static func == (lhs: Area, rhs: Area) -> Bool {
       lhs.id == rhs.id
-    }
-  }
-  
-  @Model
-  final class HistoricHouse: Codable {
-    enum CodingKeys: CodingKey {
-      case name
-    }
-    var timestamp: Date
-    var areaId = 0
-    @Attribute(.unique) var name = ""
-    var shortName = ""
-    var address = ""
-    var locationLat = 0.0
-    var locationLng = 0.0
-    var desc = ""
-    var notes = ""
-    var website = ""
-    var imageCount = 0
-    var sizeHeight = 0.0
-    var sizeWidth = 0.0
-    var estimatedValue = ""
-    var lotSize = 0.0
-    var squareFeet = 0
-    var yearBuilt = ""
-    var archStyle = ""
-    var nickname = ""
-    
-    @Transient var placeMarkerAnnotationView: PlaceMarkerAnnotationView?
-    
-    init(name: String) {
-      self.name = name
-      self.timestamp = Date.now
-    }
-    
-    init(timestamp: Date) {
-      self.timestamp = timestamp
-    }
-    
-    required init(from decoder: Decoder) throws {
-      let container = try decoder.container(keyedBy: CodingKeys.self)
-      self.name = try container.decode(String.self, forKey: .name)
-      self.timestamp = Date.now
-    }
-    
-    func encode(to encoder: Encoder) throws {
-      var container = encoder.container(keyedBy: CodingKeys.self)
-      try container.encode(name, forKey: .name)
-    }
-  }
-  
-  @Model
-  final class CivicAsset: Codable {
-    enum CodingKeys: CodingKey {
-      case name
-    }
-    var timestamp: Date
-    var areaId = 0
-    var name = ""
-    var shortName = ""
-    var address = ""
-    var locationLat = 0.0
-    var locationLng = 0.0
-    var desc = ""
-    var notes = ""
-    var website = ""
-    var imageCount = 0
-    
-    @Transient var placeMarkerAnnotationView: PlaceMarkerAnnotationView?
-    
-    init(name: String) {
-      self.name = name
-      self.timestamp = Date.now
-    }
-    
-    init(timestamp: Date) {
-      self.timestamp = timestamp
-    }
-    
-    required init(from decoder: Decoder) throws {
-      let container = try decoder.container(keyedBy: CodingKeys.self)
-      self.name = try container.decode(String.self, forKey: .name)
-      self.timestamp = Date.now
-    }
-    
-    func encode(to encoder: Encoder) throws {
-      var container = encoder.container(keyedBy: CodingKeys.self)
-      try container.encode(name, forKey: .name)
     }
   }
 }

@@ -11,7 +11,7 @@ import MapKit
 struct AreaDetailView: View {
   
   @EnvironmentObject private var areasViewModel: AreasViewModel
-  @EnvironmentObject private var businessesViewModel: BusinessesViewModel
+  @EnvironmentObject private var placesViewModel: PlaceViewModel
   @State private var position = MapCameraPosition.region(
     MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)))
   @State private var closeInPosition = MapCameraPosition.region(
@@ -30,8 +30,12 @@ struct AreaDetailView: View {
         VStack(alignment: .leading, spacing: 16) {
           titleSection
           Divider()
-          if modelMode == "business" {
-            reviewsSection
+          if modelMode == "place" {
+            if placesViewModel.mapPlace.type == 6 {
+              historicHouseSection
+            } else {
+              reviewsSection
+            }
             Divider()
           }
           descSection
@@ -59,8 +63,8 @@ extension AreaDetailView {
     
   private var imageSection: some View {
     TabView {
-      let path = modelMode == "business" ? "\(area.shortName)/\(businessesViewModel.mapBusiness.name)" : "\(area.shortName)/Area"
-      let imageCount = modelMode == "business" ? businessesViewModel.mapBusiness.imageCount : area.imageCount
+      let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
+      let imageCount = modelMode == "place" ? placesViewModel.mapPlace.imageCount : area.imageCount
       
       ForEach(0..<imageCount, id: \.self) { index in
         Image("\(path)/\(index)")
@@ -79,28 +83,29 @@ extension AreaDetailView {
     var name = area.name
     var url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)")!
     
-    if modelMode == "business" {
-      name = businessesViewModel.mapBusiness.name
-      url = URL(string: businessesViewModel.mapBusiness.website)!
+    if modelMode == "place" {
+      name = placesViewModel.mapPlace.type == 6 ? placesViewModel.mapPlace.name + " House" : placesViewModel.mapPlace.name
+      url = URL(string: placesViewModel.mapPlace.website)!
     }
     
-    return HStack {
-      VStack(alignment: .leading) {
+    return VStack(alignment: .leading) {
+      HStack {
         Link(name, destination: url)
-          .font(name.count > 15 ? .title3 : .title)
+          .font(name.count > 30 ? .title3 : .title)
           .fontWeight(.semibold)
           .frame(width: nil, height: 20)
-        if modelMode == "business" {
-          Text(businessesViewModel.mapBusiness.desc)
+          .padding(.bottom, 10)
+          .padding(.top, -9)
+        if modelMode == "place" {
+          Text(placesViewModel.mapPlace.desc)
             .font(.system(size: 14))
             .padding([.top, .leading], 2)
         }
       }
-      Spacer()
-      VStack(alignment: .trailing) {
-        if modelMode == "business" {
+      HStack {
+        if modelMode == "place" {
           Spacer()
-          Text(businessesViewModel.mapBusiness.address)
+          Text(placesViewModel.mapPlace.address)
             .font(.system(size: 14))
         }
       }
@@ -111,7 +116,7 @@ extension AreaDetailView {
   private var descSection: some View {
        
     VStack(alignment: .leading, spacing: 16) {
-      Text(modelMode == "area" ? area.desc : businessesViewModel.mapBusiness.notes)
+      Text(modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
         .font(.subheadline)
         .foregroundColor(.secondary)
 
@@ -132,11 +137,49 @@ extension AreaDetailView {
     .padding([.top], -15)
   }
   
+  private var historicHouseSection: some View {
+    VStack(alignment: .leading) {
+      HStack {
+        Text("Year built")
+          .font(.subheadline)
+        Text("\(placesViewModel.mapPlace.yearBuilt)".replacingOccurrences(of: ",", with: ""))
+          .font(.subheadline)
+          .foregroundColor(.secondary)
+        Spacer()
+        Text("Style")
+          .font(.subheadline)
+        Text(placesViewModel.mapPlace.archStyle)
+          .font(.subheadline)
+          .foregroundColor(.secondary)
+        Spacer()
+        Text("Lot size")
+          .font(.subheadline)
+        Text("\(placesViewModel.mapPlace.lotSize == 0 ? "unknown" : String(placesViewModel.mapPlace.lotSize))")
+          .font(.subheadline)
+          .foregroundColor(.secondary)
+      }
+      HStack {
+        Text("Square feet")
+          .font(.subheadline)
+        Text("\(placesViewModel.mapPlace.squareFeet == 0 ? "unknown" : String(placesViewModel.mapPlace.squareFeet))")
+          .font(.subheadline)
+          .foregroundColor(.secondary)
+        Spacer()
+        Text("Estimated value")
+          .font(.subheadline)
+        Text("$\(placesViewModel.mapPlace.estimatedValue)")
+          .font(.subheadline)
+          .foregroundColor(.secondary)
+        Spacer()
+      }
+    }
+  }
+  
   private var reviewsSection: some View {
 
     HStack {
       VStack {
-        if let url = URL(string: businessesViewModel.mapBusiness.yelpUrl) {
+        if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
           Link(destination: url) {
             Image("Reviews/Google")
               .resizable()
@@ -159,8 +202,8 @@ extension AreaDetailView {
           .scaledToFill()
           .frame(width: 2, height: 8)
         
-        let gRating = businessesViewModel.mapBusiness.googleRating
-        let gReviews = businessesViewModel.mapBusiness.googleReviews
+        let gRating = placesViewModel.mapPlace.googleRating
+        let gReviews = placesViewModel.mapPlace.googleReviews
         
         HStack {
           if gRating > 0 {
@@ -186,7 +229,7 @@ extension AreaDetailView {
       VStack(alignment: .trailing) {
         VStack(alignment: .leading) {
           HStack {
-            if let url = URL(string: businessesViewModel.mapBusiness.yelpUrl) {
+            if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
               Link(destination: url) {
                 Image("Reviews/Yelp")
                   .resizable()
@@ -200,7 +243,7 @@ extension AreaDetailView {
                 .frame(width: 20)
             }
             
-            Text(businessesViewModel.mapBusiness.yelpPrice)
+            Text(placesViewModel.mapPlace.yelpPrice)
               .font(.system(size: 14))
           }
         }
@@ -215,8 +258,8 @@ extension AreaDetailView {
           .scaledToFill()
           .frame(width: 2, height: 8)
         
-        let yRating = businessesViewModel.mapBusiness.yelpRating
-        let yReviews = businessesViewModel.mapBusiness.yelpReviews
+        let yRating = placesViewModel.mapPlace.yelpRating
+        let yReviews = placesViewModel.mapPlace.yelpReviews
         
         HStack {
           if yRating > 0 {
@@ -241,13 +284,13 @@ extension AreaDetailView {
       .position(x: 30, y: 10)
       
       VStack(alignment: .trailing) {
-        Link(destination: URL(string: "tel:" + businessesViewModel.mapBusiness.phone)!) {
-          Text(businessesViewModel.mapBusiness.phone)
+        Link(destination: URL(string: "tel:" + placesViewModel.mapPlace.phone)!) {
+          Text(placesViewModel.mapPlace.phone)
             .font(.system(size: 14))
             .frame(width: 160, alignment: .trailing)
         }
         
-        Text(getHoursOpen(hours: businessesViewModel.mapBusiness.hours))
+        Text(getHoursOpen(hours: placesViewModel.mapPlace.hours))
           .font(.system(size: 14))
           .frame(width: 160, alignment: .trailing)
         
@@ -260,40 +303,41 @@ extension AreaDetailView {
   }
   
   private var mapLayer: some View {
-    let businesses = businessesViewModel.businesses.filter { $0.areaId == area.areaId}
+    let places = placesViewModel.places.filter { $0.areaId == area.areaId}
 
-    if let latitude = businessesViewModel.mapCameraPosition.region?.center.latitude {
+    if let latitude = placesViewModel.mapCameraPosition.region?.center.latitude {
       if latitude == 0.0 {
         let position = MapCameraPosition.region(
           MKCoordinateRegion(center: area.centerCoordinates, span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)))
         
         return Map(initialPosition: position) {
-          ForEach(businesses) { business in
-            Annotation("", coordinate: business.coordinates) {
-              BusinessAnnotationView(areaName: area.shortName, businessName: business.name, shortName: business.shortName)
+          ForEach(places) { place in
+            Annotation("", coordinate: place.coordinates) {
+              PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type)
                 .shadow(radius: 10)
                 .onTapGesture {
                   withAnimation(.easeInOut) {
-                    businessesViewModel.showNextBusiness(area, business)
-                    modelMode = "business"
+                    placesViewModel.showNextPlace(area, place)
+                    modelMode = "place"
                   }
                 }
             }
+            
           }
         }
         .aspectRatio(1, contentMode: .fit)
         .cornerRadius(30)
         .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
       } else {
-        return Map(position: $businessesViewModel.mapCameraPosition) {
-          ForEach(businesses) { business in
-            Annotation("", coordinate: business.coordinates) {
-              BusinessAnnotationView(areaName: area.shortName, businessName: business.name, shortName: business.shortName)
+        return Map(position: $placesViewModel.mapCameraPosition) {
+          ForEach(places) { place in
+            Annotation("", coordinate: place.coordinates) {
+              PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type)
                 .shadow(radius: 10)
                 .onTapGesture {
                   withAnimation(.easeInOut) {
-                    businessesViewModel.showNextBusiness(area, business)
-                    modelMode = "business"
+                    placesViewModel.showNextPlace(area, place)
+                    modelMode = "place"
                   }
                 }
             }
@@ -304,15 +348,15 @@ extension AreaDetailView {
         .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
       }
     } else {
-      return Map(position: $businessesViewModel.mapCameraPosition) {
-        ForEach(businesses) { business in
-          Annotation("", coordinate: business.coordinates) {
-            BusinessAnnotationView(areaName: area.shortName, businessName: business.name, shortName: business.shortName)
+      return Map(position: $placesViewModel.mapCameraPosition) {
+        ForEach(places) { place in
+          Annotation("", coordinate: place.coordinates) {
+            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type)
               .shadow(radius: 10)
               .onTapGesture {
                 withAnimation(.easeInOut) {
-                  businessesViewModel.showNextBusiness(area, business)
-                  modelMode = "business"
+                  placesViewModel.showNextPlace(area, place)
+                  modelMode = "place"
                 }
               }
           }
@@ -326,7 +370,7 @@ extension AreaDetailView {
   
   private var backButton: some View {
     Button {
-      if modelMode == "business" {
+      if modelMode == "place" {
         modelMode = "area"
       } else {
         areasViewModel.sheetArea = nil
@@ -361,5 +405,5 @@ extension AreaDetailView {
 #Preview {
   AreaDetailView(area: AreasViewModel().areas.first!)
     .environmentObject(AreasViewModel())
-    .environmentObject(BusinessesViewModel())
+    .environmentObject(PlaceViewModel())
 }

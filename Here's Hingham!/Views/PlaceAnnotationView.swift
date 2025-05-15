@@ -7,10 +7,11 @@
 
 import SwiftUI
 
-struct BusinessAnnotationView: View {
+struct PlaceAnnotationView: View {
   let areaName: String
-  let businessName: String
+  let placeName: String
   let shortName: String
+  let type: Int
   // let accentColor = Color("AccentColor")
   
   var body: some View {
@@ -20,16 +21,18 @@ struct BusinessAnnotationView: View {
       size = 156.0
     } else if shortName == "Church" {
       size = 121.0
-    } else if shortName == "Old Derby" {
+    } else if shortName == "Old Derby" || shortName == "Paint" {
       size = 110.0
-    } else if businessName == "La Petite Maison" || businessName == "Square Cafe" || shortName == "Lawyer" {
+    } else if placeName == "La Petite Maison" || placeName == "Square Cafe" || shortName == "Lawyer" {
       size = 86.0
+    } else if type == 6 {
+      size = 82.0
     } else {
       size = 64.0
     }
     
     return VStack(spacing: 0) {
-      Image("\(areaName)/\(businessName)/icon")
+      Image("\(areaName)/\(placeName)/icon")
         .resizable()
         .scaledToFit()
         .frame(width: size, height: size)
@@ -44,6 +47,6 @@ struct BusinessAnnotationView: View {
 #Preview {
   ZStack {
     Color.black.ignoresSafeArea()
-    BusinessAnnotationView(areaName: "Square", businessName: "The Snug", shortName: "Pub")
+    PlaceAnnotationView(areaName: "Square", placeName: "The Snug", shortName: "Pub", type: 2)
   }
 }
