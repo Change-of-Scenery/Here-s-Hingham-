@@ -41,19 +41,19 @@ struct Here_s_Hingham_App: App {
         let container = try result.get()
         // Check to see if we already have places.
         
-        let nameDescriptor = FetchDescriptor<SchemaV1.Place>(predicate: #Predicate { $0.name == "Square Cafe" })
+        let nameDescriptor = FetchDescriptor<SchemaV1.Place>(predicate: #Predicate { $0.name == "Ruth Joy" })
         let results = try container.mainContext.fetch(nameDescriptor)
 //        
         for bus in results {
 //          bus.website = "https://www.cycletownstudio.com"
-//          bus.locationLng = -70.89238
-          bus.locationLat = 42.24232
+//          bus.locationLng = -70.88788
+//          bus.locationLat = 42.24164
 //          bus.archStyle = "Colonial"
           print(bus.locationLng)
           print(bus.locationLat)
         }
         
-        try container.mainContext.save()
+//        try container.mainContext.save()
                
         let placeDescriptor = FetchDescriptor<SchemaV1.Place>()
         let areaDescriptor = FetchDescriptor<SchemaV1.Area>()
