@@ -11,7 +11,7 @@ import SwiftData
 @main
 struct Here_s_Hingham_App: App {
   @StateObject private var areasViewModel = AreasViewModel()
-  @StateObject private var placesViewModel = PlaceViewModel()
+  @StateObject private var placesViewModel = PlacesViewModel()
   @Environment(\.modelContext) private var modelContext
     
 //  var sharedModelContainer: ModelContainer = {
@@ -41,22 +41,25 @@ struct Here_s_Hingham_App: App {
         let container = try result.get()
         // Check to see if we already have places.
         
-        let nameDescriptor = FetchDescriptor<SchemaV1.Place>(predicate: #Predicate { $0.name == "Ruth Joy" })
-        let results = try container.mainContext.fetch(nameDescriptor)
-//        
-        for bus in results {
-//          bus.website = "https://www.cycletownstudio.com"
-//          bus.locationLng = -70.88788
-//          bus.locationLat = 42.24164
-//          bus.archStyle = "Colonial"
-          print(bus.locationLng)
-          print(bus.locationLat)
-        }
+//        let nameDescriptor = FetchDescriptor<SchemaV1.Place>(predicate: #Predicate { $0.name == "Ruth Joy" })
+//        let results = try container.mainContext.fetch(nameDescriptor)
+////        
+//        for bus in results {
+////          bus.website = "https://www.cycletownstudio.com"
+////          bus.locationLng = -70.88788
+////          bus.locationLat = 42.24164
+////          bus.archStyle = "Colonial"
+//          print(bus.locationLng)
+//          print(bus.locationLat)
+//        }
         
 //        try container.mainContext.save()
                
         let placeDescriptor = FetchDescriptor<SchemaV1.Place>()
         let areaDescriptor = FetchDescriptor<SchemaV1.Area>()
+        areasViewModel.areas = try container.mainContext.fetch(areaDescriptor)
+        placesViewModel.places = try container.mainContext.fetch(placeDescriptor)
+        
         let existingplaces = try container.mainContext.fetchCount(placeDescriptor)
         
         guard existingplaces > 0 else

@@ -11,25 +11,41 @@ import MapKit
 struct AreaDetailView: View {
   
   @EnvironmentObject private var areasViewModel: AreasViewModel
-  @EnvironmentObject private var placesViewModel: PlaceViewModel
+  @EnvironmentObject private var placesViewModel: PlacesViewModel
   @State private var position = MapCameraPosition.region(
     MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)))
   @State private var closeInPosition = MapCameraPosition.region(
-    MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)))
-  @State private var modelMode = "area"
+    MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)))
   @State var imageCount:Int = 10
+  @State var modelMode = "area"
+  @State var showEnlarged = ""
+  @State var mapPosition = CGPoint(x: 10, y: 10)
 
   let area: SchemaV1.Area
 
   var body: some View {
-    ScrollView {
+    if showEnlarged == "map" {
+      ZStack {
+        mapLayer
+          .overlay(contractButton.padding(.top, 15), alignment: .top)
+          .overlay(expandedTitleSection, alignment: .top)
+      }
+    } else if showEnlarged == "desc" {
       VStack {
-        imageSection
-          .shadow(color: .black.opacity(0.3), radius: 20, x:0, y:10)
+        expandedTitleSection
+          .overlay(contractButton, alignment: .top)
+        Divider()
+        expandedDescSection
+      }
+    } else {
+      ScrollView {
+        VStack {
+          imageSection
+        }
         
         VStack(alignment: .leading, spacing: 16) {
           titleSection
-          Divider()
+            .overlay(expandDescButton, alignment: .top)
           if modelMode == "place" {
             if placesViewModel.mapPlace.type == 6 {
               historicHouseSection
@@ -39,18 +55,17 @@ struct AreaDetailView: View {
             Divider()
           }
           descSection
-          Divider()
           mapLayer
+            .overlay(expandMapButton, alignment: .top)
         }
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .padding()
       }
-    }
-    .ignoresSafeArea()
-    .background(.ultraThinMaterial)
-    .overlay(backButton, alignment: .topLeading)
-  }
+      .padding([.leading, .trailing], 15)
+      .padding(.top, 25)
+      .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
+      .overlay(backButton, alignment: .top)
 
+    }
+  }
 }
 
 extension Date {
@@ -74,8 +89,10 @@ extension AreaDetailView {
           .clipped()
       }
     }
-    .frame(height: 300)
+    .frame(height: 240)
     .tabViewStyle(PageTabViewStyle())
+    .cornerRadius(50)
+    .padding(.bottom, 10)
   }
   
   private var titleSection: some View {
@@ -95,7 +112,7 @@ extension AreaDetailView {
           .fontWeight(.semibold)
           .frame(width: nil, height: 20)
           .padding(.bottom, 10)
-          .padding(.top, -9)
+          .padding(.top, 20)
         if modelMode == "place" {
           Text(placesViewModel.mapPlace.desc)
             .font(.system(size: 14))
@@ -109,15 +126,43 @@ extension AreaDetailView {
             .font(.system(size: 14))
         }
       }
+      Divider()
+        .padding(.bottom, 6)
     }
+    .padding(.top, -25)
     .padding(.bottom, -10)
+  }
+  
+  private var expandedTitleSection: some View {
+    var name = area.name
+    var url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)")!
+
+    if modelMode == "place" {
+      name = placesViewModel.mapPlace.type == 6 ? placesViewModel.mapPlace.name + " House" : placesViewModel.mapPlace.name
+      url = URL(string: placesViewModel.mapPlace.website)!
+    }
+
+    return VStack(alignment: .leading) {
+      HStack(alignment: .top) {
+        Link(name, destination: url)
+          .font(name.count > 30 ? .title3 : .title)
+          .fontWeight(.semibold)
+          .frame(width: nil, height: 20)
+        if modelMode == "place" {
+          Text(placesViewModel.mapPlace.desc)
+            .font(.system(size: 14))
+            .padding([.top, .leading], 2)
+        }
+      }
+    }
+    .padding(.top, 25)
   }
 
   private var descSection: some View {
        
     VStack(alignment: .leading, spacing: 16) {
       Text(modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
-        .font(.subheadline)
+        .font(.system(size: 13))
         .foregroundColor(.secondary)
 
       if area.wikiName.prefix(4) == "http" {
@@ -133,8 +178,39 @@ extension AreaDetailView {
 //            .tint(.blue)
 //      }
     }
-    .frame(width: nil, height: 110)
-    .padding([.top], -15)
+    .frame(width: nil, height: 80)
+    
+    .padding(.top, -5)
+    .padding(.bottom, -5)
+  }
+  
+  private var expandedDescSection: some View {
+       
+    VStack(alignment: .leading, spacing: 16) {
+      HStack(alignment: .top) {
+        Text(modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
+          .font(.system(size: 16))
+          .foregroundColor(.primary)
+          
+        
+        if area.wikiName.prefix(4) == "http" {
+          if let url = URL(string: area.wikiName) {
+            Link("Read more", destination: url)
+              .font(.headline)
+              .tint(.blue)
+          }
+        }
+        //      else if let url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)"), modelMode == "area" {
+        //        Link("Read more on Wikipedia", destination: url)
+        //            .font(.headline)
+        //            .tint(.blue)
+        //      }
+      }
+    }
+    .frame(width: nil, height: UIScreen.main.bounds.size.height - 200)
+    .padding()
+    .padding(.top, -15)
+    .padding(.bottom, -15)
   }
   
   private var historicHouseSection: some View {
@@ -308,7 +384,7 @@ extension AreaDetailView {
     if let latitude = placesViewModel.mapCameraPosition.region?.center.latitude {
       if latitude == 0.0 {
         let position = MapCameraPosition.region(
-          MKCoordinateRegion(center: area.centerCoordinates, span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)))
+          MKCoordinateRegion(center: area.centerCoordinates, span: area.zoomInSpan))
         
         return Map(initialPosition: position) {
           ForEach(places) { place in
@@ -322,11 +398,12 @@ extension AreaDetailView {
                   }
                 }
             }
-            
           }
         }
-        .aspectRatio(1, contentMode: .fit)
-        .cornerRadius(30)
+        .aspectRatio(1, contentMode: .fill)
+        .cornerRadius(75)
+        .frame(width: UIScreen.main.bounds.size.width - 40)
+        .ignoresSafeArea()
         .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
       } else {
         return Map(position: $placesViewModel.mapCameraPosition) {
@@ -343,8 +420,10 @@ extension AreaDetailView {
             }
           }
         }
-        .aspectRatio(1, contentMode: .fit)
-        .cornerRadius(30)
+        .aspectRatio(1, contentMode: .fill)
+        .cornerRadius(75)
+        .frame(width: UIScreen.main.bounds.size.width - 40)
+        .ignoresSafeArea()
         .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
       }
     } else {
@@ -362,8 +441,10 @@ extension AreaDetailView {
           }
         }
       }
-      .aspectRatio(1, contentMode: .fit)
-      .cornerRadius(30)
+      .aspectRatio(1, contentMode: .fill)
+      .cornerRadius(75)
+      .frame(width: UIScreen.main.bounds.size.width - 40)
+      .ignoresSafeArea()
       .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
     }
   }
@@ -376,15 +457,68 @@ extension AreaDetailView {
         areasViewModel.sheetArea = nil
       }
     } label: {
-      Image(systemName: "xmark")
-        .font(.headline)
-        .padding(8)
-        .foregroundColor(.primary)
+      Image(systemName: "x.square.fill")
+        .font(.system(size: 20))
+        .foregroundColor(Color(red: 0.7, green: 0.7, blue: 0.7))
         .background(.thickMaterial)
-        .cornerRadius(10)
-        .shadow(radius: 4)
-        .padding()
     }
+    .position(x: 20, y: 20)
+  }
+  
+  private var expandMapButton: some View {
+    Button {
+      withAnimation(.easeInOut) {
+        self.showEnlarged = "map"
+        placesViewModel.zoomOut(areasViewModel.mapArea)
+      }
+    } label: {
+      if modelMode != "place" {
+        Image(systemName: "arrow.down.left.and.arrow.up.right.square.fill")
+          .font(.system(size: 20))
+          .foregroundColor(Color(red: 0.7, green: 0.7, blue: 0.7))
+          .padding(.leading, 35)
+          .padding(.top, 0)
+      }
+    }
+    .padding(.leading, UIScreen.main.bounds.size.width - 80)
+  }
+  
+  private var expandDescButton: some View {
+    Button {
+      withAnimation(.easeInOut) {
+        self.showEnlarged = "desc"
+//        placesViewModel.zoomOut(areasViewModel.mapArea)
+      }
+    } label: {
+      if modelMode != "place" {
+        Image(systemName: "arrow.down.left.and.arrow.up.right.square.fill")
+          .font(.system(size: 20))
+          .foregroundColor(Color(red: 0.7, green: 0.7, blue: 0.7))
+          .padding(.leading, 25)
+          .padding(.top, -5)
+      }
+    }
+    .padding(.leading, UIScreen.main.bounds.size.width - 80)
+  }
+  
+  private var contractButton: some View {
+    Button {
+      withAnimation(.easeInOut) {
+        if self.showEnlarged == "map" {
+          placesViewModel.zoomIn(areasViewModel.mapArea)
+        }
+        
+        self.showEnlarged = ""
+      }
+    } label: {
+      Image(systemName: "arrow.up.right.and.arrow.down.left.square.fill")
+        .font(.system(size: 20))
+        .foregroundColor(Color(red: 0.7, green: 0.7, blue: 0.7))
+        .padding(0)
+        .padding(.leading, 18)
+        .padding(.bottom, -5)
+    }
+    .padding(.leading, UIScreen.main.bounds.size.width - 70)
   }
   
   private func getHoursOpen(hours: String) -> String {
@@ -403,7 +537,7 @@ extension AreaDetailView {
 }
 
 #Preview {
-  AreaDetailView(area: AreasViewModel().areas.first!)
+  AreaDetailView(area: AreasViewModel().previewArea)
     .environmentObject(AreasViewModel())
-    .environmentObject(PlaceViewModel())
+    .environmentObject(PlacesViewModel())
 }

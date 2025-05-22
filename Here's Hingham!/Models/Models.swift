@@ -181,6 +181,12 @@ enum SchemaV1: VersionedSchema {
     var coordinates: CLLocationCoordinate2D {
       CLLocationCoordinate2D(latitude: iconCoordinateLat, longitude: iconCoordinateLng)
     }
+    var zoomInSpan: MKCoordinateSpan {
+      MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
+    }
+    var zoomOutSpan: MKCoordinateSpan {
+      MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+    }
 
     @Relationship() var businesses: [SchemaV1.Place] = []
     
@@ -201,6 +207,15 @@ enum SchemaV1: VersionedSchema {
     
     init() {
       self.name = "Hingham Square"
+      self.areaId = 0
+      self.centerCoordinateLat = 42.24225
+      self.centerCoordinateLng = -70.88927
+      self.iconCoordinateLat = 42.24059
+      self.iconCoordinateLng = -70.88741
+      self.shortName = "Square"
+      self.desc = "This quaint and historic downtown is full of New England charm. including an assortment of boutiques, salons, and restaurants. The Old Ship church at the top of the square on Main St is the oldest wooden church in America still in use for its original purpose."
+      self.tilt = 0
+      self.zoom = 0.0
       self.timestamp = Date.now
     }
     

@@ -13,7 +13,7 @@ import SwiftData
 class AreasViewModel: ObservableObject {
   @Published var mapCameraPosition: MapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.23227,longitude: -70.89828), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)))
   @Published var areas: [SchemaV1.Area] = []
-    
+  @Published var previewArea = SchemaV1.Area()
   @Published var mapArea: SchemaV1.Area {
     didSet {
       updateRegion(mapArea.coordinates)
@@ -23,7 +23,6 @@ class AreasViewModel: ObservableObject {
   @Published var sheetArea: SchemaV1.Area? = nil
 
   let span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-  let closeInSpan = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
   
   init() {
     mapArea = SchemaV1.Area()

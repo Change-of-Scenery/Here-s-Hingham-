@@ -27,7 +27,7 @@ struct AreaPreviewView: View {
     .padding(20)
     .background(
       RoundedRectangle(cornerRadius: 10)
-        .fill(.ultraThinMaterial)
+        .fill(Color(red: 0.99, green: 0.99,  blue: 0.9))  // .ultraThinMaterial
         .offset(y: 65)
     )
     .cornerRadius(10)
@@ -38,7 +38,7 @@ struct AreaPreviewView_Previews: PreviewProvider {
   static var previews: some View {
     ZStack {
       Color.green.ignoresSafeArea()
-      AreaPreviewView(area: AreasViewModel().areas.first!)
+      AreaPreviewView(area: AreasViewModel().previewArea)
         .padding()
     }
     .environmentObject(AreasViewModel())
@@ -57,6 +57,7 @@ extension AreaPreviewView {
     .padding(6)
     .background(.white)
     .cornerRadius(10)
+    .shadow(radius: 10)
   }
   
   private var titleSection: some View {
@@ -69,8 +70,8 @@ extension AreaPreviewView {
         .lineLimit(1)
       
       Text(area.desc)
-        .font(.custom("System", size: 14))
-        .truncationMode(.tail)
+        .font(.system(size: 14))
+        .foregroundColor(.secondary)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding([.trailing], 10)
