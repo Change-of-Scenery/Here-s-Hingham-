@@ -108,15 +108,16 @@ extension AreaDetailView {
     return VStack(alignment: .leading) {
       HStack {
         Link(name, destination: url)
-          .font(name.count > 30 ? .title3 : .title)
+          .font(name.count > 18 ? .title3 : .title)
           .fontWeight(.semibold)
           .frame(width: nil, height: 20)
           .padding(.bottom, 10)
           .padding(.top, 20)
+        Spacer()
         if modelMode == "place" {
           Text(placesViewModel.mapPlace.desc)
             .font(.system(size: 14))
-            .padding([.top, .leading], 2)
+            .padding(.top, 12)
         }
       }
       HStack {
@@ -300,7 +301,7 @@ extension AreaDetailView {
         }
         .padding(.leading, 16)
       }
-      .position(x: 30, y: 6)
+      .position(x: 30, y: 10)
       
       VStack(alignment: .trailing) {
         VStack(alignment: .leading) {
@@ -355,9 +356,9 @@ extension AreaDetailView {
           }
         }
         .padding(.trailing, 7)
-        .padding(.bottom, 8)
+        .padding(.bottom, 10)
       }
-      .position(x: 30, y: 10)
+      .position(x: 30, y: 14)
       
       VStack(alignment: .trailing) {
         Link(destination: URL(string: "tel:" + placesViewModel.mapPlace.phone)!) {
@@ -372,7 +373,7 @@ extension AreaDetailView {
         
       }
       .frame(width: 160)
-      .padding(.bottom, 12)
+      .padding(.bottom, -4)
       
     }
     .frame(width: nil, height: 20)
@@ -383,24 +384,28 @@ extension AreaDetailView {
 
     if let latitude = placesViewModel.mapCameraPosition.region?.center.latitude {
       if latitude == 0.0 {
+        let span = area.areaId == 1 ? area.zoomSpan : area.zoomInSpan
         let position = MapCameraPosition.region(
-          MKCoordinateRegion(center: area.centerCoordinates, span: area.zoomInSpan))
+          MKCoordinateRegion(center: area.centerCoordinates, span: span))
         
         return Map(initialPosition: position) {
           ForEach(places) { place in
             Annotation("", coordinate: place.coordinates) {
-              PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type)
-                .shadow(radius: 10)
-                .onTapGesture {
-                  withAnimation(.easeInOut) {
-                    placesViewModel.showNextPlace(area, place)
-                    modelMode = "place"
+              withAnimation(.easeInOut) {
+                PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, selected: place.selected)
+                  .shadow(radius: 10)
+                  .onTapGesture {
+                    withAnimation(.easeInOut) {
+                      placesViewModel.showNextPlace(area, place)
+                      modelMode = "place"
+                    }
                   }
-                }
+              }
             }
+            .annotationTitles(.visible)
           }
         }
-        .aspectRatio(1, contentMode: .fill)
+        .aspectRatio(1, contentMode: .fit)
         .cornerRadius(75)
         .frame(width: UIScreen.main.bounds.size.width - 40)
         .ignoresSafeArea()
@@ -409,18 +414,21 @@ extension AreaDetailView {
         return Map(position: $placesViewModel.mapCameraPosition) {
           ForEach(places) { place in
             Annotation("", coordinate: place.coordinates) {
-              PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type)
-                .shadow(radius: 10)
-                .onTapGesture {
-                  withAnimation(.easeInOut) {
-                    placesViewModel.showNextPlace(area, place)
-                    modelMode = "place"
+              withAnimation(.easeInOut) {
+                PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, selected: place.selected)
+                  .shadow(radius: 10)
+                  .onTapGesture {
+                    withAnimation(.easeInOut) {
+                      placesViewModel.showNextPlace(area, place)
+                      modelMode = "place"
+                    }
                   }
-                }
+              }
             }
+            .annotationTitles(.visible)
           }
         }
-        .aspectRatio(1, contentMode: .fill)
+        .aspectRatio(1, contentMode: .fit)
         .cornerRadius(75)
         .frame(width: UIScreen.main.bounds.size.width - 40)
         .ignoresSafeArea()
@@ -430,7 +438,7 @@ extension AreaDetailView {
       return Map(position: $placesViewModel.mapCameraPosition) {
         ForEach(places) { place in
           Annotation("", coordinate: place.coordinates) {
-            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type)
+            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, selected: place.selected)
               .shadow(radius: 10)
               .onTapGesture {
                 withAnimation(.easeInOut) {
@@ -439,9 +447,10 @@ extension AreaDetailView {
                 }
               }
           }
+          .annotationTitles(.visible)
         }
       }
-      .aspectRatio(1, contentMode: .fill)
+      .aspectRatio(1, contentMode: .fit)
       .cornerRadius(75)
       .frame(width: UIScreen.main.bounds.size.width - 40)
       .ignoresSafeArea()

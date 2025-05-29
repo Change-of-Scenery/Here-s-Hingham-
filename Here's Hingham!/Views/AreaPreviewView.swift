@@ -12,25 +12,30 @@ struct AreaPreviewView: View {
   let area: SchemaV1.Area
   
   var body: some View {
-    HStack(alignment: .bottom, spacing: 0) {
-      VStack(alignment: .leading, spacing: 16) {
+    VStack {
+      HStack(alignment: .top, spacing: 0) {
         imageSection
-        titleSection
-      }
-      .frame(width: nil, height: 225)
-      VStack {
         learnMoreButton
         nextButton
       }
-      .frame(width: nil, height: 225)
+      .padding(10)
+      .padding([.leading, .trailing], 10)
+      .cornerRadius(10)
+      HStack (alignment: .top) {
+        titleSection
+          .padding(.top, -10)
+          .padding(.bottom, 15)
+          .padding([.leading], 20)
+          .padding([.trailing], 15)
+          .frame(height: 100)
+      }
     }
-    .padding(20)
+    .frame(height: 200)
     .background(
       RoundedRectangle(cornerRadius: 10)
         .fill(Color(red: 0.99, green: 0.99,  blue: 0.9))  // .ultraThinMaterial
-        .offset(y: 65)
+        .offset(y: 20)
     )
-    .cornerRadius(10)
   }
 }
 
@@ -53,11 +58,14 @@ extension AreaPreviewView {
         .scaledToFill()
         .frame(width: 100, height: 100)
         .cornerRadius(10)
+        .onTapGesture {
+          areasViewModel.sheetArea = area
+        }
     }
     .padding(6)
     .background(.white)
     .cornerRadius(10)
-    .shadow(radius: 10)
+    .shadow(radius: 5)
   }
   
   private var titleSection: some View {
@@ -83,9 +91,11 @@ extension AreaPreviewView {
     } label: {
       Text("Learn more")
         .font(.headline)
-        .frame(width: 125, height: 35)
+        .frame(width: 100, height: 35)
     }
     .buttonStyle(.borderedProminent)
+    .padding()
+    .padding(.top, 28)
   }
   
   private var nextButton: some View {
@@ -94,11 +104,11 @@ extension AreaPreviewView {
     } label: {
       Text("Next")
         .font(.headline)
-        .frame(width: 125, height: 35)
+        .frame(width: 50, height: 35)
     }
     .buttonStyle(.bordered)
-  }
-}
+    .padding(.top, 43)
+  }}
 
 #Preview {
   AreaPreviewView(area: AreasViewModel().areas.first!)

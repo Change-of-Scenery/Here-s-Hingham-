@@ -32,9 +32,9 @@ struct Here_s_Hingham_App: App {
   var body: some Scene {
     WindowGroup {
 //    ContentView()
-      AreasView()
-        .environmentObject(areasViewModel)
-        .environmentObject(placesViewModel)
+        AreasView()
+          .environmentObject(areasViewModel)
+          .environmentObject(placesViewModel)      
     }
     .modelContainer(for: [SchemaV1.Place.self, SchemaV1.Area.self]) { result in
       do {

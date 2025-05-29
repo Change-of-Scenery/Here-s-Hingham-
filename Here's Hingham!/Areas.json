@@ -12,7 +12,7 @@
     "zoom":0.0
   },
   {
-    "areaId":1,
+    "areaId":6,
     "centerCoordinateLat":42.23312,
     "centerCoordinateLng":-70.87957,
     "iconCoordinateLat":42.23357,
@@ -72,7 +72,7 @@
     "zoom":0.0
   },
   {
-    "areaId":6,
+    "areaId":1,
     "centerCoordinateLat":42.24477,
     "centerCoordinateLng":-70.89339,
     "iconCoordinateLat":42.24259,

@@ -13,12 +13,13 @@ import SwiftData
 class PlacesViewModel: ObservableObject {
   @Published var mapCameraPosition: MapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)))
   @Published var places: [SchemaV1.Place] = []
-  @Published var mapPlace: SchemaV1.Place {
-    didSet {
-      let coord = CLLocationCoordinate2D(latitude: mapPlace.coordinates.latitude - 0.0002, longitude: mapPlace.coordinates.longitude - 0.00005)
-      updateRegion(coord)
-    }
-  }
+  @Published var mapPlace: SchemaV1.Place
+//  {
+//    didSet {
+//      let coord = CLLocationCoordinate2D(latitude: mapPlace.coordinates.latitude - 0.0002, longitude: mapPlace.coordinates.longitude - 0.00005)
+//      updateRegion(coord)
+//    }
+//  }
   
   var span = MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
   
@@ -35,6 +36,13 @@ class PlacesViewModel: ObservableObject {
   }
   
   func showNextPlace(_ area: SchemaV1.Area, _ place: SchemaV1.Place) {
+    if mapPlace == place && (mapPlace.selected == true || place.selected == true) {
+      place.selected = false
+    } else {
+      mapPlace.selected = false
+      place.selected = true
+    }
+    
     if place.imageCount == 0 {
       var imageCounter = 0
       while UIImage(named: ("\(area.shortName)/\(place.name)/\(imageCounter)")) != nil {

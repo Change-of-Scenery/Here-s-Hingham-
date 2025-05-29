@@ -87,6 +87,7 @@ enum SchemaV1: VersionedSchema {
     @Transient var sizeHeight: Double?
     @Transient var sizeWidth: Double?
     @Transient var hasSpecial = false
+    @Transient var selected = false
     
     var coordinates: CLLocationCoordinate2D {
       CLLocationCoordinate2D(latitude: locationLat, longitude: locationLng)
@@ -183,6 +184,9 @@ enum SchemaV1: VersionedSchema {
     }
     var zoomInSpan: MKCoordinateSpan {
       MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
+    }
+    var zoomSpan: MKCoordinateSpan {
+      MKCoordinateSpan(latitudeDelta: 0.003, longitudeDelta: 0.003)
     }
     var zoomOutSpan: MKCoordinateSpan {
       MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
