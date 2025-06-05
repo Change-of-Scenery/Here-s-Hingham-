@@ -34,7 +34,7 @@ struct AreaPreviewView: View {
     .background(
       RoundedRectangle(cornerRadius: 10)
         .fill(Color(red: 0.99, green: 0.99,  blue: 0.9))  // .ultraThinMaterial
-        .offset(y: 20)
+        .offset(y: 22)
     )
   }
 }
@@ -65,7 +65,7 @@ extension AreaPreviewView {
     .padding(6)
     .background(.white)
     .cornerRadius(10)
-    .shadow(radius: 5)
+    .shadow(color: Color(red: 0.35, green: 0.35, blue: 0.35), radius: 4, x: 3, y: 3)
   }
   
   private var titleSection: some View {

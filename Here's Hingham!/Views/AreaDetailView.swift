@@ -20,6 +20,7 @@ struct AreaDetailView: View {
   @State var modelMode = "area"
   @State var showEnlarged = ""
   @State var mapPosition = CGPoint(x: 10, y: 10)
+  @State var expandMapTop = 0.0
 
   let area: SchemaV1.Area
 
@@ -39,13 +40,9 @@ struct AreaDetailView: View {
       }
     } else {
       ScrollView {
-        VStack {
-          imageSection
-        }
-        
         VStack(alignment: .leading, spacing: 16) {
+          imageSection
           titleSection
-            .overlay(expandDescButton, alignment: .top)
           if modelMode == "place" {
             if placesViewModel.mapPlace.type == 6 {
               historicHouseSection
@@ -53,17 +50,18 @@ struct AreaDetailView: View {
               reviewsSection
             }
             Divider()
+              .padding(.top, -5)
           }
           descSection
           mapLayer
-            .overlay(expandMapButton, alignment: .top)
         }
       }
       .padding([.leading, .trailing], 15)
-      .padding(.top, 25)
+      .padding(.top, 15)
       .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
-      .overlay(backButton, alignment: .top)
-
+      .overlay(closeButton, alignment: .top)
+      .overlay(expandMapButton, alignment: .top)
+      .overlay(expandDescButton, alignment: .top)
     }
   }
 }
@@ -89,52 +87,60 @@ extension AreaDetailView {
           .clipped()
       }
     }
-    .frame(height: 240)
+    .frame(height: 250)
     .tabViewStyle(PageTabViewStyle())
-    .cornerRadius(50)
-    .padding(.bottom, 10)
+    .cornerRadius(15)
   }
   
   private var titleSection: some View {
     
     var name = area.name
     var url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)")!
+    var dividerTopPadding = 0.0
     
     if modelMode == "place" {
       name = placesViewModel.mapPlace.type == 6 ? placesViewModel.mapPlace.name + " House" : placesViewModel.mapPlace.name
       url = URL(string: placesViewModel.mapPlace.website)!
+    } else {
+      dividerTopPadding = 10.0
     }
     
     return VStack(alignment: .leading) {
       HStack {
         Link(name, destination: url)
-          .font(name.count > 18 ? .title3 : .title)
-          .fontWeight(.semibold)
+          .font(.title2)
+          .fontWeight(.bold)
           .frame(width: nil, height: 20)
-          .padding(.bottom, 10)
-          .padding(.top, 20)
+          .padding(.top, -5)
         Spacer()
         if modelMode == "place" {
           Text(placesViewModel.mapPlace.desc)
-            .font(.system(size: 14))
-            .padding(.top, 12)
+            .font(.system(size: 12))
         }
       }
       HStack {
         if modelMode == "place" {
-          Spacer()
           Text(placesViewModel.mapPlace.address)
-            .font(.system(size: 14))
+            .font(.system(size: 12))
+          Spacer()
+          Text(getHoursOpen(hours: placesViewModel.mapPlace.hours))
+            .font(.system(size: 12))
+            .frame(width: 100, alignment: .trailing)
+          Spacer()
+          Link(destination: URL(string: "tel:" + placesViewModel.mapPlace.phone)!) {
+            Text(placesViewModel.mapPlace.phone)
+              .font(.system(size: 12))
+              .frame(width: 90, alignment: .trailing)
+          }
         }
       }
       Divider()
-        .padding(.bottom, 6)
+        .padding(.top, dividerTopPadding)
     }
-    .padding(.top, -25)
-    .padding(.bottom, -10)
   }
   
   private var expandedTitleSection: some View {
+    
     var name = area.name
     var url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)")!
 
@@ -161,11 +167,11 @@ extension AreaDetailView {
 
   private var descSection: some View {
        
-    VStack(alignment: .leading, spacing: 16) {
+    VStack(alignment: .leading) {
       Text(modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
         .font(.system(size: 13))
         .foregroundColor(.secondary)
-
+      
       if area.wikiName.prefix(4) == "http" {
         if let url = URL(string: area.wikiName) {
           Link("Read more", destination: url)
@@ -173,39 +179,27 @@ extension AreaDetailView {
             .tint(.blue)
         }
       }
-//      else if let url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)"), modelMode == "area" {
-//        Link("Read more on Wikipedia", destination: url)
-//            .font(.headline)
-//            .tint(.blue)
-//      }
+      Divider()
+        .padding(.bottom, 14)
     }
-    .frame(width: nil, height: 80)
-    
-    .padding(.top, -5)
+    .frame(width: nil, height: modelMode == "area" ? 100 : 90)
+    .padding(.top, -12)
     .padding(.bottom, -5)
   }
   
   private var expandedDescSection: some View {
        
-    VStack(alignment: .leading, spacing: 16) {
-      HStack(alignment: .top) {
-        Text(modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
-          .font(.system(size: 16))
-          .foregroundColor(.primary)
-          
-        
-        if area.wikiName.prefix(4) == "http" {
-          if let url = URL(string: area.wikiName) {
-            Link("Read more", destination: url)
-              .font(.headline)
-              .tint(.blue)
-          }
+    HStack(alignment: .top) {
+      Text(modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
+        .font(.system(size: 16))
+        .foregroundColor(.primary)
+      
+      if area.wikiName.prefix(4) == "http" {
+        if let url = URL(string: area.wikiName) {
+          Link("Read more", destination: url)
+            .font(.headline)
+            .tint(.blue)
         }
-        //      else if let url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)"), modelMode == "area" {
-        //        Link("Read more on Wikipedia", destination: url)
-        //            .font(.headline)
-        //            .tint(.blue)
-        //      }
       }
     }
     .frame(width: nil, height: UIScreen.main.bounds.size.height - 200)
@@ -253,138 +247,104 @@ extension AreaDetailView {
   }
   
   private var reviewsSection: some View {
-
-    HStack {
-      VStack {
-        if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
-          Link(destination: url) {
-            Image("Reviews/Google")
-              .resizable()
-              .scaledToFill()
-              .frame(width: 56)
-          }
-        } else {
+    
+    let halfStar = Image("Reviews/Half Star")
+      .resizable()
+      .scaledToFill()
+      .frame(width: 1.5, height: 8)
+    let star = Image("Reviews/Star")
+      .resizable()
+      .scaledToFill()
+      .frame(width: 1.5, height: 8)
+    
+    return HStack {
+      if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
+        Link(destination: url) {
           Image("Reviews/Google")
             .resizable()
             .scaledToFill()
-            .frame(width: 56)
+            .frame(width: 48)
+            .padding(.top, -4)
         }
-
-        let halfStar = Image("Reviews/Half Star")
+      } else {
+        Image("Reviews/Google")
           .resizable()
           .scaledToFill()
-          .frame(width: 2, height: 8)
-        let star = Image("Reviews/Star")
-          .resizable()
-          .scaledToFill()
-          .frame(width: 2, height: 8)
-        
-        let gRating = placesViewModel.mapPlace.googleRating
-        let gReviews = placesViewModel.mapPlace.googleReviews
-        
-        HStack {
-          if gRating > 0 {
-            if gRating < 1 { halfStar } else if gRating >= 1 { star }
-            if gRating > 1 && gRating < 2 { halfStar } else if gRating >= 2 { star }
-            if gRating > 2 && gRating < 3 { halfStar } else if gRating >= 3 { star }
-            if gRating > 3 && gRating < 4 { halfStar } else if gRating >= 4 { star }
-            if gRating > 4 && gRating < 5 { halfStar } else if gRating >= 5 { star }
-          }
-          
-          if gReviews > 0 {
-            Text("(\(gReviews))")
-              .font(.system(size: 10))
-          } else {
-            Text("No reviews")
-              .font(.system(size: 10))
-          }
-        }
-        .padding(.leading, 16)
+          .frame(width: 48)
+          .padding(.top, -4)
       }
-      .position(x: 30, y: 10)
       
-      VStack(alignment: .trailing) {
-        VStack(alignment: .leading) {
-          HStack {
-            if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
-              Link(destination: url) {
-                Image("Reviews/Yelp")
-                  .resizable()
-                  .scaledToFit()
-                  .frame(height: 28)
-              }
-            } else {
-              Image("Reviews/Yelp")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 20)
-            }
-            
-            Text(placesViewModel.mapPlace.yelpPrice)
-              .font(.system(size: 14))
-          }
-        }
-        .padding(.bottom, -3)
-        
-        let halfStar = Image("Reviews/Half Star")
-          .resizable()
-          .scaledToFill()
-          .frame(width: 2, height: 8)
-        let star = Image("Reviews/Star")
-          .resizable()
-          .scaledToFill()
-          .frame(width: 2, height: 8)
-        
-        let yRating = placesViewModel.mapPlace.yelpRating
-        let yReviews = placesViewModel.mapPlace.yelpReviews
-        
-        HStack {
-          if yRating > 0 {
-            if yRating < 1 { halfStar } else if yRating >= 1 { star }
-            if yRating > 1 && yRating < 2 { halfStar } else if yRating >= 2 { star }
-            if yRating > 2 && yRating < 3 { halfStar } else if yRating >= 3 { star }
-            if yRating > 3 && yRating < 4 { halfStar } else if yRating >= 4 { star }
-            if yRating > 4 && yRating < 5 { halfStar } else if yRating >= 5 { star }
-          }
-          
-          if yReviews > 0 {
-            Text("(\(yReviews))")
-              .font(.system(size: 12))
-          } else {
-            Text("No reviews")
-              .font(.system(size: 12))
-          }
-        }
-        .padding(.trailing, 7)
-        .padding(.bottom, 10)
-      }
-      .position(x: 30, y: 14)
+      let gRating = placesViewModel.mapPlace.googleRating
+      let gReviews = placesViewModel.mapPlace.googleReviews
       
-      VStack(alignment: .trailing) {
-        Link(destination: URL(string: "tel:" + placesViewModel.mapPlace.phone)!) {
-          Text(placesViewModel.mapPlace.phone)
-            .font(.system(size: 14))
-            .frame(width: 160, alignment: .trailing)
-        }
-        
-        Text(getHoursOpen(hours: placesViewModel.mapPlace.hours))
-          .font(.system(size: 14))
-          .frame(width: 160, alignment: .trailing)
-        
+      if gRating > 0 {
+        if gRating < 1 { halfStar } else if gRating >= 1 { star }
+        if gRating > 1 && gRating < 2 { halfStar } else if gRating >= 2 { star }
+        if gRating > 2 && gRating < 3 { halfStar } else if gRating >= 3 { star }
+        if gRating > 3 && gRating < 4 { halfStar } else if gRating >= 4 { star }
+        if gRating > 4 && gRating < 5 { halfStar } else if gRating >= 5 { star }
       }
-      .frame(width: 160)
-      .padding(.bottom, -4)
+      
+      if gReviews > 0 {
+        Text("(\(gReviews))")
+          .font(.system(size: 10))
+      } else {
+        Text("No reviews")
+          .font(.system(size: 10))
+      }
+      
+      if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
+        Link(destination: url) {
+          Image("Reviews/Yelp")
+            .resizable()
+            .scaledToFill()
+            .frame(width: 42)
+            .padding(.top, -4)
+        }
+      } else {
+        Image("Reviews/Yelp")
+          .resizable()
+          .scaledToFill()
+          .frame(width: 42)
+          .padding(.top, -4)
+      }
+      
+      let yRating = placesViewModel.mapPlace.yelpRating
+      let yReviews = placesViewModel.mapPlace.yelpReviews
+      
+      if yRating > 0 {
+        if yRating < 1 { halfStar } else if yRating >= 1 { star }
+        if yRating > 1 && yRating < 2 { halfStar } else if yRating >= 2 { star }
+        if yRating > 2 && yRating < 3 { halfStar } else if yRating >= 3 { star }
+        if yRating > 3 && yRating < 4 { halfStar } else if yRating >= 4 { star }
+        if yRating > 4 && yRating < 5 { halfStar } else if yRating >= 5 { star }
+      }
+      
+      if yReviews > 0 {
+        Text("(\(yReviews))")
+          .font(.system(size: 12))
+      } else {
+        Text("No reviews")
+          .font(.system(size: 12))
+      }
+      
+      Text(placesViewModel.mapPlace.yelpPrice)
+        .font(.system(size: 14))
       
     }
-    .frame(width: nil, height: 20)
+    .frame(width: UIScreen.main.bounds.size.width - 32, height: 10)
+    .padding(.leading, -40)
   }
   
   private var mapLayer: some View {
     let places = placesViewModel.places.filter { $0.areaId == area.areaId}
+    let mapHeight = modelMode == "area" ? 530.0 : 720.0
+    let mapX = 182.0
+    let mapY = 162.0
 
     if let latitude = placesViewModel.mapCameraPosition.region?.center.latitude {
       if latitude == 0.0 {
-        let span = area.areaId == 1 ? area.zoomSpan : area.zoomInSpan
+        let span = area.areaId == 1 || area.areaId == 2 || area.areaId == 3 ? area.zoomSpan : area.zoomInSpan
         let position = MapCameraPosition.region(
           MKCoordinateRegion(center: area.centerCoordinates, span: span))
         
@@ -405,11 +365,13 @@ extension AreaDetailView {
             .annotationTitles(.visible)
           }
         }
-        .aspectRatio(1, contentMode: .fit)
-        .cornerRadius(75)
-        .frame(width: UIScreen.main.bounds.size.width - 40)
+        .background(.white)
+        .aspectRatio(1, contentMode: .fill)
+        .cornerRadius(15)
+        .frame(width: UIScreen.main.bounds.size.width - 32, height: UIScreen.main.bounds.size.height - mapHeight)
         .ignoresSafeArea()
-        .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
+        .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking,          .police, .restroom, .university, .publicTransport])))
+        .position(x:mapX, y:mapY)
       } else {
         return Map(position: $placesViewModel.mapCameraPosition) {
           ForEach(places) { place in
@@ -428,11 +390,13 @@ extension AreaDetailView {
             .annotationTitles(.visible)
           }
         }
-        .aspectRatio(1, contentMode: .fit)
-        .cornerRadius(75)
-        .frame(width: UIScreen.main.bounds.size.width - 40)
+        .background(.white)
+        .aspectRatio(1, contentMode: .fill)
+        .cornerRadius(15)
+        .frame(width: UIScreen.main.bounds.size.width - 32, height: UIScreen.main.bounds.size.height - mapHeight)
         .ignoresSafeArea()
         .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
+        .position(x:mapX, y:mapY)
       }
     } else {
       return Map(position: $placesViewModel.mapCameraPosition) {
@@ -442,6 +406,7 @@ extension AreaDetailView {
               .shadow(radius: 10)
               .onTapGesture {
                 withAnimation(.easeInOut) {
+                  expandMapTop = 40.0
                   placesViewModel.showNextPlace(area, place)
                   modelMode = "place"
                 }
@@ -450,64 +415,67 @@ extension AreaDetailView {
           .annotationTitles(.visible)
         }
       }
-      .aspectRatio(1, contentMode: .fit)
-      .cornerRadius(75)
-      .frame(width: UIScreen.main.bounds.size.width - 40)
+      .background(.white)
+      .aspectRatio(1, contentMode: .fill)
+      .cornerRadius(15)
+      .frame(width: UIScreen.main.bounds.size.width - 32, height: UIScreen.main.bounds.size.height - mapHeight)
       .ignoresSafeArea()
       .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
+      .position(x:mapX, y:mapY)
     }
   }
   
-  private var backButton: some View {
+  private var closeButton: some View {
     Button {
       if modelMode == "place" {
         modelMode = "area"
+        expandMapTop = 0
       } else {
         areasViewModel.sheetArea = nil
       }
     } label: {
       Image(systemName: "x.square.fill")
         .font(.system(size: 20))
-        .foregroundColor(Color(red: 0.7, green: 0.7, blue: 0.7))
-        .background(.thickMaterial)
+        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1, opacity: 0.65))
     }
-    .position(x: 20, y: 20)
+    .position(x: 35, y: 35)
   }
   
   private var expandMapButton: some View {
-    Button {
+    let topPadding = modelMode == "place" ? 380.0 : 440.0
+
+    return Button {
       withAnimation(.easeInOut) {
         self.showEnlarged = "map"
         placesViewModel.zoomOut(areasViewModel.mapArea)
       }
     } label: {
-      if modelMode != "place" {
-        Image(systemName: "arrow.down.left.and.arrow.up.right.square.fill")
-          .font(.system(size: 20))
-          .foregroundColor(Color(red: 0.7, green: 0.7, blue: 0.7))
-          .padding(.leading, 35)
-          .padding(.top, 0)
-      }
+      Image(systemName: "arrow.down.left.and.arrow.up.right.square.fill")
+        .font(.system(size: 20))
+        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1, opacity: 0.65))
+        .padding(.leading, 35)
+        .padding(.top, expandMapTop)
     }
-    .padding(.leading, UIScreen.main.bounds.size.width - 80)
+    .padding(.leading, UIScreen.main.bounds.size.width - 110)
+    .padding(.top, UIScreen.main.bounds.size.height - topPadding)
   }
   
   private var expandDescButton: some View {
-    Button {
+    let topPadding = modelMode == "place" ? 522.0 : 577.0
+
+    return Button {
       withAnimation(.easeInOut) {
         self.showEnlarged = "desc"
 //        placesViewModel.zoomOut(areasViewModel.mapArea)
       }
     } label: {
-      if modelMode != "place" {
-        Image(systemName: "arrow.down.left.and.arrow.up.right.square.fill")
-          .font(.system(size: 20))
-          .foregroundColor(Color(red: 0.7, green: 0.7, blue: 0.7))
-          .padding(.leading, 25)
-          .padding(.top, -5)
-      }
+      Image(systemName: "arrow.down.left.and.arrow.up.right.square.fill")
+        .font(.system(size: 20))
+        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1, opacity: 0.65))
+        .padding(.leading, 20)
     }
-    .padding(.leading, UIScreen.main.bounds.size.width - 80)
+    .padding(.leading, UIScreen.main.bounds.size.width - 90)
+    .padding(.top, UIScreen.main.bounds.size.height - topPadding)
   }
   
   private var contractButton: some View {

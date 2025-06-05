@@ -22,12 +22,14 @@ struct PlaceAnnotationView: View {
     var font = Font.system(size: 8)
     var strokeWidth = 0.75
     var zIndex = 0.0
+    var titlePadding = 0.0
     
-    if shortName == "Bank" {
+    if (shortName == "Bank" && placeName != "Eastern Bank") || placeName == "Hawkes Fearing" || shortName == "Library" {
       size = 156.0
+      titlePadding = -30.0
     } else if shortName == "Church" {
       size = 121.0
-    } else if shortName == "Old Derby" || shortName == "Paint" {
+    } else if shortName == "Old Derby" || shortName == "Paint"  || shortName == "Tree" {
       size = 110.0
     } else if placeName == "La Petite Maison" || placeName == "Square Cafe" || shortName == "Lawyer" {
       size = 86.0
@@ -53,6 +55,7 @@ struct PlaceAnnotationView: View {
         Text(name)
           .font(font)
           .customStroke(color: .white, width: strokeWidth)
+          .padding(.top, titlePadding)
       }
       .zIndex(zIndex)
     }

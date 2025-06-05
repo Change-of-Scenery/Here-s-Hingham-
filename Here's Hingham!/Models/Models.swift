@@ -183,7 +183,7 @@ enum SchemaV1: VersionedSchema {
       CLLocationCoordinate2D(latitude: iconCoordinateLat, longitude: iconCoordinateLng)
     }
     var zoomInSpan: MKCoordinateSpan {
-      MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
+      MKCoordinateSpan(latitudeDelta: 0.0007, longitudeDelta: 0.0007)
     }
     var zoomSpan: MKCoordinateSpan {
       MKCoordinateSpan(latitudeDelta: 0.003, longitudeDelta: 0.003)
