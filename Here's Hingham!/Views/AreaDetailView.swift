@@ -21,6 +21,11 @@ struct AreaDetailView: View {
   @State var showEnlarged = ""
   @State var mapPosition = CGPoint(x: 10, y: 10)
   @State var expandMapTop = 0.0
+  @State var placeBrewedAwakenings = SchemaV1.Place()
+  @State var placeNonas = SchemaV1.Place()
+  @State var placeHalabyLawGroup = SchemaV1.Place()
+  @State var placeHinghamHistoricalSociety = SchemaV1.Place()
+  @State var placeMaggies = SchemaV1.Place()
 
   let area: SchemaV1.Area
 
@@ -40,7 +45,7 @@ struct AreaDetailView: View {
       }
     } else {
       ScrollView {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 18) {
           imageSection
           titleSection
           if modelMode == "place" {
@@ -57,7 +62,7 @@ struct AreaDetailView: View {
         }
       }
       .padding([.leading, .trailing], 15)
-      .padding(.top, 15)
+      .padding(.top, 16)
       .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
       .overlay(closeButton, alignment: .top)
       .overlay(expandMapButton, alignment: .top)
@@ -77,7 +82,7 @@ extension AreaDetailView {
   private var imageSection: some View {
     TabView {
       let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
-      let imageCount = modelMode == "place" ? placesViewModel.mapPlace.imageCount : area.imageCount
+      let imageCount = modelMode == "place" ? placesViewModel.mapPlace.imageCount : area.imageCount == 0 ? 1 : area.imageCount
       
       ForEach(0..<imageCount, id: \.self) { index in
         Image("\(path)/\(index)")
@@ -251,27 +256,40 @@ extension AreaDetailView {
     let halfStar = Image("Reviews/Half Star")
       .resizable()
       .scaledToFill()
-      .frame(width: 1.5, height: 8)
+      .frame(width: 5, height: 10)
     let star = Image("Reviews/Star")
       .resizable()
       .scaledToFill()
-      .frame(width: 1.5, height: 8)
+      .frame(width: 5, height: 10)
     
+    let height = UIScreen.main.bounds.size.height
+    var paddingLeading = 0.0
+    
+    if height == 956.0 {
+      paddingLeading = -11.0
+    } else if height == 874.0 {
+      paddingLeading = 24.0
+    } else {
+      paddingLeading = 34.0
+    }
+
     return HStack {
       if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
         Link(destination: url) {
           Image("Reviews/Google")
             .resizable()
             .scaledToFill()
-            .frame(width: 48)
+            .frame(width: 56)
             .padding(.top, -4)
+            .padding(.leading, paddingLeading)
         }
       } else {
         Image("Reviews/Google")
           .resizable()
           .scaledToFill()
-          .frame(width: 48)
+          .frame(width: 56)
           .padding(.top, -4)
+          .padding(.leading, paddingLeading)
       }
       
       let gRating = placesViewModel.mapPlace.googleRating
@@ -287,26 +305,26 @@ extension AreaDetailView {
       
       if gReviews > 0 {
         Text("(\(gReviews))")
-          .font(.system(size: 10))
+          .font(.system(size: 12))
       } else {
         Text("No reviews")
-          .font(.system(size: 10))
+          .font(.system(size: 12))
       }
-      
+            
       if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
         Link(destination: url) {
           Image("Reviews/Yelp")
             .resizable()
             .scaledToFill()
-            .frame(width: 42)
-            .padding(.top, -4)
+            .frame(width: 56)
+            .padding(.bottom, 5)
         }
       } else {
         Image("Reviews/Yelp")
           .resizable()
           .scaledToFill()
-          .frame(width: 42)
-          .padding(.top, -4)
+          .frame(width: 56)
+          .padding(.bottom, 5)
       }
       
       let yRating = placesViewModel.mapPlace.yelpRating
@@ -329,22 +347,60 @@ extension AreaDetailView {
       }
       
       Text(placesViewModel.mapPlace.yelpPrice)
-        .font(.system(size: 14))
+        .font(.system(size: 12))
       
     }
-    .frame(width: UIScreen.main.bounds.size.width - 32, height: 10)
+    .frame(width: UIScreen.main.bounds.size.width, height: 10)
     .padding(.leading, -40)
   }
   
   private var mapLayer: some View {
-    let places = placesViewModel.places.filter { $0.areaId == area.areaId}
-    let mapHeight = modelMode == "area" ? 530.0 : 720.0
-    let mapX = 182.0
-    let mapY = 162.0
+    var places = placesViewModel.places.filter { $0.areaId == area.areaId}
+    if places.count == 0 {
+      loadPreviewPlaces()
+      places.append(placeBrewedAwakenings)
+      places.append(placeNonas)
+      places.append(placeHalabyLawGroup)
+      places.append(placeMaggies)
+    }
+    let height = UIScreen.main.bounds.size.height
+    var mapHeight = 0.0
+    var mapY = 0.0
+    
+    if modelMode == "area" {
+      if height == 956.0 {
+        mapHeight = 520.0
+        mapY = 220.0
+      } else if height == 932.0 {
+        mapHeight = 520.0
+        mapY = 190.0
+      } else if height == 874.0 {
+        mapHeight = 500.0
+        mapY = 176
+      } else {
+        mapHeight = 490.0
+        mapY = 170.0
+      }
+    } else {
+      if height == 956.0 {
+        mapHeight = 540.0
+        mapY = 190.0
+      } else if height == 874.0 {
+        mapHeight = 540.0
+        mapY = 150
+      } else {
+        mapHeight = 540.0
+        mapY = 140.0
+      }
+    }
+    
+    let mapX = height == 956.0 ? 203.0 : height == 932 ? 197.0 : height == 874.0 ? 187: 180
+
+    // heights: 956.0, 874.0, 852.0
 
     if let latitude = placesViewModel.mapCameraPosition.region?.center.latitude {
       if latitude == 0.0 {
-        let span = area.areaId == 1 || area.areaId == 2 || area.areaId == 3 ? area.zoomSpan : area.zoomInSpan
+        let span = area.areaId == 0 || area.areaId == 6 ? area.zoomInSpan : area.zoomSpan
         let position = MapCameraPosition.region(
           MKCoordinateRegion(center: area.centerCoordinates, span: span))
         
@@ -366,9 +422,8 @@ extension AreaDetailView {
           }
         }
         .background(.white)
-        .aspectRatio(1, contentMode: .fill)
-        .cornerRadius(15)
-        .frame(width: UIScreen.main.bounds.size.width - 32, height: UIScreen.main.bounds.size.height - mapHeight)
+        .cornerRadius(25)
+        .frame(width: UIScreen.main.bounds.size.width - 50, height: UIScreen.main.bounds.size.height - mapHeight)
         .ignoresSafeArea()
         .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking,          .police, .restroom, .university, .publicTransport])))
         .position(x:mapX, y:mapY)
@@ -391,9 +446,8 @@ extension AreaDetailView {
           }
         }
         .background(.white)
-        .aspectRatio(1, contentMode: .fill)
-        .cornerRadius(15)
-        .frame(width: UIScreen.main.bounds.size.width - 32, height: UIScreen.main.bounds.size.height - mapHeight)
+        .cornerRadius(25)
+        .frame(width: UIScreen.main.bounds.size.width - 50, height: UIScreen.main.bounds.size.height - mapHeight)
         .ignoresSafeArea()
         .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
         .position(x:mapX, y:mapY)
@@ -416,9 +470,8 @@ extension AreaDetailView {
         }
       }
       .background(.white)
-      .aspectRatio(1, contentMode: .fill)
-      .cornerRadius(15)
-      .frame(width: UIScreen.main.bounds.size.width - 32, height: UIScreen.main.bounds.size.height - mapHeight)
+      .cornerRadius(25)
+      .frame(width: UIScreen.main.bounds.size.width - 50, height: UIScreen.main.bounds.size.height - mapHeight)
       .ignoresSafeArea()
       .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
       .position(x:mapX, y:mapY)
@@ -436,13 +489,42 @@ extension AreaDetailView {
     } label: {
       Image(systemName: "x.square.fill")
         .font(.system(size: 20))
-        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1, opacity: 0.65))
+        .foregroundColor(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 1.0))
     }
     .position(x: 35, y: 35)
   }
   
   private var expandMapButton: some View {
-    let topPadding = modelMode == "place" ? 380.0 : 440.0
+    let height = UIScreen.main.bounds.size.height
+    var expandY = 0.0
+    var expandX = 0.0
+    
+    if modelMode == "area" {
+      if height == 956.0 {
+        expandX = 210.0
+        expandY = 420.0
+      } else if height == 932.0 {
+          expandX = 205.0
+          expandY = 430.0
+      } else if height == 874.0 {
+        expandX = 192.0
+        expandY = 430.0
+      } else {
+        expandX = 190.0
+        expandY = 428.0
+      }
+    } else {
+      if height == 956.0 {
+        expandX = 208.0
+        expandY = 475.0
+      } else if height == 874.0 {
+        expandX = 192.0
+        expandY = 475.0
+      } else {
+        expandX = 190.0
+        expandY = 476.0
+      }
+    }
 
     return Button {
       withAnimation(.easeInOut) {
@@ -452,16 +534,41 @@ extension AreaDetailView {
     } label: {
       Image(systemName: "arrow.down.left.and.arrow.up.right.square.fill")
         .font(.system(size: 20))
-        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1, opacity: 0.65))
         .padding(.leading, 35)
         .padding(.top, expandMapTop)
     }
     .padding(.leading, UIScreen.main.bounds.size.width - 110)
-    .padding(.top, UIScreen.main.bounds.size.height - topPadding)
+    .position(x:expandX, y:expandY)
   }
   
   private var expandDescButton: some View {
-    let topPadding = modelMode == "place" ? 522.0 : 577.0
+    let height = UIScreen.main.bounds.size.height
+    var expandY = 0.0
+    var expandX = 0.0
+    
+    if modelMode == "area" {
+      if height == 956.0 {
+        expandX = 210.0
+        expandY = 326.0
+      } else if height == 874.0 {
+        expandX = 192.0
+        expandY = 318.0
+      } else {
+        expandX = 190.0
+        expandY = 290.0
+      }
+    } else {
+      if height == 956.0 {
+        expandX = 206.0
+        expandY = 379.0
+      } else if height == 874.0 {
+        expandX = 192.0
+        expandY = 378.0
+      } else {
+        expandX = 189.0
+        expandY = 378.0
+      }
+    }
 
     return Button {
       withAnimation(.easeInOut) {
@@ -471,11 +578,11 @@ extension AreaDetailView {
     } label: {
       Image(systemName: "arrow.down.left.and.arrow.up.right.square.fill")
         .font(.system(size: 20))
-        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1, opacity: 0.65))
+        .foregroundStyle(Color(red: 1.0, green: 0.0, blue: 0.0, opacity: 0.5))
         .padding(.leading, 20)
     }
     .padding(.leading, UIScreen.main.bounds.size.width - 90)
-    .padding(.top, UIScreen.main.bounds.size.height - topPadding)
+    .position(x:expandX, y:expandY)
   }
   
   private var contractButton: some View {
@@ -511,6 +618,112 @@ extension AreaDetailView {
     return ""
   }
   
+  private func loadPreviewPlaces() {
+    placeBrewedAwakenings.address = "19 Main St"
+    placeBrewedAwakenings.areaId = 0
+    placeBrewedAwakenings.desc = "Café"
+    placeBrewedAwakenings.googleId = "ChIJn_MZU0lh44kRfIeIV-uPKXA"
+    placeBrewedAwakenings.googleRating = 4.3
+    placeBrewedAwakenings.googleReviews = 236
+    placeBrewedAwakenings.googleUrl = "https://maps.app.goo.gl/xyGuPUdxMorPv3Eq9"
+    placeBrewedAwakenings.hours = "05:30AM-8PM;15:30AM-8PM;25:30AM-8PM;35:30AM-8PM;45:30AM-8PM;55:30AM-8PM;65:30AM-8PM"
+    placeBrewedAwakenings.imageCount = 1
+    placeBrewedAwakenings.likes = 0
+    placeBrewedAwakenings.locationLat = 42.24192
+    placeBrewedAwakenings.locationLng = -70.88921
+    placeBrewedAwakenings.name = "Brewed Awakenings"
+    placeBrewedAwakenings.nickname = ""
+    placeBrewedAwakenings.notes = "Welcome to the fresh and flavorful world of Brewed Awakenings located in the heart of charming Hingham Center!\n\nFor over 15 years we have taken pride in being a place where friends, family, neighbors & coworkers meet to enjoy our cozy atmosphere, delicious coffee, tea, baked goods, soups, salads, sandwiches and wraps."
+    placeBrewedAwakenings.phone = "(781) 741-5331"
+    placeBrewedAwakenings.shortName = "Café"
+    placeBrewedAwakenings.type = 1
+    placeBrewedAwakenings.website = "http://www.hinghambrewed.com/"
+    placeBrewedAwakenings.yelpCategory = "Coffee & Tea"
+    placeBrewedAwakenings.yelpId = "brewed-awakenings-hingham"
+    placeBrewedAwakenings.yelpPrice = "$$"
+    placeBrewedAwakenings.yelpRating = 2.9
+    placeBrewedAwakenings.yelpReviews = 94
+    placeBrewedAwakenings.yelpUrl = "https://www.yelp.com/biz/brewed-awakenings-hingham"
+
+    placeNonas.address = "19 Main St"
+    placeNonas.areaId = 0
+    placeNonas.desc = "Ice Cream"
+    placeNonas.googleId = "ChIJn_MZU0lh44kRMalvJ7oxslc"
+    placeNonas.googleRating = 4.8
+    placeNonas.googleReviews = 278
+    placeNonas.googleUrl = "https://maps.app.goo.gl/L8HACNp6qaDLv6AA7"
+    placeNonas.hours = "0,11AM-10PM;1,11AM-10PM;2,11AM-10PM;3,11AM-10PM;4,11AM-10PM;5,11AM-10PM;6,11AM-10PM"
+    placeNonas.imageCount = 1
+    placeNonas.likes = 0
+    placeNonas.locationLat = 42.24184
+    placeNonas.locationLng = -70.88909
+    placeNonas.name = "Nona's"
+    placeNonas.nickname = ""
+    placeNonas.notes = "Superb ice cream and home made apple pies!   Hours   Sunday:11:00AM - 9:00PM Monday:11:00AM - 9:00PM Tuesday:11:00AM - 9:00PM Wednesday:11:00AM - 9:00PM Thursday:11:00AM - 9:00PM Friday::11:00AM - 10:00PM Saturday:11:00AM - 10:00PM "
+    placeNonas.phone = "(781) 749-3999"
+    placeNonas.shortName = "Ice Cream"
+    placeNonas.type = 1
+    placeNonas.website = "https://www.nonasicecream.com/"
+    placeNonas.yelpCategory = "Ice Cream & Frozen Yogurt"
+    placeNonas.yelpId = "nonas-homemade-ice-cream-hingham"
+    placeNonas.yelpPrice = "$"
+    placeNonas.yelpRating = 4.3
+    placeNonas.yelpReviews = 101
+    placeNonas.yelpUrl = "https://www.yelp.com/biz/nonas-homemade-ice-cream-hingham?adjust_creative=oMiPYzoO1rgsBWiS9cnBrQ&utm_campaign=yelp_api_v3&utm_medium=api_v3_business_search&utm_source=oMiPYzoO1rgsBWiS9cnBrQ"
+        
+    placeHalabyLawGroup.address = "14 Main St"
+    placeHalabyLawGroup.areaId = 0
+    placeHalabyLawGroup.desc = "Lawyer"
+    placeHalabyLawGroup.googleId = "ChIJERatVElh44kRG3uNnS-xn-k"
+    placeHalabyLawGroup.googleRating = 4.7
+    placeHalabyLawGroup.googleReviews = 19
+    placeHalabyLawGroup.googleUrl = "https://maps.app.goo.gl/Un4LvghnwwoRQENt8"
+    placeHalabyLawGroup.hours = "0,Closed;1,9:30AM-5PM;2,9:30AM-5PM;3,9:30AM-5PM;4,9:30AM-5PM;5,9:30AM-5PM;6,Closed"
+    placeHalabyLawGroup.imageCount = 1
+    placeHalabyLawGroup.likes = 0
+    placeHalabyLawGroup.locationLat = 42.24209
+    placeHalabyLawGroup.locationLng = -70.88876
+    placeHalabyLawGroup.name = "Halaby Law Group"
+    placeHalabyLawGroup.nickname = ""
+    placeHalabyLawGroup.notes = "Dedicated attorneys committed to providing personalized legal services.  The attorneys and legal professionals at Halaby Law Group, P.C. are committed to delivering personalized legal services and building lasting relationships with the firm's diverse clientele, which include corporations, insurance carriers, small to mid-sized local businesses, and individuals.  Co-owners Jon and Julie Halaby opened the firm together in 2010 as a husband and wife team, after having practiced separately at other private law firms since 1995.  Since its opening, Halaby Law Group has developed a strong reputation for achieving impressive results for its clients, particularly in challenging cases where attention to detail and ongoing persistence is necessary in order to prevail.  Many of the firm's clients are referred by other attorneys in the community or former clients of the firm who know they can rely on Halaby Law Group to act as trusted advisors, skillful negotiators, and zealous advocates in and out of the courtroom. Also in this building is Rice McVaney Communications. https://www.ricemcvaney.com"
+    placeHalabyLawGroup.phone = "(781) 749-0909"
+    placeHalabyLawGroup.shortName = "Lawyer"
+    placeHalabyLawGroup.type = 14
+    placeHalabyLawGroup.website = "https://halabylegal.com/"
+    placeHalabyLawGroup.yelpCategory = "General Litigation, Employment Law"
+    placeHalabyLawGroup.yelpId = "halaby-law-group-hingham"
+    placeHalabyLawGroup.yelpPrice = ""
+    placeHalabyLawGroup.yelpRating = 5.0
+    placeHalabyLawGroup.yelpReviews = 1
+    placeHalabyLawGroup.yelpUrl = "https://www.yelp.com/biz/halaby-law-group-hingham?adjust_creative=oMiPYzoO1rgsBWiS9cnBrQ&utm_campaign=yelp_api_v3&utm_medium=api_v3_business_search&utm_source=oMiPYzoO1rgsBWiS9cnBrQ"
+    
+    placeMaggies.address = "17 Main St"
+    placeMaggies.areaId = 0
+    placeMaggies.desc = "Pets"
+    placeMaggies.googleId = "ChIJQ4M-U0lh44kRvV6XzcHEcSc"
+    placeMaggies.googleRating = 4.7
+    placeMaggies.googleReviews = 26
+    placeMaggies.googleUrl = "https://maps.app.goo.gl/wheJ2byg1JSZK3o97"
+    placeMaggies.hours = "0,11AM-5PM;1,10AM-5PM;2,10AM-5PM;3,10AM-5PM;4,10AM-5PM;5,10AM-5PM;6,10AM-5PM"
+    placeMaggies.imageCount = 1
+    placeMaggies.likes = 0
+    placeMaggies.locationLat = 42.2418
+    placeMaggies.locationLng = -70.88901
+    placeMaggies.name = "Maggie's"
+    placeMaggies.nickname = ""
+    placeMaggies.notes = "Maggie's Dog House was founded in 2005 by Kim Sylvester. She was watching the Today Show while getting ready for her stressful corporate job when a segment on gourmet dog treats caught her attention. Kim started to bake her own decadent treats and sell them during the holiday season in malls. This later lead to wholesaling to local pet specialty stores. While searching for more exposure in the South Shore, Kim realized that there was a gap in the Hingham area and decided to open her own shop. Maggie’s Dog House would soon feature not only their award winning treats, but also various high-end dog accessories and food."
+    placeMaggies.phone = "(781) 740-7297"
+    placeMaggies.shortName = "Pets"
+    placeMaggies.type = 2
+    placeMaggies.website = "https://www.maggiesdoghouse.com/"
+    placeMaggies.yelpCategory = "Pet Stores"
+    placeMaggies.yelpId = "maggies-doghouse-hingham"
+    placeMaggies.yelpPrice = ""
+    placeMaggies.yelpRating = 4.6
+    placeMaggies.yelpReviews = 13
+    placeMaggies.yelpUrl = "https://www.yelp.com/biz/maggies-doghouse-hingham?adjust_creative=oMiPYzoO1rgsBWiS9cnBrQ&utm_campaign=yelp_api_v3&utm_medium=api_v3_business_search&utm_source=oMiPYzoO1rgsBWiS9cnBrQ"
+  }
+
 }
 
 #Preview {

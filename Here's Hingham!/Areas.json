@@ -48,7 +48,7 @@
     "zoom":0.0
   },
   {
-    "areaId":4,
+    "areaId":5,
     "centerCoordinateLat":42.24482,
     "centerCoordinateLng":-70.88484,
     "iconCoordinateLat":42.24642,
@@ -60,12 +60,12 @@
     "zoom":0.0
   },
   {
-    "areaId":5,
+    "areaId":4,
     "centerCoordinateLat":42.23611,
     "centerCoordinateLng":-70.87101,
     "iconCoordinateLat":42.23611,
     "iconCoordinateLng":-70.86601,
-    "name":"Hingham East",
+    "name":"East Hingham",
     "shortName":"East",
     "desc":"Hingham East is the home of the Hingham Public Library, which features a \"library of things,\" where you can borrow everything from artwork to photo equipment. Near the library is the Weir River Farm that has regular events for the public, and Turkey Hill where you can enjoy a fine view of Boston in a bucolic setting. East Street was once called Cohasset Street, since it leads directly to Cohasset Village.",
     "tilt":0,

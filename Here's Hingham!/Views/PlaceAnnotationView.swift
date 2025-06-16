@@ -34,7 +34,7 @@ struct PlaceAnnotationView: View {
     } else if placeName == "La Petite Maison" || placeName == "Square Cafe" || shortName == "Lawyer" {
       size = 86.0
     } else if type == 6 {
-      size = 58.0
+      size = 72.0
     }
     
     if selected == true {
