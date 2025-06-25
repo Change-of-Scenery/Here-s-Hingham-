@@ -12,10 +12,6 @@ struct AreaDetailView: View {
   
   @EnvironmentObject private var areasViewModel: AreasViewModel
   @EnvironmentObject private var placesViewModel: PlacesViewModel
-  @State private var position = MapCameraPosition.region(
-    MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)))
-  @State private var closeInPosition = MapCameraPosition.region(
-    MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)))
   @State var imageCount:Int = 10
   @State var modelMode = "area"
   @State var showEnlarged = ""
@@ -146,28 +142,28 @@ extension AreaDetailView {
   
   private var expandedTitleSection: some View {
     
-    var name = area.name
-    var url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)")!
+//    var name = area.name
+    let url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)")!
 
-    if modelMode == "place" {
-      name = placesViewModel.mapPlace.type == 6 ? placesViewModel.mapPlace.name + " House" : placesViewModel.mapPlace.name
-      url = URL(string: placesViewModel.mapPlace.website)!
-    }
+//    if modelMode == "place" {
+//      name = placesViewModel.mapPlace.type == 6 ? placesViewModel.mapPlace.name + " House" : placesViewModel.mapPlace.name
+//      url = URL(string: placesViewModel.mapPlace.website)!
+//    }
 
     return VStack(alignment: .leading) {
       HStack(alignment: .top) {
-        Link(name, destination: url)
-          .font(name.count > 30 ? .title3 : .title)
-          .fontWeight(.semibold)
+        Link(area.name, destination: url)
+          .font(area.name.count > 30 ? .title3 : .title)
+          .fontWeight(.bold)
           .frame(width: nil, height: 20)
-        if modelMode == "place" {
-          Text(placesViewModel.mapPlace.desc)
-            .font(.system(size: 14))
-            .padding([.top, .leading], 2)
-        }
+//        if modelMode == "place" {
+//          Text(placesViewModel.mapPlace.desc)
+//            .font(.system(size: 14))
+//            .padding([.top, .leading], 2)
+//        }
       }
     }
-    .padding(.top, 25)
+    .padding(.top, 15)
   }
 
   private var descSection: some View {
@@ -366,130 +362,94 @@ extension AreaDetailView {
     let height = UIScreen.main.bounds.size.height
     var mapHeight = 0.0
     var mapY = 0.0
-    
-    if modelMode == "area" {
-      if height == 956.0 {
-        mapHeight = 520.0
-        mapY = 220.0
-      } else if height == 932.0 {
-        mapHeight = 520.0
-        mapY = 190.0
-      } else if height == 874.0 {
-        mapHeight = 500.0
-        mapY = 176
+    var mapX = height == 956.0 ? 203.0 : height == 932 ? 197.0 : height == 874.0 ? 187: 180
+   
+    if showEnlarged != "map" {
+      if modelMode == "area" {
+        if height == 956.0 {
+          mapHeight = 490.0
+          mapY = 215.0
+        } else if height == 932.0 { // iPhone 15 Plus
+          mapHeight = 490.0
+          mapY = 205.0
+        } else if height == 874.0 {
+          mapHeight = 500.0
+          mapY = 176
+        } else if height == 852 {
+          mapHeight = 497.0
+          mapY = 158
+        } else {
+          mapHeight = 490.0
+          mapY = 170.0
+        }
       } else {
-        mapHeight = 490.0
-        mapY = 170.0
+        if height == 956.0 {
+          mapHeight = 540.0
+          mapY = 190.0
+        } else if height == 932.0 { // iPhone 15 Plus
+          mapHeight = 530.0
+          mapY = 180.0
+        } else if height == 874.0 {
+          mapHeight = 540.0
+          mapY = 150
+        } else if height == 852.0 {
+          mapHeight = 540.0
+          mapY = 136
+        } else {
+          mapHeight = 540.0
+          mapY = 138.0
+        }
       }
     } else {
-      if height == 956.0 {
-        mapHeight = 540.0
-        mapY = 190.0
-      } else if height == 874.0 {
-        mapHeight = 540.0
-        mapY = 150
-      } else {
-        mapHeight = 540.0
-        mapY = 140.0
-      }
+      mapY = 430.0
+      mapX = 220.0
     }
     
-    let mapX = height == 956.0 ? 203.0 : height == 932 ? 197.0 : height == 874.0 ? 187: 180
-
-    // heights: 956.0, 874.0, 852.0
-
-    if let latitude = placesViewModel.mapCameraPosition.region?.center.latitude {
-      if latitude == 0.0 {
-        let span = area.areaId == 0 || area.areaId == 6 ? area.zoomInSpan : area.zoomSpan
-        let position = MapCameraPosition.region(
-          MKCoordinateRegion(center: area.centerCoordinates, span: span))
-        
-        return Map(initialPosition: position) {
-          ForEach(places) { place in
-            Annotation("", coordinate: place.coordinates) {
-              withAnimation(.easeInOut) {
-                PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, selected: place.selected)
-                  .shadow(radius: 10)
-                  .onTapGesture {
-                    withAnimation(.easeInOut) {
-                      placesViewModel.showNextPlace(area, place)
-                      modelMode = "place"
-                    }
-                  }
-              }
-            }
-            .annotationTitles(.visible)
-          }
-        }
-        .background(.white)
-        .cornerRadius(25)
-        .frame(width: UIScreen.main.bounds.size.width - 50, height: UIScreen.main.bounds.size.height - mapHeight)
-        .ignoresSafeArea()
-        .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking,          .police, .restroom, .university, .publicTransport])))
-        .position(x:mapX, y:mapY)
-      } else {
-        return Map(position: $placesViewModel.mapCameraPosition) {
-          ForEach(places) { place in
-            Annotation("", coordinate: place.coordinates) {
-              withAnimation(.easeInOut) {
-                PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, selected: place.selected)
-                  .shadow(radius: 10)
-                  .onTapGesture {
-                    withAnimation(.easeInOut) {
-                      placesViewModel.showNextPlace(area, place)
-                      modelMode = "place"
-                    }
-                  }
-              }
-            }
-            .annotationTitles(.visible)
-          }
-        }
-        .background(.white)
-        .cornerRadius(25)
-        .frame(width: UIScreen.main.bounds.size.width - 50, height: UIScreen.main.bounds.size.height - mapHeight)
-        .ignoresSafeArea()
-        .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
-        .position(x:mapX, y:mapY)
-      }
-    } else {
-      return Map(position: $placesViewModel.mapCameraPosition) {
-        ForEach(places) { place in
-          Annotation("", coordinate: place.coordinates) {
+    return Map(position: $areasViewModel.mapCameraPosition) {
+      ForEach(places) { place in
+        Annotation("", coordinate: place.coordinates) {
+          withAnimation(.easeInOut) {
             PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, selected: place.selected)
               .shadow(radius: 10)
               .onTapGesture {
                 withAnimation(.easeInOut) {
-                  expandMapTop = 40.0
-                  placesViewModel.showNextPlace(area, place)
+                  placesViewModel.showPlace(area, place)
                   modelMode = "place"
+                  if showEnlarged == "map" {
+                    areasViewModel.zoomIn()
+                  }
+                  showEnlarged = ""
                 }
               }
           }
-          .annotationTitles(.visible)
         }
+        .annotationTitles(.visible)
       }
-      .background(.white)
-      .cornerRadius(25)
-      .frame(width: UIScreen.main.bounds.size.width - 50, height: UIScreen.main.bounds.size.height - mapHeight)
-      .ignoresSafeArea()
-      .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
-      .position(x:mapX, y:mapY)
     }
+    .onMapCameraChange(frequency: .continuous) { context in
+      areasViewModel.centerCoordinate = context.region.center
+    }
+    .background(.white)
+    .cornerRadius(45)
+    .frame(height: UIScreen.main.bounds.size.height - mapHeight)
+    .ignoresSafeArea()
+    .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
+    .position(x:mapX, y:mapY)
   }
   
   private var closeButton: some View {
     Button {
       if modelMode == "place" {
-        modelMode = "area"
-        expandMapTop = 0
+        withAnimation(.easeInOut) {
+          modelMode = "area"
+          expandMapTop = 0
+        }
       } else {
         areasViewModel.sheetArea = nil
       }
     } label: {
       Image(systemName: "x.square.fill")
         .font(.system(size: 20))
-        .foregroundColor(Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 1.0))
     }
     .position(x: 35, y: 35)
   }
@@ -500,15 +460,18 @@ extension AreaDetailView {
     var expandX = 0.0
     
     if modelMode == "area" {
-      if height == 956.0 {
-        expandX = 210.0
+      if height == 956.0 { // iPhone 16 Pro Max
+        expandX = 230.0
         expandY = 420.0
-      } else if height == 932.0 {
-          expandX = 205.0
-          expandY = 430.0
+      } else if height == 932.0 { // iPhone 15 Plus
+        expandX = 226.0
+        expandY = 428.0
       } else if height == 874.0 {
         expandX = 192.0
         expandY = 430.0
+      } else if height == 852.0 { // iPhone 15
+        expandX = 206.0
+        expandY = 424.0
       } else {
         expandX = 190.0
         expandY = 428.0
@@ -517,9 +480,15 @@ extension AreaDetailView {
       if height == 956.0 {
         expandX = 208.0
         expandY = 475.0
+      } else if height == 932.0 { // iPhone 15 Plus
+        expandX = 226.0
+        expandY = 470.0
       } else if height == 874.0 {
         expandX = 192.0
         expandY = 475.0
+      } else if height == 852.0 { // iPhone 15
+        expandX = 206.0
+        expandY = 474.0
       } else {
         expandX = 190.0
         expandY = 476.0
@@ -529,7 +498,7 @@ extension AreaDetailView {
     return Button {
       withAnimation(.easeInOut) {
         self.showEnlarged = "map"
-        placesViewModel.zoomOut(areasViewModel.mapArea)
+        areasViewModel.zoomOut()
       }
     } label: {
       Image(systemName: "arrow.down.left.and.arrow.up.right.square.fill")
@@ -547,12 +516,18 @@ extension AreaDetailView {
     var expandX = 0.0
     
     if modelMode == "area" {
-      if height == 956.0 {
-        expandX = 210.0
-        expandY = 326.0
+      if height == 956.0 { // iPhone 16 Pro Max
+        expandX = 230.0
+        expandY = 324.0
+      } else if height == 932.0 { // iPhone 15 Plus
+        expandX = 225.0
+        expandY = 324.0
       } else if height == 874.0 {
         expandX = 192.0
         expandY = 318.0
+      } else if height == 852.0 { // iPhone 15
+        expandX = 204.0
+        expandY = 322.0
       } else {
         expandX = 190.0
         expandY = 290.0
@@ -561,9 +536,15 @@ extension AreaDetailView {
       if height == 956.0 {
         expandX = 206.0
         expandY = 379.0
+      } else if height == 932.0 { // iPhone 15 Plus
+        expandX = 225.0
+        expandY = 388.0
       } else if height == 874.0 {
         expandX = 192.0
         expandY = 378.0
+      } else if height == 852.0 { // iPhone 15
+        expandX = 204.0
+        expandY = 388.0
       } else {
         expandX = 189.0
         expandY = 378.0
@@ -589,7 +570,7 @@ extension AreaDetailView {
     Button {
       withAnimation(.easeInOut) {
         if self.showEnlarged == "map" {
-          placesViewModel.zoomIn(areasViewModel.mapArea)
+          areasViewModel.zoomIn()
         }
         
         self.showEnlarged = ""
@@ -597,7 +578,6 @@ extension AreaDetailView {
     } label: {
       Image(systemName: "arrow.up.right.and.arrow.down.left.square.fill")
         .font(.system(size: 20))
-        .foregroundColor(Color(red: 0.7, green: 0.7, blue: 0.7))
         .padding(0)
         .padding(.leading, 18)
         .padding(.bottom, -5)

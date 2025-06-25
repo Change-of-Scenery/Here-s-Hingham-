@@ -60,6 +60,7 @@ extension AreaPreviewView {
         .cornerRadius(10)
         .onTapGesture {
           areasViewModel.sheetArea = area
+          areasViewModel.mapArea = area
         }
     }
     .padding(6)

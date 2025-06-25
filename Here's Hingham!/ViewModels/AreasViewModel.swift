@@ -11,28 +11,36 @@ import SwiftUI
 import SwiftData
 
 class AreasViewModel: ObservableObject {
-  @Published var mapCameraPosition: MapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.23227,longitude: -70.89828), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)))
+  @Published var mapCameraPosition: MapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)))
+
   @Published var areas: [SchemaV1.Area] = []
   @Published var previewArea = SchemaV1.Area()
   @Published var mapArea: SchemaV1.Area {
     didSet {
-      updateRegion(mapArea.coordinates)
+      if let latitude = mapCameraPosition.region?.center.latitude {
+        if latitude == 42.23227 {
+          let span = mapArea.areaId == 0 || mapArea.areaId == 6 ? mapArea.zoomInSpan : mapArea.zoomSpan
+          mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: mapArea.centerCoordinates, span: span))
+        }
+      }
+      updateRegion(mapCameraPosition)
     }
   }
   @Published var showAreasList:Bool = false
   @Published var sheetArea: SchemaV1.Area? = nil
+  @Published var centerCoordinate: CLLocationCoordinate2D
 
   let span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
   
   init() {
     mapArea = SchemaV1.Area()
-    let coordinates = CLLocationCoordinate2D(latitude: 42.23227,longitude: -70.89828)
-    updateRegion(coordinates)
+    centerCoordinate = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0) // , span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))
+    updateRegion(MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.23227,longitude: -70.89828), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))))
   }
   
-  private func updateRegion(_ coordinates: CLLocationCoordinate2D) {
+  private func updateRegion(_ mapCameraPosition: MapCameraPosition) {
     withAnimation(.easeInOut) {
-      mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: coordinates, span: span))
+      self.mapCameraPosition = mapCameraPosition
     }
   }
   
@@ -42,7 +50,7 @@ class AreasViewModel: ObservableObject {
     }
   }
   
-  func showNextArea(_ area: SchemaV1.Area) {
+  func showArea(_ area: SchemaV1.Area) {
     if area.imageCount == 0 {
       var imageCounter = 0
       while UIImage(named: ("\(area.shortName)/Area/\(imageCounter)")) != nil {
@@ -66,11 +74,27 @@ class AreasViewModel: ObservableObject {
     let nextIndex = currentIndex + 1
     guard areas.indices.contains(nextIndex) else {
       guard let firstArea = areas.first else { return }
-      showNextArea(firstArea)
+      showArea(firstArea)
       return
     }
     
     let nextArea = areas[nextIndex]
-    showNextArea(nextArea)
+    showArea(nextArea)
+  }
+  
+  func zoomOut() {
+    let mapCameraPosition: MapCameraPosition
+    
+    if centerCoordinate.latitude == 0.0 {
+      mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: mapArea.centerCoordinateLat - 0.0002, longitude: mapArea.centerCoordinateLng - 0.00005), span: MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)))
+    } else {
+      mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: centerCoordinate, span: MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)))
+    }
+    
+    updateRegion(mapCameraPosition)
+  }
+  
+  func zoomIn() {
+    updateRegion(MapCameraPosition.region(MKCoordinateRegion(center: centerCoordinate, span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))))
   }
 }

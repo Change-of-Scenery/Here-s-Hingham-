@@ -11,7 +11,6 @@ import SwiftUI
 import SwiftData
 
 class PlacesViewModel: ObservableObject {
-  @Published var mapCameraPosition: MapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)))
   @Published var places: [SchemaV1.Place] = []
   @Published var mapPlace: SchemaV1.Place
 //  {
@@ -21,21 +20,11 @@ class PlacesViewModel: ObservableObject {
 //    }
 //  }
   
-  var span = MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
-  
   init() {
     mapPlace = SchemaV1.Place()
-    //    let coordinates = CLLocationCoordinate2D(latitude: 0,longitude: 0)
-    //    updateRegion(coordinates)
   }
-  
-  func updateRegion(_ coordinates: CLLocationCoordinate2D) {
-    withAnimation(.easeInOut) {
-      mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: coordinates, span: span))
-    }
-  }
-  
-  func showNextPlace(_ area: SchemaV1.Area, _ place: SchemaV1.Place) {
+    
+  func showPlace(_ area: SchemaV1.Area, _ place: SchemaV1.Place) {
     if mapPlace == place && (mapPlace.selected == true || place.selected == true) {
       place.selected = false
     } else {
@@ -55,18 +44,5 @@ class PlacesViewModel: ObservableObject {
       mapPlace = place
     }
   }
-  
-  func zoomOut(_ area: SchemaV1.Area) {
-    span = MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)
-    let coord = CLLocationCoordinate2D(latitude: area.centerCoordinateLat - 0.0002, longitude: area.centerCoordinateLng - 0.00005)
-    updateRegion(coord)
-  }
-  
-  func zoomIn(_ area: SchemaV1.Area) {
-    span = MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
-    let coord = CLLocationCoordinate2D(latitude: area.centerCoordinateLat - 0.0002, longitude: area.centerCoordinateLng - 0.00005)
-    updateRegion(coord)
-  }
-  
 }
 

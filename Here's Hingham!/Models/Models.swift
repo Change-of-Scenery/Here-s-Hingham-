@@ -217,7 +217,7 @@ enum SchemaV1: VersionedSchema {
       self.iconCoordinateLat = 42.24059
       self.iconCoordinateLng = -70.88741
       self.shortName = "Square"
-      self.desc = "This quaint and historic downtown is full of New England charm. including an assortment of boutiques, salons, and restaurants. The Old Ship church at the top of the square on Main St is the oldest wooden church in America still in use for its original purpose."
+      self.desc = "The Square is the old, quaint downtown of Hingham. Among the church steeples, you'll find boutiques, salons, restaurants, and a shoe repair shop. The Old Ship church, built by the Puritans in 1681, is the oldest wooden church in America still in use as a place of worship. The large yellow historic building on Main Street is affectionately called the \"Old Derby.\" It was the original location of Derby Academy, founded in 1784 and is the first coed school in America. The school still operates today on a larger campus on Burditt Street."
       self.tilt = 0
       self.zoom = 0.0
       self.timestamp = Date.now

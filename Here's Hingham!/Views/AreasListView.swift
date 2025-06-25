@@ -16,7 +16,7 @@ struct AreasListView: View {
     List {
       ForEach(areasViewModel.areas) { area in
         Button {
-          areasViewModel.showNextArea(area)
+          areasViewModel.showArea(area)
         } label: {
           listRowView(area)
         }

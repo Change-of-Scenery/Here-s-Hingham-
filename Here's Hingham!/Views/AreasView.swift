@@ -84,7 +84,7 @@ extension AreasView {
             .scaleEffect(areasViewModel.mapArea == area ? 1.2 : 0.7)
             .shadow(radius: 10)
             .onTapGesture {
-              areasViewModel.showNextArea(area)
+              areasViewModel.showArea(area)
             }
         }
         .annotationTitles(.visible)
