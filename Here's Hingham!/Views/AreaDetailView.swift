@@ -15,6 +15,7 @@ struct AreaDetailView: View {
   @State var imageCount:Int = 10
   @State var modelMode = "area"
   @State var showEnlarged = ""
+  @State var showRatingSelector = false
   @State var mapPosition = CGPoint(x: 10, y: 10)
   @State var expandMapTop = 0.0
   @State var placeBrewedAwakenings = SchemaV1.Place()
@@ -22,15 +23,16 @@ struct AreaDetailView: View {
   @State var placeHalabyLawGroup = SchemaV1.Place()
   @State var placeHinghamHistoricalSociety = SchemaV1.Place()
   @State var placeMaggies = SchemaV1.Place()
+  @State var selectedRating = 0.0
 
   let area: SchemaV1.Area
-
+  
   var body: some View {
     if showEnlarged == "map" {
       ZStack {
         mapLayer
           .overlay(contractButton.padding(.top, 15), alignment: .top)
-          .overlay(expandedTitleSection, alignment: .top)
+//          .overlay(expandedTitleSection, alignment: .top)
       }
     } else if showEnlarged == "desc" {
       VStack {
@@ -40,29 +42,27 @@ struct AreaDetailView: View {
         expandedDescSection
       }
     } else {
-      ScrollView {
-        VStack(alignment: .leading, spacing: 18) {
-          imageSection
-          titleSection
-          if modelMode == "place" {
-            if placesViewModel.mapPlace.type == 6 {
-              historicHouseSection
-            } else {
-              reviewsSection
-            }
-            Divider()
-              .padding(.top, -5)
+      VStack(alignment: .leading, spacing: 18) {
+        imageSection
+        titleSection
+        if modelMode == "place" {
+          if placesViewModel.mapPlace.type == 6 {
+            historicHouseSection
+          } else {
+            reviewsSection
           }
-          descSection
-          mapLayer
+          Divider()
+            .padding(.top, -5)
         }
+        descSection
+        mapLayer
       }
       .padding([.leading, .trailing], 15)
       .padding(.top, 16)
       .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
       .overlay(closeButton, alignment: .top)
       .overlay(expandMapButton, alignment: .top)
-      .overlay(expandDescButton, alignment: .top)
+//      .overlay(expandDescButton, alignment: .top)
     }
   }
 }
@@ -94,7 +94,6 @@ extension AreaDetailView {
   }
   
   private var titleSection: some View {
-    
     var name = area.name
     var url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)")!
     var dividerTopPadding = 0.0
@@ -116,6 +115,8 @@ extension AreaDetailView {
         Spacer()
         if modelMode == "place" {
           Text(placesViewModel.mapPlace.desc)
+            .font(.system(size: 12))
+          Text(placesViewModel.mapPlace.yelpPrice)
             .font(.system(size: 12))
         }
       }
@@ -177,14 +178,13 @@ extension AreaDetailView {
         if let url = URL(string: area.wikiName) {
           Link("Read more", destination: url)
             .font(.headline)
-            .tint(.blue)
         }
       }
       Divider()
         .padding(.bottom, 14)
     }
-    .frame(width: nil, height: modelMode == "area" ? 100 : 90)
-    .padding(.top, -12)
+    .frame(width: nil, height: modelMode == "area" ? 120 : 60, alignment: .topLeading)   // modelMode == "area" ? 100 : 90
+    .padding(.top, -15)
     .padding(.bottom, -5)
   }
   
@@ -226,7 +226,7 @@ extension AreaDetailView {
         Spacer()
         Text("Lot size")
           .font(.subheadline)
-        Text("\(placesViewModel.mapPlace.lotSize == 0 ? "unknown" : String(placesViewModel.mapPlace.lotSize))")
+        Text("\(placesViewModel.mapPlace.lotSize == 0 ? "unknown" : String(placesViewModel.mapPlace.lotSize) + " sq ft")")
           .font(.subheadline)
           .foregroundColor(.secondary)
       }
@@ -239,6 +239,7 @@ extension AreaDetailView {
         Spacer()
         Text("Estimated value")
           .font(.subheadline)
+          .padding(.trailing, 10)
         Text("$\(placesViewModel.mapPlace.estimatedValue)")
           .font(.subheadline)
           .foregroundColor(.secondary)
@@ -269,85 +270,100 @@ extension AreaDetailView {
       paddingLeading = 34.0
     }
 
-    return HStack {
-      if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
-        Link(destination: url) {
-          Image("Reviews/Google")
-            .resizable()
-            .scaledToFill()
-            .frame(width: 56)
-            .padding(.top, -4)
-            .padding(.leading, paddingLeading)
+    return VStack {
+      if showRatingSelector == false {
+        HStack {
+          if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
+            Link(destination: url) {
+              Image("Reviews/Google")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 56)
+                .padding(.top, -4)
+                .padding(.leading, paddingLeading)
+            }
+          } else {
+            Image("Reviews/Google")
+              .resizable()
+              .scaledToFill()
+              .frame(width: 56)
+              .padding(.top, -4)
+              .padding(.leading, paddingLeading)
+          }
+          
+          let gRating = placesViewModel.mapPlace.googleRating
+          let gReviews = placesViewModel.mapPlace.googleReviews
+          
+          if gRating > 0 {
+            if gRating < 1 { halfStar } else if gRating >= 1 { star }
+            if gRating > 1 && gRating < 2 { halfStar } else if gRating >= 2 { star }
+            if gRating > 2 && gRating < 3 { halfStar } else if gRating >= 3 { star }
+            if gRating > 3 && gRating < 4 { halfStar } else if gRating >= 4 { star }
+            if gRating > 4 && gRating < 5 { halfStar } else if gRating >= 5 { star }
+          }
+          
+          if gReviews > 0 {
+            Text("(\(gReviews))")
+              .font(.system(size: 12))
+          } else {
+            Text("No reviews")
+              .font(.system(size: 12))
+          }
+          
+          if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
+            Link(destination: url) {
+              Image("Reviews/Yelp")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 56)
+                .padding(.bottom, 5)
+            }
+          } else {
+            Image("Reviews/Yelp")
+              .resizable()
+              .scaledToFill()
+              .frame(width: 56)
+              .padding(.bottom, 5)
+          }
+          
+          let yRating = placesViewModel.mapPlace.yelpRating
+          let yReviews = placesViewModel.mapPlace.yelpReviews
+          
+          if yRating > 0 {
+            if yRating < 1 { halfStar } else if yRating >= 1 { star }
+            if yRating > 1 && yRating < 2 { halfStar } else if yRating >= 2 { star }
+            if yRating > 2 && yRating < 3 { halfStar } else if yRating >= 3 { star }
+            if yRating > 3 && yRating < 4 { halfStar } else if yRating >= 4 { star }
+            if yRating > 4 && yRating < 5 { halfStar } else if yRating >= 5 { star }
+          }
+          
+          if yReviews > 0 {
+            Text("(\(yReviews))")
+              .font(.system(size: 12))
+          } else {
+            Text("No reviews")
+              .font(.system(size: 12))
+          }
+          
+          Button {
+            showRatingSelector = true
+          } label: {
+            Image("Reviews/Bucket\(placesViewModel.mapPlace.hinghamRating)Star").resizable().scaledToFit().frame(width: 58, height: 40)
+              .padding(.top, -6)
+              .padding(.trailing, -10)
+          }
+          
+          Text("(\(placesViewModel.mapPlace.hinghamReviews))")
+            .font(.system(size: 12))
         }
+        .frame(width: UIScreen.main.bounds.size.width, height: 20)
+        .padding(.leading, -40)
       } else {
-        Image("Reviews/Google")
-          .resizable()
-          .scaledToFill()
-          .frame(width: 56)
-          .padding(.top, -4)
-          .padding(.leading, paddingLeading)
-      }
-      
-      let gRating = placesViewModel.mapPlace.googleRating
-      let gReviews = placesViewModel.mapPlace.googleReviews
-      
-      if gRating > 0 {
-        if gRating < 1 { halfStar } else if gRating >= 1 { star }
-        if gRating > 1 && gRating < 2 { halfStar } else if gRating >= 2 { star }
-        if gRating > 2 && gRating < 3 { halfStar } else if gRating >= 3 { star }
-        if gRating > 3 && gRating < 4 { halfStar } else if gRating >= 4 { star }
-        if gRating > 4 && gRating < 5 { halfStar } else if gRating >= 5 { star }
-      }
-      
-      if gReviews > 0 {
-        Text("(\(gReviews))")
-          .font(.system(size: 12))
-      } else {
-        Text("No reviews")
-          .font(.system(size: 12))
-      }
-            
-      if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
-        Link(destination: url) {
-          Image("Reviews/Yelp")
-            .resizable()
-            .scaledToFill()
-            .frame(width: 56)
-            .padding(.bottom, 5)
+        HStack {
+          RatingsView(place: $placesViewModel.mapPlace, showRatingSelector: $showRatingSelector)
         }
-      } else {
-        Image("Reviews/Yelp")
-          .resizable()
-          .scaledToFill()
-          .frame(width: 56)
-          .padding(.bottom, 5)
       }
-      
-      let yRating = placesViewModel.mapPlace.yelpRating
-      let yReviews = placesViewModel.mapPlace.yelpReviews
-      
-      if yRating > 0 {
-        if yRating < 1 { halfStar } else if yRating >= 1 { star }
-        if yRating > 1 && yRating < 2 { halfStar } else if yRating >= 2 { star }
-        if yRating > 2 && yRating < 3 { halfStar } else if yRating >= 3 { star }
-        if yRating > 3 && yRating < 4 { halfStar } else if yRating >= 4 { star }
-        if yRating > 4 && yRating < 5 { halfStar } else if yRating >= 5 { star }
-      }
-      
-      if yReviews > 0 {
-        Text("(\(yReviews))")
-          .font(.system(size: 12))
-      } else {
-        Text("No reviews")
-          .font(.system(size: 12))
-      }
-      
-      Text(placesViewModel.mapPlace.yelpPrice)
-        .font(.system(size: 12))
-      
     }
-    .frame(width: UIScreen.main.bounds.size.width, height: 10)
-    .padding(.leading, -40)
   }
   
   private var mapLayer: some View {
@@ -365,7 +381,7 @@ extension AreaDetailView {
     var mapX = height == 956.0 ? 203.0 : height == 932 ? 197.0 : height == 874.0 ? 187: 180
    
     if showEnlarged != "map" {
-      if modelMode == "area" {
+//      if modelMode == "area" {
         if height == 956.0 {
           mapHeight = 490.0
           mapY = 215.0
@@ -382,24 +398,24 @@ extension AreaDetailView {
           mapHeight = 490.0
           mapY = 170.0
         }
-      } else {
-        if height == 956.0 {
-          mapHeight = 540.0
-          mapY = 190.0
-        } else if height == 932.0 { // iPhone 15 Plus
-          mapHeight = 530.0
-          mapY = 180.0
-        } else if height == 874.0 {
-          mapHeight = 540.0
-          mapY = 150
-        } else if height == 852.0 {
-          mapHeight = 540.0
-          mapY = 136
-        } else {
-          mapHeight = 540.0
-          mapY = 138.0
-        }
-      }
+//      } else {
+//        if height == 956.0 {
+//          mapHeight = 540.0
+//          mapY = 190.0
+//        } else if height == 932.0 { // iPhone 15 Plus
+//          mapHeight = 530.0
+//          mapY = 180.0
+//        } else if height == 874.0 {
+//          mapHeight = 540.0
+//          mapY = 150
+//        } else if height == 852.0 {
+//          mapHeight = 540.0
+//          mapY = 136
+//        } else {
+//          mapHeight = 540.0
+//          mapY = 138.0
+//        }
+//      }
     } else {
       mapY = 430.0
       mapX = 220.0
@@ -409,7 +425,7 @@ extension AreaDetailView {
       ForEach(places) { place in
         Annotation("", coordinate: place.coordinates) {
           withAnimation(.easeInOut) {
-            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, selected: place.selected)
+            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected)
               .shadow(radius: 10)
               .onTapGesture {
                 withAnimation(.easeInOut) {

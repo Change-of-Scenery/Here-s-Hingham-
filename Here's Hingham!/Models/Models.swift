@@ -17,7 +17,7 @@ enum SchemaV1: VersionedSchema {
   static var versionIdentifier = Schema.Version(1, 0, 0)
   
   @Model
-  final class Place: Codable {
+  final class Place: Codable, ObservableObject {
     enum CodingKeys: CodingKey {
       case address
       case archStyle
@@ -28,7 +28,10 @@ enum SchemaV1: VersionedSchema {
       case googleRating
       case googleReviews
       case googleUrl
+      case hinghamRatings
+      case hinghamReviews
       case hours
+      case iconSize
       case imageCount
       case likes
       case locationLat
@@ -59,7 +62,10 @@ enum SchemaV1: VersionedSchema {
     var googleRating = 0.0
     var googleReviews = 0
     var googleUrl = ""
+    var hinghamRatings = ""
+    var hinghamReviews = 0
     var hours = ""
+    var iconSize = 0.0
     var imageCount = 0
     var likes = 0
     var locationLat = 0.0
@@ -88,6 +94,7 @@ enum SchemaV1: VersionedSchema {
     @Transient var sizeWidth: Double?
     @Transient var hasSpecial = false
     @Transient var selected = false
+    @Transient var hinghamRating = 0.0
     
     var coordinates: CLLocationCoordinate2D {
       CLLocationCoordinate2D(latitude: locationLat, longitude: locationLng)
@@ -109,7 +116,10 @@ enum SchemaV1: VersionedSchema {
       self.googleId = try container.decode(String.self, forKey: .googleId)
       self.googleRating = try container.decode(Double.self, forKey: .googleRating)
       self.googleReviews = try container.decode(Int.self, forKey: .googleReviews)
+      self.hinghamRatings = try container.decode(String.self, forKey: .hinghamRatings)
+      self.hinghamReviews = try container.decode(Int.self, forKey: .hinghamReviews)
       self.hours = try container.decode(String.self, forKey: .hours)
+      self.iconSize = try container.decode(CGFloat.self, forKey: .iconSize)
       self.imageCount = try container.decode(Int.self, forKey: .imageCount)
       self.likes = try container.decode(Int.self, forKey: .likes)
       self.locationLat = try container.decode(Double.self, forKey: .locationLat)
@@ -133,6 +143,39 @@ enum SchemaV1: VersionedSchema {
       self.squareFeet = try container.decode(Int.self, forKey: .squareFeet)
       self.yearBuilt = try container.decode(Int.self, forKey: .yearBuilt)
       self.timestamp = Date.now
+    }
+    
+    func updateHinghamRating() {
+      if hinghamRatings != "" {
+        let ratings = hinghamRatings.components(separatedBy: ";")
+        var ratingTotal = 0.0
+        
+        for rating in ratings {
+          ratingTotal += Double(rating)!
+        }
+        
+        let averageRating = ratingTotal / Double(ratings.count)
+        
+        if averageRating >= 1.0 && averageRating < 1.5 {
+          hinghamRating = 1.0
+        } else if averageRating >= 1.5 && averageRating < 2.0 {
+          hinghamRating = 1.5
+        } else if averageRating >= 2.0 && averageRating < 2.5 {
+          hinghamRating = 2.0
+        } else if averageRating >= 2.5 && averageRating < 3.0 {
+          hinghamRating = 2.5
+        } else if averageRating >= 3.0 && averageRating < 3.5 {
+          hinghamRating = 3.0
+        } else if averageRating >= 3.5 && averageRating < 4.0 {
+          hinghamRating = 3.5
+        } else if averageRating >= 4.0 && averageRating < 4.5 {
+          hinghamRating = 4.0
+        } else if averageRating >= 4.5 && averageRating < 5.0 {
+          hinghamRating = 4.5
+        } else {
+          hinghamRating = 5.0
+        }
+      }
     }
     
     func encode(to encoder: Encoder) throws {
@@ -210,16 +253,6 @@ enum SchemaV1: VersionedSchema {
     }
     
     init() {
-      self.name = "Hingham Square"
-      self.areaId = 0
-      self.centerCoordinateLat = 42.24225
-      self.centerCoordinateLng = -70.88927
-      self.iconCoordinateLat = 42.24059
-      self.iconCoordinateLng = -70.88741
-      self.shortName = "Square"
-      self.desc = "The Square is the old, quaint downtown of Hingham. Among the church steeples, you'll find boutiques, salons, restaurants, and a shoe repair shop. The Old Ship church, built by the Puritans in 1681, is the oldest wooden church in America still in use as a place of worship. The large yellow historic building on Main Street is affectionately called the \"Old Derby.\" It was the original location of Derby Academy, founded in 1784 and is the first coed school in America. The school still operates today on a larger campus on Burditt Street."
-      self.tilt = 0
-      self.zoom = 0.0
       self.timestamp = Date.now
     }
     

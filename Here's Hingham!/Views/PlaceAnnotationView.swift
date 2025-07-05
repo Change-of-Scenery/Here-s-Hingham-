@@ -12,30 +12,31 @@ struct PlaceAnnotationView: View {
   let placeName: String
   let shortName: String
   let type: Int
+  let iconSize: CGFloat
   let selected: Bool
 
   // let accentColor = Color("AccentColor")
   
   var body: some View {
-    var size = 64.0
+//    var size = 64.0
     var name = shortName
     var font = Font.system(size: 8)
     var strokeWidth = 0.75
     var zIndex = 0.0
-    var titlePadding = 0.0
+    let titlePadding = 0.0
     
-    if (shortName == "Bank" && placeName != "Eastern Bank") || placeName == "Hawkes Fearing" || shortName == "Library" {
-      size = 156.0
-      titlePadding = -30.0
-    } else if shortName == "Church" {
-      size = 121.0
-    } else if shortName == "Old Derby" || shortName == "Paint"  || shortName == "Tree" {
-      size = 110.0
-    } else if placeName == "La Petite Maison" || placeName == "Square Cafe" || shortName == "Lawyer" {
-      size = 86.0
-    } else if type == 6 {
-      size = 72.0
-    }
+//    if (shortName == "Bank" && placeName != "Eastern Bank") || placeName == "Hawkes Fearing" || shortName == "Library" {
+//      size = 156.0
+//      titlePadding = -30.0
+//    } else if shortName == "Church" {
+//      size = 121.0
+//    } else if shortName == "Old Derby" || shortName == "Paint"  || shortName == "Tree" {
+//      size = 110.0
+//    } else if placeName == "La Petite Maison" || placeName == "Square Cafe" || shortName == "Lawyer" {
+//      size = 86.0
+//    } else if type == 6 {
+//      size = 72.0
+//    }
     
     if selected == true {
       name = placeName
@@ -49,7 +50,7 @@ struct PlaceAnnotationView: View {
         Image("\(areaName)/\(placeName)/icon")
           .resizable()
           .scaledToFit()
-          .frame(width: size, height: size)
+          .frame(width: iconSize, height: iconSize)
           .zIndex(zIndex)
         
         Text(name)
@@ -99,6 +100,6 @@ extension View {
 #Preview {
   ZStack {
     Color.black.ignoresSafeArea()
-    PlaceAnnotationView(areaName: "Square", placeName: "The Snug", shortName: "Pub", type: 2, selected: false)
+    PlaceAnnotationView(areaName: "Square", placeName: "The Snug", shortName: "Pub", type: 2, iconSize: 64.0, selected: false)
   }
 }

@@ -89,6 +89,7 @@ extension AreaPreviewView {
   private var learnMoreButton: some View {
     Button {
       areasViewModel.sheetArea = area
+      areasViewModel.mapArea = area
     } label: {
       Text("Learn more")
         .font(.headline)

@@ -9,7 +9,7 @@
     "shortName":"Square",
     "desc":"The Square is the old, quaint downtown of Hingham. Among the church steeples, you'll find boutiques, salons, restaurants, and a shoe repair shop. The Old Ship church, built by the Puritans in 1681, is the oldest wooden church in America still in use as a place of worship. The large yellow historic building on Main Street is affectionately called the \"Old Derby.\" It was the original location of Derby Academy, founded in 1784 and is the first coed school in America. The school still operates today on a larger campus on Burditt Street.",
     "tilt":0,
-    "zoom":0.0
+    "zoom":0.0007
   },
   {
     "areaId":6,
@@ -24,7 +24,7 @@
     "zoom":0.0
   },
   {
-    "areaId":2,
+    "areaId":12,
     "centerCoordinateLat":42.21801,
     "centerCoordinateLng":-70.8849,
     "iconCoordinateLat":42.21801,
@@ -81,7 +81,7 @@
     "shortName":"Fearing",
     "desc":"Originally the farmland of M. Fearing, later developed with homes on large lots. You'll also find the irrestible Cottage St, which has graceful historic homes with romantic views overlooking Hingham Harbor.",
     "tilt":0,
-    "zoom":0.0
+    "zoom":0.002
   },
   {
     "areaId":3,

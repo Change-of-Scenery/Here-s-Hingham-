@@ -23,6 +23,10 @@ class PlacesViewModel: ObservableObject {
   init() {
     mapPlace = SchemaV1.Place()
   }
+  
+  public func addPlace(_ place: SchemaV1.Place) {
+    places.append(place)
+  }
     
   func showPlace(_ area: SchemaV1.Area, _ place: SchemaV1.Place) {
     if mapPlace == place && (mapPlace.selected == true || place.selected == true) {

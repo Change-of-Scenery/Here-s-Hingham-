@@ -13,6 +13,7 @@ struct AreasView: View {
   @EnvironmentObject private var areasViewModel: AreasViewModel
   @State private var position = MapCameraPosition.region(
     MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.23227,longitude: -70.89828), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)))
+  var showAppBanner = true
   
   var body: some View {
     ZStack {
@@ -36,6 +37,7 @@ struct AreasView: View {
       }
       return AreaDetailView(area: area)
     }
+//    .overlay(appBanner)
   }
 }
 
@@ -77,7 +79,7 @@ extension AreasView {
   }
   
   private var mapLayer: some View {
-    Map(position: $areasViewModel.mapCameraPosition) {
+    Map(initialPosition: position) {
       ForEach(areasViewModel.areas) { area in
         Annotation(area.name, coordinate: area.coordinates) {
           AreaAnnotationView()
@@ -91,6 +93,10 @@ extension AreasView {
       }
     }
     .ignoresSafeArea()
+  }
+  
+  private var appBanner: some View {
+    Image("AppBanner")
   }
   
   private var areasPreviewStack: some View {

@@ -9,6 +9,9 @@ import Foundation
 import MapKit
 import SwiftUI
 import SwiftData
+import FirebaseAuth
+import FirebaseCore
+import FirebaseFirestore
 
 class AreasViewModel: ObservableObject {
   @Published var mapCameraPosition: MapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)))
@@ -17,12 +20,14 @@ class AreasViewModel: ObservableObject {
   @Published var previewArea = SchemaV1.Area()
   @Published var mapArea: SchemaV1.Area {
     didSet {
-      if let latitude = mapCameraPosition.region?.center.latitude {
-        if latitude == 42.23227 {
-          let span = mapArea.areaId == 0 || mapArea.areaId == 6 ? mapArea.zoomInSpan : mapArea.zoomSpan
-          mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: mapArea.centerCoordinates, span: span))
-        }
-      }
+      let span = MKCoordinateSpan(latitudeDelta: mapArea.zoom, longitudeDelta:  mapArea.zoom) //  mapArea.areaId == 0 || mapArea.areaId == 6 ? mapArea.zoomInSpan : mapArea.zoomSpan
+      mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: mapArea.centerCoordinates, span: span))
+//      if let latitude = mapCameraPosition.region?.center.latitude {
+//        if latitude == 42.23227 {
+//          let span = mapArea.areaId == 0 || mapArea.areaId == 6 ? mapArea.zoomInSpan : mapArea.zoomSpan
+//          mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: mapArea.centerCoordinates, span: span))
+//        }
+//      }
       updateRegion(mapCameraPosition)
     }
   }
@@ -35,7 +40,11 @@ class AreasViewModel: ObservableObject {
   init() {
     mapArea = SchemaV1.Area()
     centerCoordinate = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0) // , span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))
-    updateRegion(MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.23227,longitude: -70.89828), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))))
+//    updateRegion(MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.23227,longitude: -70.89828), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))))
+  }
+  
+  public func addArea(_ area: SchemaV1.Area) {
+    areas.append(area)
   }
   
   private func updateRegion(_ mapCameraPosition: MapCameraPosition) {
@@ -58,10 +67,10 @@ class AreasViewModel: ObservableObject {
       }
       area.imageCount = imageCounter
     }
-      
+
     withAnimation(.easeInOut) {
-      mapArea = area
-      showAreasList = false
+      self.mapArea = area
+      self.showAreasList = false
     }
   }
   
