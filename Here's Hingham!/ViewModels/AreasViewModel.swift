@@ -92,18 +92,16 @@ class AreasViewModel: ObservableObject {
   }
   
   func zoomOut() {
-    let mapCameraPosition: MapCameraPosition
-    
     if centerCoordinate.latitude == 0.0 {
-      mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: mapArea.centerCoordinateLat - 0.0002, longitude: mapArea.centerCoordinateLng - 0.00005), span: MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)))
+      mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: mapArea.centerCoordinateLat - 0.0002, longitude: mapArea.centerCoordinateLng - 0.00005), span: MKCoordinateSpan(latitudeDelta: mapCameraPosition.region!.span.latitudeDelta + 0.0005, longitudeDelta: mapCameraPosition.region!.span.latitudeDelta + 0.0005)))
     } else {
-      mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: centerCoordinate, span: MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)))
+      mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: centerCoordinate, span: MKCoordinateSpan(latitudeDelta: mapCameraPosition.region!.span.latitudeDelta + 0.0005, longitudeDelta: mapCameraPosition.region!.span.latitudeDelta + 0.0005)))
     }
-    
+
     updateRegion(mapCameraPosition)
   }
   
   func zoomIn() {
-    updateRegion(MapCameraPosition.region(MKCoordinateRegion(center: centerCoordinate, span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))))
+    updateRegion(MapCameraPosition.region(MKCoordinateRegion(center: centerCoordinate, span: MKCoordinateSpan(latitudeDelta: mapArea.zoom, longitudeDelta: mapArea.zoom))))
   }
 }

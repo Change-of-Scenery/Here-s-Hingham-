@@ -112,6 +112,7 @@ struct Here_s_Hingham_App: App {
         db.collection("HinghamPlace").getDocuments { queryPlace, err in
           for document in queryPlace!.documents {
             let place = SchemaV1.Place()
+            place.documentID = document.documentID
             place.name = document.get("name") as! String
             place.address = document.get("address") as! String
             place.archStyle = document.get("archStyle") as! String

@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import FirebaseCore
+import FirebaseFirestore
 
 struct RatingsView: View {
   @Binding var place: SchemaV1.Place
@@ -41,9 +43,14 @@ struct RatingsView: View {
       Spacer()
       Button {
         place.hinghamReviews += 1
-        place.hinghamRatings += ";" + String(rating)
+        place.hinghamRatings += place.hinghamRatings == "" ? String(rating) : ";" + String(rating)
         place.updateHinghamRating()
         showRatingSelector = false
+        let defaults = UserDefaults.standard
+        let db = Firestore.firestore()
+        let placeRef = db.collection("HinghamPlace").document(place.documentID)
+        placeRef.updateData(["hinghamRatings" : place.hinghamRatings, "hinghamReviews" : place.hinghamReviews])
+        defaults.set("true", forKey: "Rated:\(place.documentID)")
       } label: {
         Text("Rate")
           .foregroundStyle(.white)
@@ -64,5 +71,6 @@ struct RatingsView: View {
     }
   }
 }
+
 
 

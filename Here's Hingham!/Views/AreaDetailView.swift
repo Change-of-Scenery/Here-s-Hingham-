@@ -17,32 +17,39 @@ struct AreaDetailView: View {
   @State var showEnlarged = ""
   @State var showRatingSelector = false
   @State var mapPosition = CGPoint(x: 10, y: 10)
-  @State var expandMapTop = 0.0
   @State var placeBrewedAwakenings = SchemaV1.Place()
   @State var placeNonas = SchemaV1.Place()
   @State var placeHalabyLawGroup = SchemaV1.Place()
   @State var placeHinghamHistoricalSociety = SchemaV1.Place()
   @State var placeMaggies = SchemaV1.Place()
   @State var selectedRating = 0.0
+  @State private var showMessage = false
 
   let area: SchemaV1.Area
   
   var body: some View {
     if showEnlarged == "map" {
-      ZStack {
+      VStack {
+        menuSection
         mapLayer
-          .overlay(contractButton.padding(.top, 15), alignment: .top)
-//          .overlay(expandedTitleSection, alignment: .top)
+          .padding(.leading, -19)
       }
+      .padding([.leading, .trailing], 15)
+      .padding(.top, 16)
+      .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
     } else if showEnlarged == "desc" {
       VStack {
+        menuSection
         expandedTitleSection
-          .overlay(contractButton, alignment: .top)
         Divider()
         expandedDescSection
       }
+      .padding([.leading, .trailing], 15)
+      .padding(.top, 16)
+      .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
     } else {
       VStack(alignment: .leading, spacing: 18) {
+        menuSection
         imageSection
         titleSection
         if modelMode == "place" {
@@ -56,13 +63,13 @@ struct AreaDetailView: View {
         }
         descSection
         mapLayer
+        if showMessage {
+          messageLayer
+        }
       }
       .padding([.leading, .trailing], 15)
       .padding(.top, 16)
       .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
-      .overlay(closeButton, alignment: .top)
-      .overlay(expandMapButton, alignment: .top)
-//      .overlay(expandDescButton, alignment: .top)
     }
   }
 }
@@ -74,6 +81,70 @@ extension Date {
 }
 
 extension AreaDetailView {
+  private var menuSection: some View {
+    HStack {
+      Button {
+        if showEnlarged == "map" {
+          let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom) 
+          areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
+          showEnlarged = ""
+        } else if modelMode == "place" {
+          withAnimation(.easeInOut) {
+            modelMode = "area"
+          }
+        } else {
+          areasViewModel.sheetArea = nil
+        }
+      } label: {
+        Image(systemName: "x.square.fill")
+          .font(.system(size: 20))
+          .tint(.black)
+      }
+      Spacer()
+      Button {
+        withAnimation(.easeInOut) {
+          self.showEnlarged = "desc"
+        }
+      } label: {
+        Image(systemName: "text.page")
+          .font(.system(size: 20))
+          .tint(.black)
+      }
+      Spacer()
+      Button {
+        withAnimation(.easeInOut) {
+          self.showEnlarged = "map"
+          Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+            areasViewModel.zoomOut()
+          }
+        }
+      } label: {
+        Image(systemName: "map")
+          .font(.system(size: 20))
+          .tint(.black)
+      }
+      Spacer()
+      Menu {
+        Button("Expand Map", action: {
+          withAnimation(.easeInOut) {
+            self.showEnlarged = "map"
+            areasViewModel.zoomOut()
+          }
+        })
+        
+        Button("Expand Notes", action: {
+          withAnimation(.easeInOut) {
+            self.showEnlarged = "desc"
+          }
+        })
+      } label: {
+        Image(systemName: "ellipsis.circle")
+          .font(.system(size: 20))
+          .tint(.black)
+      }
+    }
+    .padding(.bottom, -8)
+  }
     
   private var imageSection: some View {
     TabView {
@@ -172,7 +243,7 @@ extension AreaDetailView {
     VStack(alignment: .leading) {
       Text(modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
         .font(.system(size: 13))
-        .foregroundColor(.secondary)
+        .foregroundColor(.primary)
       
       if area.wikiName.prefix(4) == "http" {
         if let url = URL(string: area.wikiName) {
@@ -346,7 +417,12 @@ extension AreaDetailView {
           }
           
           Button {
-            showRatingSelector = true
+            let defaults = UserDefaults.standard
+            if let _ = defaults.string(forKey: "Rated:\(placesViewModel.mapPlace.documentID)") {
+              showMessage = true
+            } else {
+              showRatingSelector = true
+            }
           } label: {
             Image("Reviews/Bucket\(placesViewModel.mapPlace.hinghamRating)Star").resizable().scaledToFit().frame(width: 58, height: 40)
               .padding(.top, -6)
@@ -355,15 +431,32 @@ extension AreaDetailView {
           
           Text("(\(placesViewModel.mapPlace.hinghamReviews))")
             .font(.system(size: 12))
+          
         }
         .frame(width: UIScreen.main.bounds.size.width, height: 20)
         .padding(.leading, -40)
+        
       } else {
         HStack {
           RatingsView(place: $placesViewModel.mapPlace, showRatingSelector: $showRatingSelector)
         }
       }
     }
+  }
+  
+  private var messageLayer: some View {
+    Text("You've already rated this place.")
+      .padding()
+      .background(.blue)
+      .foregroundColor(.white)
+      .cornerRadius(10)
+      .transition(.opacity)
+      .font(.system(size: 16).weight(.bold))
+      .onAppear {
+        Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
+            showMessage = false
+        }
+      }
   }
   
   private var mapLayer: some View {
@@ -382,12 +475,12 @@ extension AreaDetailView {
    
     if showEnlarged != "map" {
 //      if modelMode == "area" {
-        if height == 956.0 {
+        if height == 956.0 { // iPhone 16 Pro Max
           mapHeight = 490.0
           mapY = 215.0
-        } else if height == 932.0 { // iPhone 15 Plus
-          mapHeight = 490.0
-          mapY = 205.0
+        } else if height == 932.0 { // iPhone 15 Plus & Pro Max
+          mapHeight = 550.0
+          mapY = 170.0
         } else if height == 874.0 {
           mapHeight = 500.0
           mapY = 176
@@ -417,8 +510,9 @@ extension AreaDetailView {
 //        }
 //      }
     } else {
-      mapY = 430.0
+      mapY = 400.0
       mapX = 220.0
+      mapHeight = 160
     }
     
     return Map(position: $areasViewModel.mapCameraPosition) {
@@ -451,154 +545,6 @@ extension AreaDetailView {
     .ignoresSafeArea()
     .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
     .position(x:mapX, y:mapY)
-  }
-  
-  private var closeButton: some View {
-    Button {
-      if modelMode == "place" {
-        withAnimation(.easeInOut) {
-          modelMode = "area"
-          expandMapTop = 0
-        }
-      } else {
-        areasViewModel.sheetArea = nil
-      }
-    } label: {
-      Image(systemName: "x.square.fill")
-        .font(.system(size: 20))
-    }
-    .position(x: 35, y: 35)
-  }
-  
-  private var expandMapButton: some View {
-    let height = UIScreen.main.bounds.size.height
-    var expandY = 0.0
-    var expandX = 0.0
-    
-    if modelMode == "area" {
-      if height == 956.0 { // iPhone 16 Pro Max
-        expandX = 230.0
-        expandY = 420.0
-      } else if height == 932.0 { // iPhone 15 Plus
-        expandX = 226.0
-        expandY = 428.0
-      } else if height == 874.0 {
-        expandX = 192.0
-        expandY = 430.0
-      } else if height == 852.0 { // iPhone 15
-        expandX = 206.0
-        expandY = 424.0
-      } else {
-        expandX = 190.0
-        expandY = 428.0
-      }
-    } else {
-      if height == 956.0 {
-        expandX = 208.0
-        expandY = 475.0
-      } else if height == 932.0 { // iPhone 15 Plus
-        expandX = 226.0
-        expandY = 470.0
-      } else if height == 874.0 {
-        expandX = 192.0
-        expandY = 475.0
-      } else if height == 852.0 { // iPhone 15
-        expandX = 206.0
-        expandY = 474.0
-      } else {
-        expandX = 190.0
-        expandY = 476.0
-      }
-    }
-
-    return Button {
-      withAnimation(.easeInOut) {
-        self.showEnlarged = "map"
-        areasViewModel.zoomOut()
-      }
-    } label: {
-      Image(systemName: "arrow.down.left.and.arrow.up.right.square.fill")
-        .font(.system(size: 20))
-        .padding(.leading, 35)
-        .padding(.top, expandMapTop)
-    }
-    .padding(.leading, UIScreen.main.bounds.size.width - 110)
-    .position(x:expandX, y:expandY)
-  }
-  
-  private var expandDescButton: some View {
-    let height = UIScreen.main.bounds.size.height
-    var expandY = 0.0
-    var expandX = 0.0
-    
-    if modelMode == "area" {
-      if height == 956.0 { // iPhone 16 Pro Max
-        expandX = 230.0
-        expandY = 324.0
-      } else if height == 932.0 { // iPhone 15 Plus
-        expandX = 225.0
-        expandY = 324.0
-      } else if height == 874.0 {
-        expandX = 192.0
-        expandY = 318.0
-      } else if height == 852.0 { // iPhone 15
-        expandX = 204.0
-        expandY = 322.0
-      } else {
-        expandX = 190.0
-        expandY = 290.0
-      }
-    } else {
-      if height == 956.0 {
-        expandX = 206.0
-        expandY = 379.0
-      } else if height == 932.0 { // iPhone 15 Plus
-        expandX = 225.0
-        expandY = 388.0
-      } else if height == 874.0 {
-        expandX = 192.0
-        expandY = 378.0
-      } else if height == 852.0 { // iPhone 15
-        expandX = 204.0
-        expandY = 388.0
-      } else {
-        expandX = 189.0
-        expandY = 378.0
-      }
-    }
-
-    return Button {
-      withAnimation(.easeInOut) {
-        self.showEnlarged = "desc"
-//        placesViewModel.zoomOut(areasViewModel.mapArea)
-      }
-    } label: {
-      Image(systemName: "arrow.down.left.and.arrow.up.right.square.fill")
-        .font(.system(size: 20))
-        .foregroundStyle(Color(red: 1.0, green: 0.0, blue: 0.0, opacity: 0.5))
-        .padding(.leading, 20)
-    }
-    .padding(.leading, UIScreen.main.bounds.size.width - 90)
-    .position(x:expandX, y:expandY)
-  }
-  
-  private var contractButton: some View {
-    Button {
-      withAnimation(.easeInOut) {
-        if self.showEnlarged == "map" {
-          areasViewModel.zoomIn()
-        }
-        
-        self.showEnlarged = ""
-      }
-    } label: {
-      Image(systemName: "arrow.up.right.and.arrow.down.left.square.fill")
-        .font(.system(size: 20))
-        .padding(0)
-        .padding(.leading, 18)
-        .padding(.bottom, -5)
-    }
-    .padding(.leading, UIScreen.main.bounds.size.width - 70)
   }
   
   private func getHoursOpen(hours: String) -> String {

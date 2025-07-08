@@ -19,6 +19,7 @@ enum SchemaV1: VersionedSchema {
   @Model
   final class Place: Codable, ObservableObject {
     enum CodingKeys: CodingKey {
+      case documentID
       case address
       case archStyle
       case areaId
@@ -54,6 +55,7 @@ enum SchemaV1: VersionedSchema {
       case yelpUrl
     }
     
+    var documentID = ""
     var address = ""
     var archStyle = ""
     var areaId = 0
@@ -110,6 +112,7 @@ enum SchemaV1: VersionedSchema {
     
     required init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
+      self.documentID = try container.decode(String.self, forKey: .documentID)
       self.address = try container.decode(String.self, forKey: .address)
       self.areaId = try container.decode(Int.self, forKey: .areaId)
       self.desc = try container.decode(String.self, forKey: .desc)
