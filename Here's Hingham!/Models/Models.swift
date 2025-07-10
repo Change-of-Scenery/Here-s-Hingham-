@@ -237,6 +237,10 @@ enum SchemaV1: VersionedSchema {
     var zoomOutSpan: MKCoordinateSpan {
       MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
     }
+    
+    @Transient var mapHeight = 0.0
+    @Transient var mapY = 0.0
+    @Transient var mapX = 0.0
 
     @Relationship() var businesses: [SchemaV1.Place] = []
     

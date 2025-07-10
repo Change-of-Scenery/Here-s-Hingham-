@@ -60,6 +60,7 @@ extension AreaPreviewView {
         .cornerRadius(10)
         .onTapGesture {
           areasViewModel.sheetArea = area
+          print("imageSection span zoom \(area.zoom)")
           areasViewModel.mapArea = area
         }
     }
@@ -89,6 +90,7 @@ extension AreaPreviewView {
   private var learnMoreButton: some View {
     Button {
       areasViewModel.sheetArea = area
+      print("learnMoreButton span zoom \(area.zoom)")
       areasViewModel.mapArea = area
     } label: {
       Text("Learn more")

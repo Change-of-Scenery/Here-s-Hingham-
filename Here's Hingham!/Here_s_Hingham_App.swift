@@ -107,6 +107,7 @@ struct Here_s_Hingham_App: App {
             areasViewModel.addArea(area)
           }
           areasViewModel.mapArea = areasViewModel.areas.filter { $0.areaId == 0}.first!
+          print("modelContainer span zoom \(areasViewModel.mapArea.zoom)")
         }
         
         db.collection("HinghamPlace").getDocuments { queryPlace, err in

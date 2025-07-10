@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import UIKit
 
 struct AreaDetailView: View {
   
@@ -24,7 +25,8 @@ struct AreaDetailView: View {
   @State var placeMaggies = SchemaV1.Place()
   @State var selectedRating = 0.0
   @State private var showMessage = false
-
+  @State private var tabSelection = 0
+ 
   let area: SchemaV1.Area
   
   var body: some View {
@@ -85,10 +87,14 @@ extension AreaDetailView {
     HStack {
       Button {
         if showEnlarged == "map" {
-          let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom) 
+          let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
+          print("span lat for menuSection \(span.latitudeDelta)")
           areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
           showEnlarged = ""
+        } else if showEnlarged == "desc" {
+          showEnlarged = ""
         } else if modelMode == "place" {
+          tabSelection = 0
           withAnimation(.easeInOut) {
             modelMode = "area"
           }
@@ -112,12 +118,8 @@ extension AreaDetailView {
       }
       Spacer()
       Button {
-        withAnimation(.easeInOut) {
-          self.showEnlarged = "map"
-          Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-            areasViewModel.zoomOut()
-          }
-        }
+        areasViewModel.zoomOut()
+        self.showEnlarged = "map"
       } label: {
         Image(systemName: "map")
           .font(.system(size: 20))
@@ -147,19 +149,41 @@ extension AreaDetailView {
   }
     
   private var imageSection: some View {
-    TabView {
+    TabView(selection:$tabSelection) {
       let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
       let imageCount = modelMode == "place" ? placesViewModel.mapPlace.imageCount : area.imageCount == 0 ? 1 : area.imageCount
       
       ForEach(0..<imageCount, id: \.self) { index in
-        Image("\(path)/\(index)")
-          .resizable()
-          .scaledToFill()
-          .frame(width: UIScreen.main.bounds.width, height: 300)
-          .clipped()
+        if UIImage(named: "\(path)/\(index)") != nil {
+          Image("\(path)/\(index)")
+            .resizable()
+            .scaledToFill()
+        }
+      }
+      
+      if modelMode == "place" {
+        ForEach(10..<15, id: \.self) { index in
+          if UIImage(named: "\(path)/\(index)") != nil {
+            ZStack(alignment: .bottomLeading) {
+              Image("\(path)/\(index)")
+                .resizable()
+                .scaledToFill()
+                .frame(width: UIScreen.main.bounds.width, height: 300)
+                .clipped()
+              
+              Text("Photo by Hammer. Go to findagrave.com")
+                .font(.system(size: 8))
+                .foregroundColor(.white)
+                .padding(5) // Add some padding around the text
+                .background(Color.black.opacity(0.4)) // Optional: Add a semi-transparent background for better readability
+                .cornerRadius(5) // Optional: Round the corners of the background
+                .padding([.bottom, .leading], 30) // Further padding from the image edge
+            }
+          }
+        }
       }
     }
-    .frame(height: 250)
+    .frame(width: 400, height: 250)
     .tabViewStyle(PageTabViewStyle())
     .cornerRadius(15)
   }
@@ -213,26 +237,12 @@ extension AreaDetailView {
   }
   
   private var expandedTitleSection: some View {
-    
-//    var name = area.name
-    let url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)")!
-
-//    if modelMode == "place" {
-//      name = placesViewModel.mapPlace.type == 6 ? placesViewModel.mapPlace.name + " House" : placesViewModel.mapPlace.name
-//      url = URL(string: placesViewModel.mapPlace.website)!
-//    }
-
     return VStack(alignment: .leading) {
       HStack(alignment: .top) {
-        Link(area.name, destination: url)
-          .font(area.name.count > 30 ? .title3 : .title)
+        Text(placesViewModel.mapPlace.name)
+          .font(.system(size: 24))
           .fontWeight(.bold)
-          .frame(width: nil, height: 20)
-//        if modelMode == "place" {
-//          Text(placesViewModel.mapPlace.desc)
-//            .font(.system(size: 14))
-//            .padding([.top, .leading], 2)
-//        }
+          .padding([.top, .leading], 2)
       }
     }
     .padding(.top, 15)
@@ -240,29 +250,26 @@ extension AreaDetailView {
 
   private var descSection: some View {
        
-    VStack(alignment: .leading) {
+    return VStack(alignment: .leading) {
       Text(modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
         .font(.system(size: 13))
         .foregroundColor(.primary)
+        .frame(height: modelMode == "area" ? 95 : 50)
       
-      if area.wikiName.prefix(4) == "http" {
-        if let url = URL(string: area.wikiName) {
-          Link("Read more", destination: url)
-            .font(.headline)
-        }
-      }
       Divider()
         .padding(.bottom, 14)
     }
-    .frame(width: nil, height: modelMode == "area" ? 120 : 60, alignment: .topLeading)   // modelMode == "area" ? 100 : 90
+    .frame(width: nil, height: 120, alignment: .topLeading)   // modelMode == "area" ? 100 : 90
     .padding(.top, -15)
     .padding(.bottom, -5)
   }
   
   private var expandedDescSection: some View {
+// Markdown: "*Italics*", "**Bold**", "~Strikethrough~", "`Code`", "[Link](https://apple.com)"
        
     HStack(alignment: .top) {
-      Text(modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
+      let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
+      Text(descText)
         .font(.system(size: 16))
         .foregroundColor(.primary)
       
@@ -317,6 +324,7 @@ extension AreaDetailView {
         Spacer()
       }
     }
+    .frame(height: 30)
   }
   
   private var reviewsSection: some View {
@@ -476,13 +484,13 @@ extension AreaDetailView {
     if showEnlarged != "map" {
 //      if modelMode == "area" {
         if height == 956.0 { // iPhone 16 Pro Max
-          mapHeight = 490.0
+          mapHeight = modelMode == "area" ? 490.0 : 520.0
           mapY = 215.0
         } else if height == 932.0 { // iPhone 15 Plus & Pro Max
-          mapHeight = 550.0
-          mapY = 170.0
+          mapHeight = modelMode == "area" ? 550 : 580.0
+          mapY = modelMode == "area" ? 170.0 : 110.0
         } else if height == 874.0 {
-          mapHeight = 500.0
+          mapHeight = modelMode == "place" ? 300.0 : 500.0
           mapY = 176
         } else if height == 852 {
           mapHeight = 497.0
@@ -515,7 +523,7 @@ extension AreaDetailView {
       mapHeight = 160
     }
     
-    return Map(position: $areasViewModel.mapCameraPosition) {
+    return Map(position: $areasViewModel.mapCameraPosition, interactionModes: [.pan, .zoom]) {
       ForEach(places) { place in
         Annotation("", coordinate: place.coordinates) {
           withAnimation(.easeInOut) {
@@ -665,7 +673,6 @@ extension AreaDetailView {
     placeMaggies.yelpReviews = 13
     placeMaggies.yelpUrl = "https://www.yelp.com/biz/maggies-doghouse-hingham?adjust_creative=oMiPYzoO1rgsBWiS9cnBrQ&utm_campaign=yelp_api_v3&utm_medium=api_v3_business_search&utm_source=oMiPYzoO1rgsBWiS9cnBrQ"
   }
-
 }
 
 #Preview {
