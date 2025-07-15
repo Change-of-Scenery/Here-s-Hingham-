@@ -7,13 +7,15 @@
 
 import SwiftUI
 import MapKit
-import UIKit
+import CoreLocation
+import AVKit
 
 struct AreaDetailView: View {
   
   @EnvironmentObject private var areasViewModel: AreasViewModel
   @EnvironmentObject private var placesViewModel: PlacesViewModel
   @State var imageCount:Int = 10
+  @State var notes = ""
   @State var modelMode = "area"
   @State var showEnlarged = ""
   @State var showRatingSelector = false
@@ -25,11 +27,23 @@ struct AreaDetailView: View {
   @State var placeMaggies = SchemaV1.Place()
   @State var selectedRating = 0.0
   @State private var showMessage = false
+  @State private var message = ""
   @State private var tabSelection = 0
- 
+  @State private var updatingLocation = false
+  @ObservedObject var location: LocationManager = LocationManager()
+   
   let area: SchemaV1.Area
-  
+                        
   var body: some View {
+    let rows = [
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.035)),  // menu
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.32)),  // image
+      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.02 : 0.027))), // title
+      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.0 : 0.04))),  // reviews
+      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.12 : 0.075))),  // desc
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.35))   // map
+    ]
+
     if showEnlarged == "map" {
       VStack {
         menuSection
@@ -43,14 +57,13 @@ struct AreaDetailView: View {
       VStack {
         menuSection
         expandedTitleSection
-        Divider()
         expandedDescSection
       }
       .padding([.leading, .trailing], 15)
       .padding(.top, 16)
       .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
-    } else {
-      VStack(alignment: .leading, spacing: 18) {
+    } else  {
+      LazyHGrid(rows: rows, spacing: 10) {
         menuSection
         imageSection
         titleSection
@@ -60,18 +73,31 @@ struct AreaDetailView: View {
           } else {
             reviewsSection
           }
-          Divider()
-            .padding(.top, -5)
+        } else {
+          areaSection
         }
         descSection
         mapLayer
-        if showMessage {
-          messageLayer
-        }
+//        if showMessage || location.showMessage {
+//          messageLayer
+//        }
       }
-      .padding([.leading, .trailing], 15)
-      .padding(.top, 16)
+      .frame(width: UIScreen.main.bounds.size.width)
       .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
+      .onChange(of: location.newPlaceAtCurrentLocation) {
+        placesViewModel.showPlace(areasViewModel.mapArea, location.newPlaceAtCurrentLocation!)
+        modelMode = "place"
+        if showEnlarged == "map" {
+          areasViewModel.zoomIn()
+        }
+        showEnlarged = ""
+      }
+      .onChange(of: placesViewModel.mapPlace.name) {
+        notes = placesViewModel.mapPlace.notes
+      }
+      .onChange(of: areasViewModel.mapArea.name) {
+        notes = areasViewModel.mapArea.desc
+      }
     }
   }
 }
@@ -88,7 +114,6 @@ extension AreaDetailView {
       Button {
         if showEnlarged == "map" {
           let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
-          print("span lat for menuSection \(span.latitudeDelta)")
           areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
           showEnlarged = ""
         } else if showEnlarged == "desc" {
@@ -139,17 +164,36 @@ extension AreaDetailView {
             self.showEnlarged = "desc"
           }
         })
+        
+        Toggle("Place Display", isOn: $updatingLocation)
+          .toggleStyle(CustomToggleButton())
+          .onChange(of: updatingLocation) {
+            location.areaId = area.areaId
+            if updatingLocation == true {
+              location.placesViewModel = placesViewModel
+              location.startUpdating()
+            } else {
+              location.stopUpdating()
+            }
+          }
+        
       } label: {
         Image(systemName: "ellipsis.circle")
           .font(.system(size: 20))
           .tint(.black)
       }
     }
-    .padding(.bottom, -8)
+    .padding(.top, 6)
+  }
+  
+  private var areaSection: some View {
+    VStack {
+    }
   }
     
   private var imageSection: some View {
-    TabView(selection:$tabSelection) {
+       
+    return TabView(selection:$tabSelection) {
       let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
       let imageCount = modelMode == "place" ? placesViewModel.mapPlace.imageCount : area.imageCount == 0 ? 1 : area.imageCount
       
@@ -168,36 +212,30 @@ extension AreaDetailView {
               Image("\(path)/\(index)")
                 .resizable()
                 .scaledToFill()
-                .frame(width: UIScreen.main.bounds.width, height: 300)
                 .clipped()
               
               Text("Photo by Hammer. Go to findagrave.com")
                 .font(.system(size: 8))
                 .foregroundColor(.white)
-                .padding(5) // Add some padding around the text
                 .background(Color.black.opacity(0.4)) // Optional: Add a semi-transparent background for better readability
                 .cornerRadius(5) // Optional: Round the corners of the background
-                .padding([.bottom, .leading], 30) // Further padding from the image edge
             }
           }
         }
       }
     }
-    .frame(width: 400, height: 250)
+    .frame(width: UIScreen.main.bounds.size.width * 0.93)
+    .cornerRadius(25)
     .tabViewStyle(PageTabViewStyle())
-    .cornerRadius(15)
   }
   
   private var titleSection: some View {
     var name = area.name
     var url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)")!
-    var dividerTopPadding = 0.0
     
     if modelMode == "place" {
       name = placesViewModel.mapPlace.type == 6 ? placesViewModel.mapPlace.name + " House" : placesViewModel.mapPlace.name
       url = URL(string: placesViewModel.mapPlace.website)!
-    } else {
-      dividerTopPadding = 10.0
     }
     
     return VStack(alignment: .leading) {
@@ -205,8 +243,6 @@ extension AreaDetailView {
         Link(name, destination: url)
           .font(.title2)
           .fontWeight(.bold)
-          .frame(width: nil, height: 20)
-          .padding(.top, -5)
         Spacer()
         if modelMode == "place" {
           Text(placesViewModel.mapPlace.desc)
@@ -231,9 +267,8 @@ extension AreaDetailView {
           }
         }
       }
-      Divider()
-        .padding(.top, dividerTopPadding)
     }
+    .padding(.bottom, -7)
   }
   
   private var expandedTitleSection: some View {
@@ -249,19 +284,18 @@ extension AreaDetailView {
   }
 
   private var descSection: some View {
-       
     return VStack(alignment: .leading) {
-      Text(modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
-        .font(.system(size: 13))
-        .foregroundColor(.primary)
-        .frame(height: modelMode == "area" ? 95 : 50)
-      
       Divider()
-        .padding(.bottom, 14)
+      TextField("Description", text: modelMode == "area" ? $areasViewModel.mapArea.desc : $placesViewModel.mapPlace.notes, axis: .vertical)
+        .font(.system(size: 13))
+        .foregroundColor(.black)
     }
-    .frame(width: nil, height: 120, alignment: .topLeading)   // modelMode == "area" ? 100 : 90
-    .padding(.top, -15)
-    .padding(.bottom, -5)
+  }
+  
+  private var foundLocation: some View {
+    ZStack {
+      Text("Found the place!")
+    }
   }
   
   private var expandedDescSection: some View {
@@ -281,8 +315,8 @@ extension AreaDetailView {
         }
       }
     }
-    .frame(width: nil, height: UIScreen.main.bounds.size.height - 200)
-    .padding()
+    .frame(width: nil, height: UIScreen.main.bounds.size.height - 190)
+    .padding(2)
     .padding(.top, -15)
     .padding(.bottom, -15)
   }
@@ -324,7 +358,6 @@ extension AreaDetailView {
         Spacer()
       }
     }
-    .frame(height: 30)
   }
   
   private var reviewsSection: some View {
@@ -342,7 +375,7 @@ extension AreaDetailView {
     var paddingLeading = 0.0
     
     if height == 956.0 {
-      paddingLeading = -11.0
+      paddingLeading = 40.0
     } else if height == 874.0 {
       paddingLeading = 24.0
     } else {
@@ -350,6 +383,9 @@ extension AreaDetailView {
     }
 
     return VStack {
+      Divider()
+        .padding(.bottom, 9)
+      
       if showRatingSelector == false {
         HStack {
           if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
@@ -427,6 +463,7 @@ extension AreaDetailView {
           Button {
             let defaults = UserDefaults.standard
             if let _ = defaults.string(forKey: "Rated:\(placesViewModel.mapPlace.documentID)") {
+              message = "You've already rated this place."
               showMessage = true
             } else {
               showRatingSelector = true
@@ -441,7 +478,7 @@ extension AreaDetailView {
             .font(.system(size: 12))
           
         }
-        .frame(width: UIScreen.main.bounds.size.width, height: 20)
+        .frame(width: UIScreen.main.bounds.size.width, height: 11)
         .padding(.leading, -40)
         
       } else {
@@ -453,8 +490,8 @@ extension AreaDetailView {
   }
   
   private var messageLayer: some View {
-    Text("You've already rated this place.")
-      .padding()
+    Text(message == "" ? location.message : message)
+      .padding(2)
       .background(.blue)
       .foregroundColor(.white)
       .cornerRadius(10)
@@ -462,65 +499,23 @@ extension AreaDetailView {
       .font(.system(size: 16).weight(.bold))
       .onAppear {
         Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
-            showMessage = false
+          showMessage = false
+          message = ""
+          location.showMessage = false
+          location.message = ""
         }
       }
   }
   
   private var mapLayer: some View {
-    var places = placesViewModel.places.filter { $0.areaId == area.areaId}
+    var places = placesViewModel.places.filter { $0.areaId == area.areaId }
+
     if places.count == 0 {
       loadPreviewPlaces()
       places.append(placeBrewedAwakenings)
       places.append(placeNonas)
       places.append(placeHalabyLawGroup)
       places.append(placeMaggies)
-    }
-    let height = UIScreen.main.bounds.size.height
-    var mapHeight = 0.0
-    var mapY = 0.0
-    var mapX = height == 956.0 ? 203.0 : height == 932 ? 197.0 : height == 874.0 ? 187: 180
-   
-    if showEnlarged != "map" {
-//      if modelMode == "area" {
-        if height == 956.0 { // iPhone 16 Pro Max
-          mapHeight = modelMode == "area" ? 490.0 : 520.0
-          mapY = 215.0
-        } else if height == 932.0 { // iPhone 15 Plus & Pro Max
-          mapHeight = modelMode == "area" ? 550 : 580.0
-          mapY = modelMode == "area" ? 170.0 : 110.0
-        } else if height == 874.0 {
-          mapHeight = modelMode == "place" ? 300.0 : 500.0
-          mapY = 176
-        } else if height == 852 {
-          mapHeight = 497.0
-          mapY = 158
-        } else {
-          mapHeight = 490.0
-          mapY = 170.0
-        }
-//      } else {
-//        if height == 956.0 {
-//          mapHeight = 540.0
-//          mapY = 190.0
-//        } else if height == 932.0 { // iPhone 15 Plus
-//          mapHeight = 530.0
-//          mapY = 180.0
-//        } else if height == 874.0 {
-//          mapHeight = 540.0
-//          mapY = 150
-//        } else if height == 852.0 {
-//          mapHeight = 540.0
-//          mapY = 136
-//        } else {
-//          mapHeight = 540.0
-//          mapY = 138.0
-//        }
-//      }
-    } else {
-      mapY = 400.0
-      mapX = 220.0
-      mapHeight = 160
     }
     
     return Map(position: $areasViewModel.mapCameraPosition, interactionModes: [.pan, .zoom]) {
@@ -543,16 +538,25 @@ extension AreaDetailView {
         }
         .annotationTitles(.visible)
       }
+      
+      UserAnnotation()
     }
     .onMapCameraChange(frequency: .continuous) { context in
       areasViewModel.centerCoordinate = context.region.center
     }
     .background(.white)
-    .cornerRadius(45)
-    .frame(height: UIScreen.main.bounds.size.height - mapHeight)
-    .ignoresSafeArea()
+    .padding([.leading, .trailing], 4)
+    .padding(.bottom, 0)
+    .cornerRadius(25)
     .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
-    .position(x:mapX, y:mapY)
+    .mapControls {
+      Button {
+        let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
+        areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: location.userLocation?.coordinate.latitude ?? 0.0, longitude: location.userLocation?.coordinate.longitude ?? 0.0), span: span))
+      } label: {
+        Image(systemName: "location.fill")
+      }
+    }
   }
   
   private func getHoursOpen(hours: String) -> String {
@@ -639,6 +643,7 @@ extension AreaDetailView {
     placeHalabyLawGroup.phone = "(781) 749-0909"
     placeHalabyLawGroup.shortName = "Lawyer"
     placeHalabyLawGroup.type = 14
+    placeHalabyLawGroup.type = 14
     placeHalabyLawGroup.website = "https://halabylegal.com/"
     placeHalabyLawGroup.yelpCategory = "General Litigation, Employment Law"
     placeHalabyLawGroup.yelpId = "halaby-law-group-hingham"
@@ -676,7 +681,90 @@ extension AreaDetailView {
 }
 
 #Preview {
-  AreaDetailView(area: AreasViewModel().previewArea)
+  let hinghamSquare: SchemaV1.Area = SchemaV1.Area(areaId: 0, centerCoordinateLat: 42.24225, centerCoordinateLng: -70.88927, desc: "The Square is the old, quaint downtown of Hingham. Among the church steeples, you'll find boutiques, salons, restaurants, and a shoe repair shop. The Old Ship church, built by the Puritans in 1681, is the oldest wooden church in America still in use as a place of worship. The large yellow historic building on Main Street is affectionately called the \"Old Derby.\" It was the original location of Derby Academy, founded in 1784 and is the first coed school in America. The school still operates today on a larger campus on Burditt Street.", iconCoordinateLat: 42.24059, iconCoordinateLng: -70.88741, name: "Hingham Square", shortName: "Square", tilt: 0, zoom: 0.0007)
+  
+  
+  AreaDetailView(area: hinghamSquare)
     .environmentObject(AreasViewModel())
     .environmentObject(PlacesViewModel())
+
 }
+
+class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
+  private let manager = CLLocationManager()
+  @Published var userLocation: CLLocation?
+  @Published var message: String = ""
+  @Published var showMessage = false
+  @Published var newPlaceAtCurrentLocation: SchemaV1.Place?
+  @Published var placesViewModel: PlacesViewModel = PlacesViewModel()
+  @Published var areaId = 0
+  
+  func startUpdating() {
+    manager.delegate = self
+    manager.requestWhenInUseAuthorization()
+    manager.startUpdatingLocation()
+  }
+  
+  func stopUpdating() {
+    manager.stopUpdatingLocation()
+  }
+  
+  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    userLocation = locations.last
+    
+    let placesFound = placesViewModel.places.filter {
+      return $0.areaId == areaId &&
+      userLocation!.coordinate.latitude > $0.locationLat - 0.0005 &&
+      userLocation!.coordinate.latitude < $0.locationLat + 0.0005 &&
+      userLocation!.coordinate.longitude > $0.locationLng - 0.0005 &&
+      userLocation!.coordinate.longitude < $0.locationLng + 0.0005
+    }
+    
+    let placeCount = placesFound.count
+    
+    if placeCount > 0 {
+      var closestPlace = placesFound[0]
+      placesFound.forEach { place in
+        if closestPlace.name != place.name {
+          if abs(userLocation!.coordinate.latitude - place.locationLat) <= abs(userLocation!.coordinate.latitude - closestPlace.locationLat) &&
+              abs(userLocation!.coordinate.longitude - place.locationLng) <= abs(userLocation!.coordinate.longitude - closestPlace.locationLng)
+          {
+            closestPlace = place
+          }
+        }
+      }
+      
+      newPlaceAtCurrentLocation = closestPlace
+    }
+  }
+}
+
+struct CustomToggleButton: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        Button(action: {
+            configuration.isOn.toggle()
+        }) {
+            HStack {
+                configuration.label
+                Image(systemName: configuration.isOn ? "checkmark.circle.fill" : "circle")
+            }
+        }
+    }
+}
+
+class SoundManager{
+    static let instance = SoundManager()
+    
+    var player:AVAudioPlayer?
+    
+    func playSound(_ resource:String){
+      guard let url = Bundle.main.url(forResource: resource, withExtension: ".aifc") else {return}
+      do {
+        player = try AVAudioPlayer(contentsOf: url)
+        player?.play()
+      } catch let error{
+        print("Error: \(error.localizedDescription)")
+      }
+    }
+}
+

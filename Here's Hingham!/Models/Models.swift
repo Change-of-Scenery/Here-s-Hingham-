@@ -259,6 +259,20 @@ enum SchemaV1: VersionedSchema {
       self.zoom = try container.decode(Double.self, forKey: .zoom)
     }
     
+    init(areaId: Int, centerCoordinateLat: Double, centerCoordinateLng: Double, desc: String, iconCoordinateLat: Double, iconCoordinateLng: Double, name: String, shortName: String, tilt: Int, zoom: Double) {
+      self.areaId = areaId
+      self.desc = desc
+      self.centerCoordinateLat = centerCoordinateLat
+      self.centerCoordinateLng = centerCoordinateLng
+      self.iconCoordinateLat = iconCoordinateLat
+      self.iconCoordinateLng = iconCoordinateLng
+      self.name = name
+      self.shortName = shortName
+      self.tilt = tilt
+      self.timestamp = Date.now
+      self.zoom = zoom
+    }
+    
     init() {
       self.timestamp = Date.now
     }

@@ -20,9 +20,9 @@ struct AreasView: View {
       mapLayer
       
       VStack(spacing: 0) {
-        header
-          .padding()
-        
+//        header
+//          .padding()
+//        
         Spacer()
         areasPreviewStack        
       }
@@ -37,7 +37,6 @@ struct AreasView: View {
       }
       return AreaDetailView(area: area)
     }
-//    .overlay(appBanner)
   }
 }
 
@@ -51,7 +50,7 @@ struct AreasView_Previews: PreviewProvider {
 extension AreasView {
   
   private var header: some View {
-    VStack {
+    HStack {
       Button(action: areasViewModel.toggleAreasList) {
         Text(areasViewModel.mapArea.name)
           .font(.title2)

@@ -13,12 +13,6 @@ import SwiftData
 class PlacesViewModel: ObservableObject {
   @Published var places: [SchemaV1.Place] = []
   @Published var mapPlace: SchemaV1.Place
-//  {
-//    didSet {
-//      let coord = CLLocationCoordinate2D(latitude: mapPlace.coordinates.latitude - 0.0002, longitude: mapPlace.coordinates.longitude - 0.00005)
-//      updateRegion(coord)
-//    }
-//  }
   
   init() {
     mapPlace = SchemaV1.Place()

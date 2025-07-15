@@ -38,7 +38,7 @@ extension AreasListView {
   private func listRowView(_ area: SchemaV1.Area) -> some View {
     HStack {
       ZStack {
-        Image("\(area.shortName)/Area0")
+        Image("\(area.shortName)/Area/0")
           .resizable()
           .scaledToFill()
           .frame(width: 45, height: 45)

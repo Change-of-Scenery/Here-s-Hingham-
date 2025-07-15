@@ -17,7 +17,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    GMSServices.provideAPIKey("AIzaSyBz7CLjfc57iSF7KPk1tQ4cEEwkQljo300")
+//    GMSServices.provideAPIKey("AIzaSyBz7CLjfc57iSF7KPk1tQ4cEEwkQljo300")
     FirebaseApp.configure()
 //    GMSPlacesClient.provideAPIKey("AIzaSyCh8yeH__wOkR3Pb1Xt5A3HauZ1PdPySIg")
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
@@ -61,8 +61,9 @@ struct Here_s_Hingham_App: App {
         Task {
           do {
             try await Auth.auth().signIn(withEmail: "cconway@cambuilt.com", password: "EujcmJJKSuKQ4Yw")
+            loadData()
           }
-          catch  {
+          catch {
             print(error)
           }
         }
@@ -88,70 +89,6 @@ struct Here_s_Hingham_App: App {
                
 //        let placeDescriptor = FetchDescriptor<SchemaV1.Place>()
 //        let areaDescriptor = FetchDescriptor<SchemaV1.Area>()
-        
-        let db = Firestore.firestore()
-                  
-        db.collection("HinghamArea").getDocuments { queryArea, err in
-          for document in queryArea!.documents {
-            let area = SchemaV1.Area()
-            area.areaId = document.get("areaId") as! Int
-            area.centerCoordinateLat = document.get("centerCoordinateLat") as! Double
-            area.centerCoordinateLng = document.get("centerCoordinateLng") as! Double
-            area.desc = document.get("desc") as! String
-            area.iconCoordinateLat = document.get("iconCoordinateLat") as! Double
-            area.iconCoordinateLng = document.get("iconCoordinateLng") as! Double
-            area.name = document.get("name") as! String
-            area.shortName = document.get("shortName") as! String
-            area.tilt = document.get("tilt") as! Int
-            area.zoom = document.get("zoom") as! Double
-            areasViewModel.addArea(area)
-          }
-          areasViewModel.mapArea = areasViewModel.areas.filter { $0.areaId == 0}.first!
-          print("modelContainer span zoom \(areasViewModel.mapArea.zoom)")
-        }
-        
-        db.collection("HinghamPlace").getDocuments { queryPlace, err in
-          for document in queryPlace!.documents {
-            let place = SchemaV1.Place()
-            place.documentID = document.documentID
-            place.name = document.get("name") as! String
-            place.address = document.get("address") as! String
-            place.archStyle = document.get("archStyle") as! String
-            place.areaId = document.get("areaId") as! Int
-            place.desc = document.get("desc") as! String
-            place.googleId = document.get("googleId") as! String
-            place.googleRating = document.get("googleRating") as! Double
-            place.googleReviews = document.get("googleReviews") as! Int
-            place.googleUrl = document.get("googleUrl") as! String
-            place.hinghamRatings = document.get("hinghamRatings") as! String
-            place.updateHinghamRating()
-            place.hinghamReviews = document.get("hinghamReviews") as! Int
-            place.hours = document.get("hours") as! String
-            place.iconSize = document.get("iconSize") as! Double
-            place.imageCount = document.get("imageCount") as! Int
-            place.likes = document.get("likes") as! Int
-            place.locationLat = document.get("locationLat") as! Double
-            place.locationLng = document.get("locationLng") as! Double
-            place.nickname = document.get("nickname") as! String
-            place.notes = document.get("notes") as! String
-            place.phone = document.get("phone") as! String
-            place.shortName = document.get("shortName") as! String
-            place.type = document.get("type") as! Int
-            place.website = document.get("website") as! String
-            place.yelpCategory = document.get("yelpCategory") as! String
-            place.yelpId = document.get("yelpId") as! String
-            place.yelpRating = document.get("yelpRating") as! Double
-            place.yelpReviews = document.get("yelpReviews") as! Int
-            place.yelpPrice = document.get("yelpPrice") as! String
-            place.yelpUrl = document.get("yelpUrl") as! String
-            place.estimatedValue = document.get("estimatedValue") as! String
-            place.lotSize = document.get("lotSize") as! Double
-            place.squareFeet = document.get("squareFeet") as! Int
-            place.yearBuilt = document.get("yearBuilt") as! Int
-
-            placesViewModel.addPlace(place)
-          }
-        }
         
 //        areasViewModel.areas = try container.mainContext.fetch(areaDescriptor)
 //        placesViewModel.places = try container.mainContext.fetch(placeDescriptor)
@@ -291,7 +228,73 @@ struct Here_s_Hingham_App: App {
       }
     }
   }
+  
+  func loadData() {
+    let db = Firestore.firestore()
+              
+    db.collection("HinghamArea").getDocuments { queryArea, err in
+      for document in queryArea!.documents {
+        let area = SchemaV1.Area()
+        area.areaId = document.get("areaId") as! Int
+        area.centerCoordinateLat = document.get("centerCoordinateLat") as! Double
+        area.centerCoordinateLng = document.get("centerCoordinateLng") as! Double
+        area.desc = document.get("desc") as! String
+        area.iconCoordinateLat = document.get("iconCoordinateLat") as! Double
+        area.iconCoordinateLng = document.get("iconCoordinateLng") as! Double
+        area.name = document.get("name") as! String
+        area.shortName = document.get("shortName") as! String
+        area.tilt = document.get("tilt") as! Int
+        area.zoom = document.get("zoom") as! Double
+        areasViewModel.addArea(area)
+      }
+      areasViewModel.mapArea = areasViewModel.areas.filter { $0.areaId == 0}.first!
+    }
+    
+    db.collection("HinghamPlace").getDocuments { queryPlace, err in
+      for document in queryPlace!.documents {
+        let place = SchemaV1.Place()
+        place.documentID = document.documentID
+        place.name = document.get("name") as! String
+        place.address = document.get("address") as! String
+        place.archStyle = document.get("archStyle") as! String
+        place.areaId = document.get("areaId") as! Int
+        place.desc = document.get("desc") as! String
+        place.googleId = document.get("googleId") as! String
+        place.googleRating = document.get("googleRating") as! Double
+        place.googleReviews = document.get("googleReviews") as! Int
+        place.googleUrl = document.get("googleUrl") as! String
+        place.hinghamRatings = document.get("hinghamRatings") as! String
+        place.updateHinghamRating()
+        place.hinghamReviews = document.get("hinghamReviews") as! Int
+        place.hours = document.get("hours") as! String
+        place.iconSize = document.get("iconSize") as! Double
+        place.imageCount = document.get("imageCount") as! Int
+        place.likes = document.get("likes") as! Int
+        place.locationLat = document.get("locationLat") as! Double
+        place.locationLng = document.get("locationLng") as! Double
+        place.nickname = document.get("nickname") as! String
+        place.notes = document.get("notes") as! String
+        place.phone = document.get("phone") as! String
+        place.shortName = document.get("shortName") as! String
+        place.type = document.get("type") as! Int
+        place.website = document.get("website") as! String
+        place.yelpCategory = document.get("yelpCategory") as! String
+        place.yelpId = document.get("yelpId") as! String
+        place.yelpRating = document.get("yelpRating") as! Double
+        place.yelpReviews = document.get("yelpReviews") as! Int
+        place.yelpPrice = document.get("yelpPrice") as! String
+        place.yelpUrl = document.get("yelpUrl") as! String
+        place.estimatedValue = document.get("estimatedValue") as! String
+        place.lotSize = document.get("lotSize") as! Double
+        place.squareFeet = document.get("squareFeet") as! Int
+        place.yearBuilt = document.get("yearBuilt") as! Int
+
+        placesViewModel.addPlace(place)
+      }
+    }
+  }
 }
+
 
 struct GroceryProduct: Codable {
     var name: String

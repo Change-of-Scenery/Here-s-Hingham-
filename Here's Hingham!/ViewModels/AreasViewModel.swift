@@ -14,8 +14,8 @@ import FirebaseCore
 import FirebaseFirestore
 
 class AreasViewModel: ObservableObject {
-  @Published var mapCameraPosition: MapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)))
-
+//  @Published var mapCameraPosition: MapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)))
+  @Published var mapCameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
   @Published var areas: [SchemaV1.Area] = []
   @Published var previewArea = SchemaV1.Area()
   @Published var mapArea: SchemaV1.Area {
@@ -67,8 +67,6 @@ class AreasViewModel: ObservableObject {
       }
       area.imageCount = imageCounter
     }
-
-    print("showArea span zoom \(area.zoom)")
     
     withAnimation(.easeInOut) {
       self.mapArea = area
@@ -98,8 +96,6 @@ class AreasViewModel: ObservableObject {
       mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: mapArea.centerCoordinateLat - 0.0002, longitude: mapArea.centerCoordinateLng - 0.00005), span: MKCoordinateSpan(latitudeDelta: mapCameraPosition.region!.span.latitudeDelta + 0.0005, longitudeDelta: mapCameraPosition.region!.span.latitudeDelta + 0.0005)))
     } else {
       if let region = mapCameraPosition.region {
-        print("span lat \(region.span.latitudeDelta + 0.0005)")
-        print("span lng \(region.span.longitudeDelta + 0.0005)")
         mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: centerCoordinate, span: MKCoordinateSpan(latitudeDelta: region.span.latitudeDelta + 0.0005, longitudeDelta: region.span.latitudeDelta + 0.0005)))
       } else {
         mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: mapArea.centerCoordinateLat - 0.0002, longitude: mapArea.centerCoordinateLng - 0.00005), span: MKCoordinateSpan(latitudeDelta: mapArea.zoom + 0.0005, longitudeDelta: mapArea.zoom + 0.0005)))
