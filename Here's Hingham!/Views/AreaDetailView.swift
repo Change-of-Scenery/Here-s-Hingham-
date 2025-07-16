@@ -17,7 +17,7 @@ struct AreaDetailView: View {
   @State var imageCount:Int = 10
   @State var notes = ""
   @State var modelMode = "area"
-  @State var showEnlarged = ""
+  @State var showExpanded = ""
   @State var showRatingSelector = false
   @State var mapPosition = CGPoint(x: 10, y: 10)
   @State var placeBrewedAwakenings = SchemaV1.Place()
@@ -36,31 +36,35 @@ struct AreaDetailView: View {
                         
   var body: some View {
     let rows = [
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.035)),  // menu
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.32)),  // image
-      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.02 : 0.027))), // title
-      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.0 : 0.04))),  // reviews
-      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.12 : 0.075))),  // desc
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.35))   // map
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.038)),  // menu
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.32)),   // image
+      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.02 : 0.027))),  // title
+      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.0 : 0.04))),    // reviews
+      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.115 : 0.075))), // desc
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.34))    // map
+    ]
+    let expandedMapRows = [
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.038)),  // menu
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.829))   // map
+    ]
+    let expandedDescRows = [
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.038)),  // menu
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.829))   // desc
     ]
 
-    if showEnlarged == "map" {
-      VStack {
+    if showExpanded == "map" {
+      LazyHGrid(rows: expandedMapRows, spacing: 10) {
         menuSection
         mapLayer
-          .padding(.leading, -19)
       }
-      .padding([.leading, .trailing], 15)
-      .padding(.top, 16)
+      .frame(width: UIScreen.main.bounds.size.width)
       .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
-    } else if showEnlarged == "desc" {
-      VStack {
+    } else if showExpanded == "desc" {
+      LazyHGrid(rows: expandedDescRows, spacing: 10) {
         menuSection
-        expandedTitleSection
         expandedDescSection
       }
-      .padding([.leading, .trailing], 15)
-      .padding(.top, 16)
+      .frame(width: UIScreen.main.bounds.size.width)
       .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
     } else  {
       LazyHGrid(rows: rows, spacing: 10) {
@@ -87,10 +91,10 @@ struct AreaDetailView: View {
       .onChange(of: location.newPlaceAtCurrentLocation) {
         placesViewModel.showPlace(areasViewModel.mapArea, location.newPlaceAtCurrentLocation!)
         modelMode = "place"
-        if showEnlarged == "map" {
+        if showExpanded == "map" {
           areasViewModel.zoomIn()
         }
-        showEnlarged = ""
+        showExpanded = ""
       }
       .onChange(of: placesViewModel.mapPlace.name) {
         notes = placesViewModel.mapPlace.notes
@@ -110,14 +114,17 @@ extension Date {
 
 extension AreaDetailView {
   private var menuSection: some View {
-    HStack {
+    let height = UIScreen.main.bounds.size.height
+    let menuTopPadding = height < 900 ? 12.0 : 6.0
+
+    return HStack {
       Button {
-        if showEnlarged == "map" {
+        if showExpanded == "map" {
           let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
           areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
-          showEnlarged = ""
-        } else if showEnlarged == "desc" {
-          showEnlarged = ""
+          showExpanded = ""
+        } else if showExpanded == "desc" {
+          showExpanded = ""
         } else if modelMode == "place" {
           tabSelection = 0
           withAnimation(.easeInOut) {
@@ -133,8 +140,12 @@ extension AreaDetailView {
       }
       Spacer()
       Button {
-        withAnimation(.easeInOut) {
-          self.showEnlarged = "desc"
+        if showExpanded == "desc" {
+          showExpanded = ""
+        } else {
+          withAnimation(.easeInOut) {
+            self.showExpanded = "desc"
+          }
         }
       } label: {
         Image(systemName: "text.page")
@@ -143,8 +154,12 @@ extension AreaDetailView {
       }
       Spacer()
       Button {
-        areasViewModel.zoomOut()
-        self.showEnlarged = "map"
+        if showExpanded == "map" {
+          showExpanded = ""
+        } else {
+          areasViewModel.zoomOut()
+          self.showExpanded = "map"
+        }
       } label: {
         Image(systemName: "map")
           .font(.system(size: 20))
@@ -154,18 +169,28 @@ extension AreaDetailView {
       Menu {
         Button("Expand Map", action: {
           withAnimation(.easeInOut) {
-            self.showEnlarged = "map"
+            self.showExpanded = "map"
             areasViewModel.zoomOut()
           }
         })
         
         Button("Expand Notes", action: {
           withAnimation(.easeInOut) {
-            self.showEnlarged = "desc"
+            self.showExpanded = "desc"
           }
         })
         
-        Toggle("Place Display", isOn: $updatingLocation)
+        Button("Update Google Data", action: {
+          let dataService = DataService()
+          dataService.updateGoogle()
+        })
+        
+        Button("Update Yelp Data", action: {
+          let dataService = DataService()
+          dataService.updateYelp()
+        })
+        
+        Toggle("Place Watcher", isOn: $updatingLocation)
           .toggleStyle(CustomToggleButton())
           .onChange(of: updatingLocation) {
             location.areaId = area.areaId
@@ -176,14 +201,13 @@ extension AreaDetailView {
               location.stopUpdating()
             }
           }
-        
-      } label: {
-        Image(systemName: "ellipsis.circle")
-          .font(.system(size: 20))
-          .tint(.black)
-      }
+        } label: {
+          Image(systemName: "ellipsis.circle")
+            .font(.system(size: 20))
+            .tint(.black)
+        }
     }
-    .padding(.top, 6)
+    .padding(.top, menuTopPadding)
   }
   
   private var areaSection: some View {
@@ -224,7 +248,6 @@ extension AreaDetailView {
         }
       }
     }
-    .frame(width: UIScreen.main.bounds.size.width * 0.93)
     .cornerRadius(25)
     .tabViewStyle(PageTabViewStyle())
   }
@@ -271,24 +294,13 @@ extension AreaDetailView {
     .padding(.bottom, -7)
   }
   
-  private var expandedTitleSection: some View {
-    return VStack(alignment: .leading) {
-      HStack(alignment: .top) {
-        Text(placesViewModel.mapPlace.name)
-          .font(.system(size: 24))
-          .fontWeight(.bold)
-          .padding([.top, .leading], 2)
-      }
-    }
-    .padding(.top, 15)
-  }
-
   private var descSection: some View {
     return VStack(alignment: .leading) {
       Divider()
       TextField("Description", text: modelMode == "area" ? $areasViewModel.mapArea.desc : $placesViewModel.mapPlace.notes, axis: .vertical)
         .font(.system(size: 13))
         .foregroundColor(.black)
+      Divider()
     }
   }
   
@@ -300,25 +312,18 @@ extension AreaDetailView {
   
   private var expandedDescSection: some View {
 // Markdown: "*Italics*", "**Bold**", "~Strikethrough~", "`Code`", "[Link](https://apple.com)"
-       
     HStack(alignment: .top) {
-      let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
-      Text(descText)
-        .font(.system(size: 16))
-        .foregroundColor(.primary)
-      
-      if area.wikiName.prefix(4) == "http" {
-        if let url = URL(string: area.wikiName) {
-          Link("Read more", destination: url)
-            .font(.headline)
-            .tint(.blue)
-        }
+      VStack(alignment: .leading) {
+        Text(modelMode == "area" ? areasViewModel.mapArea.name : placesViewModel.mapPlace.name)
+          .font(.system(size: 24))
+          .fontWeight(.bold)
+        TextField("Description", text: modelMode == "area" ? $areasViewModel.mapArea.desc : $placesViewModel.mapPlace.notes, axis: .vertical)
+          .font(.system(size: 16))
+          .foregroundColor(.black)
       }
     }
-    .frame(width: nil, height: UIScreen.main.bounds.size.height - 190)
-    .padding(2)
-    .padding(.top, -15)
-    .padding(.bottom, -15)
+    .padding()
+    .frame(width: UIScreen.main.bounds.size.width * 0.93)
   }
   
   private var historicHouseSection: some View {
@@ -361,17 +366,21 @@ extension AreaDetailView {
   }
   
   private var reviewsSection: some View {
+    let height = UIScreen.main.bounds.size.height
+    let starPadding = height < 900 ? height < 850 ? -2.0 : -1.0 : 0.0
     
     let halfStar = Image("Reviews/Half Star")
       .resizable()
       .scaledToFill()
       .frame(width: 5, height: 10)
+      .padding(starPadding)
     let star = Image("Reviews/Star")
       .resizable()
       .scaledToFill()
       .frame(width: 5, height: 10)
-    
-    let height = UIScreen.main.bounds.size.height
+      .padding(starPadding)
+
+    let logoWidth = height < 900 ? 48.0 : 56.0
     var paddingLeading = 0.0
     
     if height == 956.0 {
@@ -384,7 +393,7 @@ extension AreaDetailView {
 
     return VStack {
       Divider()
-        .padding(.bottom, 9)
+        .padding(4)
       
       if showRatingSelector == false {
         HStack {
@@ -393,7 +402,7 @@ extension AreaDetailView {
               Image("Reviews/Google")
                 .resizable()
                 .scaledToFill()
-                .frame(width: 56)
+                .frame(width: logoWidth)
                 .padding(.top, -4)
                 .padding(.leading, paddingLeading)
             }
@@ -401,7 +410,7 @@ extension AreaDetailView {
             Image("Reviews/Google")
               .resizable()
               .scaledToFill()
-              .frame(width: 56)
+              .frame(width: logoWidth)
               .padding(.top, -4)
               .padding(.leading, paddingLeading)
           }
@@ -430,14 +439,14 @@ extension AreaDetailView {
               Image("Reviews/Yelp")
                 .resizable()
                 .scaledToFill()
-                .frame(width: 56)
+                .frame(width: logoWidth)
                 .padding(.bottom, 5)
             }
           } else {
             Image("Reviews/Yelp")
               .resizable()
               .scaledToFill()
-              .frame(width: 56)
+              .frame(width: logoWidth)
               .padding(.bottom, 5)
           }
           
@@ -469,7 +478,7 @@ extension AreaDetailView {
               showRatingSelector = true
             }
           } label: {
-            Image("Reviews/Bucket\(placesViewModel.mapPlace.hinghamRating)Star").resizable().scaledToFit().frame(width: 58, height: 40)
+            Image("Reviews/Bucket\(placesViewModel.mapPlace.hinghamRating)Star").resizable().scaledToFit().frame(width: 58, height: 32)
               .padding(.top, -6)
               .padding(.trailing, -10)
           }
@@ -528,10 +537,10 @@ extension AreaDetailView {
                 withAnimation(.easeInOut) {
                   placesViewModel.showPlace(area, place)
                   modelMode = "place"
-                  if showEnlarged == "map" {
+                  if showExpanded == "map" {
                     areasViewModel.zoomIn()
                   }
-                  showEnlarged = ""
+                  showExpanded = ""
                 }
               }
           }
@@ -543,10 +552,12 @@ extension AreaDetailView {
     }
     .onMapCameraChange(frequency: .continuous) { context in
       areasViewModel.centerCoordinate = context.region.center
+      if areasViewModel.mapCameraPosition.region == nil {
+          areasViewModel.mapCameraPosition = MapCameraPosition.region(context.region)
+      }
     }
     .background(.white)
-    .padding([.leading, .trailing], 4)
-    .padding(.bottom, 0)
+    .frame(width: UIScreen.main.bounds.size.width * 0.93)
     .cornerRadius(25)
     .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
     .mapControls {

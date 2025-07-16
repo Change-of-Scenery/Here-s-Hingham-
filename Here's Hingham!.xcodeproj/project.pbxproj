@@ -13,6 +13,8 @@
 		9B26F3642E15C10600757947 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 9B26F3632E15C10600757947 /* GoogleMaps */; };
 		9B63F2702DB6C365001E5857 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B63F26F2DB6C365001E5857 /* MapKit.framework */; };
 		9BDDD1372E15CA660041F013 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 9BDDD1362E15CA660041F013 /* FirebaseAnalytics */; };
+		9BE265B92E26CBC000FE80DD /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 9BE265B82E26CBC000FE80DD /* Alamofire */; };
+		9BE265BE2E27089700FE80DD /* CDYelpFusionKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9BE265BD2E27089700FE80DD /* CDYelpFusionKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,8 +36,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				9B63F2702DB6C365001E5857 /* MapKit.framework in Frameworks */,
+				9BE265B92E26CBC000FE80DD /* Alamofire in Frameworks */,
 				9B26F3612E15BFAE00757947 /* FirebaseFirestore in Frameworks */,
 				9BDDD1372E15CA660041F013 /* FirebaseAnalytics in Frameworks */,
+				9BE265BE2E27089700FE80DD /* CDYelpFusionKit in Frameworks */,
 				9B26F3642E15C10600757947 /* GoogleMaps in Frameworks */,
 				9B26F35F2E15BFAE00757947 /* FirebaseCore in Frameworks */,
 				9B26F35D2E15BFAE00757947 /* FirebaseAuth in Frameworks */,
@@ -95,6 +99,8 @@
 				9B26F3602E15BFAE00757947 /* FirebaseFirestore */,
 				9B26F3632E15C10600757947 /* GoogleMaps */,
 				9BDDD1362E15CA660041F013 /* FirebaseAnalytics */,
+				9BE265B82E26CBC000FE80DD /* Alamofire */,
+				9BE265BD2E27089700FE80DD /* CDYelpFusionKit */,
 			);
 			productName = "Here's Hingham!";
 			productReference = 9B63F2382DB68BC0001E5857 /* Here's Hingham!.app */;
@@ -127,6 +133,8 @@
 			packageReferences = (
 				9B26F35B2E15BFAE00757947 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				9B26F3622E15C10600757947 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
+				9BE265B72E26CBC000FE80DD /* XCRemoteSwiftPackageReference "Alamofire" */,
+				9BE265BC2E27089700FE80DD /* XCRemoteSwiftPackageReference "CDYelpFusionKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9B63F2392DB68BC0001E5857 /* Products */;
@@ -384,6 +392,22 @@
 				minimumVersion = 10.0.0;
 			};
 		};
+		9BE265B72E26CBC000FE80DD /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
+		9BE265BC2E27089700FE80DD /* XCRemoteSwiftPackageReference "CDYelpFusionKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/chrisdhaan/CDYelpFusionKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -411,6 +435,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9B26F35B2E15BFAE00757947 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
+		};
+		9BE265B82E26CBC000FE80DD /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9BE265B72E26CBC000FE80DD /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		9BE265BD2E27089700FE80DD /* CDYelpFusionKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9BE265BC2E27089700FE80DD /* XCRemoteSwiftPackageReference "CDYelpFusionKit" */;
+			productName = CDYelpFusionKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
