@@ -14,12 +14,12 @@ struct RatingsView: View {
   @Binding var showRatingSelector: Bool
   @State var rating: Double = 0.0
   
-  var label = "How many stars for"
+  var label = "How many stars?"
   var maximumRating: Double = 5.0
   
   var offImage: Image?
-  var starImage = Image("Reviews/Star")
-  var halfStarImage = Image("Reviews/HalfStar")
+  var starImage = Image("Reviews/StarRater")
+  var halfStarImage = Image("Reviews/HalfStarRater")
   let start = 1.0
   
   var offColor = Color.gray
@@ -28,29 +28,31 @@ struct RatingsView: View {
   var body: some View {
     HStack {
       if label.isEmpty == false {
-        Text("\(label) \(place.name)?")
-          .font(.system(size: 13))
+        Text(label)
+          .font(.system(size: 12))
       }
       
       ForEach(Array(stride(from: 1.0, through: maximumRating, by: 1.0)), id: \.self) { number in
         Button {
           rating = number
         } label: {
-          number > rating ? Image("Reviews/GrayStar") : number.truncatingRemainder(dividingBy: 1.0) == 0 ? Image("Reviews/Star") : Image("Reviews/GrayHalfStar")
+          number > rating ? Image("Reviews/GrayStarRater") : number.truncatingRemainder(dividingBy: 1.0) == 0 ? Image("Reviews/StarRater") : Image("Reviews/GrayHalfStarRater")
         }
-        .padding(.top, -2)
+        .padding(-2)
       }
       Spacer()
       Button {
-        place.hinghamReviews += 1
-        place.hinghamRatings += place.hinghamRatings == "" ? String(rating) : ";" + String(rating)
-        place.updateHinghamRating()
+        if rating > 0 {
+          place.hinghamReviews += 1
+          place.hinghamRatings += place.hinghamRatings == "" ? String(rating) : ";" + String(rating)
+          place.updateHinghamRating()
+          let defaults = UserDefaults.standard
+          let db = Firestore.firestore()
+          let placeRef = db.collection("HinghamPlace").document(place.documentID)
+          placeRef.updateData(["hinghamRatings" : place.hinghamRatings, "hinghamReviews" : place.hinghamReviews])
+          defaults.set("true", forKey: "Rated:\(place.documentID)")
+        }
         showRatingSelector = false
-        let defaults = UserDefaults.standard
-        let db = Firestore.firestore()
-        let placeRef = db.collection("HinghamPlace").document(place.documentID)
-        placeRef.updateData(["hinghamRatings" : place.hinghamRatings, "hinghamReviews" : place.hinghamReviews])
-        defaults.set("true", forKey: "Rated:\(place.documentID)")
       } label: {
         Text("Rate")
           .foregroundStyle(.white)
@@ -58,9 +60,17 @@ struct RatingsView: View {
       }
       .buttonStyle(.borderedProminent)
       .tint(.red)
-      .padding(.top, -2)
+      .padding(.top, 1)
+      Button {
+        showRatingSelector = false
+      } label: {
+        Image(systemName: "x.square.fill")
+          .font(.system(size: 32))
+          .tint(.red)
+          .cornerRadius(25)
+      }
     }
-    .padding(.top, -3)
+    .frame(width: UIScreen.main.bounds.size.width * 0.93, height: 11)
   }
   
   func image(for number: Double) -> Image {

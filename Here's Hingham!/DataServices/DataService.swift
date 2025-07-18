@@ -15,19 +15,13 @@ import Alamofire
 import CDYelpFusionKit
 
 class DataService {
-  @Environment(\.modelContext) private var modelContext
-  @Query public var areasQuery: [SchemaV1.Area]
-  @Published var areas: [SchemaV1.Area] = []
+  @State var name = "Star Nails & Spa"
   public static var yelpAPIClient = CDYelpAPIClient(apiKey: "iQQOaKrSKp4-7jORkK8tYfQiUxHIn78-HefSRafOvFG-AvvoNRwjQhj4_Kb0mqX3IOM__qcUBApaUcTY-YZQLHWY2THQxsiZjKV5zoSD0tcZP5GCCCfFJclGTX33Y3Yx")
-  
-  init() {
-    areas = areasQuery
-  }
   
   func updateYelp() {
     let db = Firestore.firestore()
     
-    db.collection("HinghamPlace").whereField("areaId", isEqualTo: 3).getDocuments { queryPlace, err in
+    db.collection("HinghamPlace").whereField("name", isEqualTo: name).getDocuments { queryPlace, err in
       for place:QueryDocumentSnapshot in queryPlace!.documents {
         let yelpId = place.get("yelpId") as! String
         if yelpId == "" {
@@ -50,11 +44,12 @@ class DataService {
           if let business = business {
             if let businesses = business.businesses {
               businesses.forEach { businessSearch in
-                let id = businessSearch.id
+                let id = businessSearch.alias
                 let rating = businessSearch.rating
                 let reviews = businessSearch.reviewCount
                 let phone = businessSearch.displayPhone
                 let price = businessSearch.price
+                let address = businessSearch.location!.addressOne
                 let url = businessSearch.url
                 var categoryList = ""
                 if let categories = businessSearch.categories {
@@ -69,7 +64,7 @@ class DataService {
                 
                 let documentId = place.documentID
                 
-                db.collection("HinghamPlace").document(documentId).updateData(["yelpId":id ?? "", "yelpRating":rating ?? 0.0, "yelpReviews":reviews ?? 0, "phone":phone ?? "", "yelpPrice":price ?? "", "yelpUrl":url ?? "", "yelpCategory": categoryList]) { err in
+                db.collection("HinghamPlace").document(documentId).updateData(["yelpId":id ?? "", "yelpRating":rating ?? 0.0, "yelpReviews":reviews ?? 0, "phone":phone ?? "", "yelpPrice":price ?? "", "yelpUrl":url ?? "", "yelpCategory":categoryList, "address":address ?? ""]) { err in
                   if let err = err {
                     print("Error writing document: \(err)")
                   }
@@ -85,7 +80,7 @@ class DataService {
   func updateGoogle() {
     let db = Firestore.firestore()
     
-    db.collection("HinghamPlace").whereField("areaId", isEqualTo: 3).getDocuments { queryPlace, err in
+    db.collection("HinghamPlace").whereField("name", isEqualTo: name).getDocuments { queryPlace, err in
       for place in queryPlace!.documents {
         let googleId = place.get("googleId") as! String
         let documentId = place.documentID
@@ -124,8 +119,29 @@ class DataService {
                   let rating = jsonData[0]["rating"] as? Double ?? 0.0
                   let reviews = jsonData[0]["reviews"] as? Int ?? 0
                   let googleUrl = jsonData[0]["owner_link"] as? String ?? ""
+                  let website = jsonData[0]["site"] as? String ?? ""
+                  let notes = jsonData[0]["description"] as? String ?? ""
+                  var allHours = ""
                   
-                  db.collection("HinghamPlace").document(documentId).updateData(["googleRating":rating, "googleReviews":reviews, "googleUrl":googleUrl]) { err in
+                  if let workingHours = jsonData[0]["working_hours"] as? [String:Any] {
+                    var hours = workingHours["Sunday"] as! String
+                    hours = "0,\(hours.replacingOccurrences(of: "\\U202f", with: " "));"
+                    allHours = hours
+                    hours = workingHours["Monday"] as! String
+                    allHours += "1,\(hours.replacingOccurrences(of: "\\U202f", with: " "));"
+                    hours = workingHours["Tuesday"] as! String
+                    allHours += "2,\(hours.replacingOccurrences(of: "\\U202f", with: " "));"
+                    hours = workingHours["Wednesday"] as! String
+                    allHours += "3,\(hours.replacingOccurrences(of: "\\U202f", with: " "));"
+                    hours = workingHours["Thursday"] as! String
+                    allHours += "4,\(hours.replacingOccurrences(of: "\\U202f", with: " "));"
+                    hours = workingHours["Friday"] as! String
+                    allHours += "5,\(hours.replacingOccurrences(of: "\\U202f", with: " "));"
+                    hours = workingHours["Saturday"] as! String
+                    allHours += "6,\(hours.replacingOccurrences(of: "\\U202f", with: " "))"
+                  }
+                  
+                  db.collection("HinghamPlace").document(documentId).updateData(["googleRating":rating, "googleReviews":reviews, "googleUrl":googleUrl, "website":website, "notes":notes, "hours":allHours]) { err in
                     if let err = err {
                       print("Error writing document: \(err)")
                     } else {

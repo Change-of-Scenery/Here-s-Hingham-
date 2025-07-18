@@ -37,15 +37,15 @@ struct AreaDetailView: View {
   var body: some View {
     let rows = [
       GridItem(.fixed(UIScreen.main.bounds.size.height * 0.038)),  // menu
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.32)),   // image
-      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.02 : 0.027))),  // title
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.3)),   // image
+      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.02 : 0.036))),  // title
       GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.0 : 0.04))),    // reviews
-      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.115 : 0.075))), // desc
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.34))    // map
+      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.1325 : 0.1))), // desc
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.335))    // map
     ]
     let expandedMapRows = [
       GridItem(.fixed(UIScreen.main.bounds.size.height * 0.038)),  // menu
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.829))   // map
+      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.82))   // map
     ]
     let expandedDescRows = [
       GridItem(.fixed(UIScreen.main.bounds.size.height * 0.038)),  // menu
@@ -133,6 +133,7 @@ extension AreaDetailView {
         } else {
           areasViewModel.sheetArea = nil
         }
+        showRatingSelector = false
       } label: {
         Image(systemName: "x.square.fill")
           .font(.system(size: 20))
@@ -268,7 +269,7 @@ extension AreaDetailView {
           .fontWeight(.bold)
         Spacer()
         if modelMode == "place" {
-          Text(placesViewModel.mapPlace.desc)
+          Text(placesViewModel.mapPlace.desc == "" ? placesViewModel.mapPlace.yelpCategory : placesViewModel.mapPlace.desc)
             .font(.system(size: 12))
           Text(placesViewModel.mapPlace.yelpPrice)
             .font(.system(size: 12))
@@ -367,9 +368,9 @@ extension AreaDetailView {
   
   private var reviewsSection: some View {
     let height = UIScreen.main.bounds.size.height
-    let starPadding = height < 900 ? height < 850 ? -2.0 : -1.0 : 0.0
+    let starPadding = height < 900 ? height < 850 ? -1.5 : -1.0 : -1.0
     
-    let halfStar = Image("Reviews/Half Star")
+    let halfStar = Image("Reviews/HalfStar")
       .resizable()
       .scaledToFill()
       .frame(width: 5, height: 10)
@@ -411,7 +412,7 @@ extension AreaDetailView {
               .resizable()
               .scaledToFill()
               .frame(width: logoWidth)
-              .padding(.top, -4)
+              .padding(.top, -6)
               .padding(.leading, paddingLeading)
           }
           
@@ -427,11 +428,14 @@ extension AreaDetailView {
           }
           
           if gReviews > 0 {
-            Text("(\(gReviews))")
+            Text("(\(String(gReviews)))")
               .font(.system(size: 12))
+              .frame(width: 50)
+              .padding(.leading, -11)
           } else {
             Text("No reviews")
               .font(.system(size: 12))
+              .padding(.leading, 5)
           }
           
           if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
@@ -441,6 +445,7 @@ extension AreaDetailView {
                 .scaledToFill()
                 .frame(width: logoWidth)
                 .padding(.bottom, 5)
+                .padding(.leading, -8)
             }
           } else {
             Image("Reviews/Yelp")
@@ -448,6 +453,7 @@ extension AreaDetailView {
               .scaledToFill()
               .frame(width: logoWidth)
               .padding(.bottom, 5)
+              .padding(.leading, -8)
           }
           
           let yRating = placesViewModel.mapPlace.yelpRating
@@ -462,11 +468,14 @@ extension AreaDetailView {
           }
           
           if yReviews > 0 {
-            Text("(\(yReviews))")
+            Text("(\(String(yReviews)))")
               .font(.system(size: 12))
+              .frame(width: 50)
+              .padding(.leading, -12)
           } else {
             Text("No reviews")
               .font(.system(size: 12))
+              .padding(.leading, 5)
           }
           
           Button {
@@ -479,12 +488,14 @@ extension AreaDetailView {
             }
           } label: {
             Image("Reviews/Bucket\(placesViewModel.mapPlace.hinghamRating)Star").resizable().scaledToFit().frame(width: 58, height: 32)
-              .padding(.top, -6)
-              .padding(.trailing, -10)
+              .padding(.top, 1)
           }
+          .padding(.leading, -20)
           
           Text("(\(placesViewModel.mapPlace.hinghamReviews))")
             .font(.system(size: 12))
+            .padding(.leading, -22)
+            .frame(width: 10)
           
         }
         .frame(width: UIScreen.main.bounds.size.width, height: 11)
