@@ -81,14 +81,14 @@ extension AreasView {
     Map(initialPosition: position) {
       ForEach(areasViewModel.areas) { area in
         Annotation(area.name, coordinate: area.coordinates) {
-          AreaAnnotationView()
+          AreaAnnotationView(title: area.name, selected: areasViewModel.mapArea == area)
             .scaleEffect(areasViewModel.mapArea == area ? 1.2 : 0.7)
             .shadow(radius: 10)
             .onTapGesture {
               areasViewModel.showArea(area)
             }
         }
-        .annotationTitles(.visible)
+        .annotationTitles(.hidden)
       }
     }
     .ignoresSafeArea()
