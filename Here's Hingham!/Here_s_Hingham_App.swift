@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Firebase
 import FirebaseCore
 import FirebaseFirestore
 import FirebaseAuth
@@ -60,7 +61,7 @@ struct Here_s_Hingham_App: App {
       do {
         Task {
           do {
-            try await Auth.auth().signIn(withEmail: "cconway@cambuilt.com", password: "EujcmJJKSuKQ4Yw")
+            try await Auth.auth().signIn(withEmail: "support@cambuilt.com", password: "jyzdyc-Tukrig-tyhgy4")
             loadData()
           }
           catch {

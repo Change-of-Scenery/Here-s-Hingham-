@@ -181,15 +181,15 @@ extension AreaDetailView {
           }
         })
         
-        Button("Update Google Data", action: {
-          let dataService = DataService()
-          dataService.updateGoogle()
-        })
-        
-        Button("Update Yelp Data", action: {
-          let dataService = DataService()
-          dataService.updateYelp()
-        })
+//        Button("Update Google Data", action: {
+//          let dataService = DataService()
+//          dataService.updateGoogle()
+//        })
+//        
+//        Button("Update Yelp Data", action: {
+//          let dataService = DataService()
+//          dataService.updateYelp()
+//        })
         
         Toggle("Place Watcher", isOn: $updatingLocation)
           .toggleStyle(CustomToggleButton())
@@ -259,7 +259,9 @@ extension AreaDetailView {
     
     if modelMode == "place" {
       name = placesViewModel.mapPlace.type == 6 ? placesViewModel.mapPlace.name + " House" : placesViewModel.mapPlace.name
-      url = URL(string: placesViewModel.mapPlace.website)!
+      if placesViewModel.mapPlace.website != "" {
+        url = URL(string: placesViewModel.mapPlace.website)!
+      }
     }
     
     return VStack(alignment: .leading) {
@@ -298,9 +300,14 @@ extension AreaDetailView {
   private var descSection: some View {
     return VStack(alignment: .leading) {
       Divider()
-      TextField("Description", text: modelMode == "area" ? $areasViewModel.mapArea.desc : $placesViewModel.mapPlace.notes, axis: .vertical)
+      let text = modelMode == "area" ? areasViewModel.mapArea.desc : placesViewModel.mapPlace.notes
+      var textBind: Binding<String> { Binding(get: { text }, set: { _ in }) }
+      TextEditor(text: textBind)
         .font(.system(size: 13))
         .foregroundColor(.black)
+        .scrollContentBackground(.hidden)
+        .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
+        .padding(.top, -7)
       Divider()
     }
   }
@@ -318,9 +325,14 @@ extension AreaDetailView {
         Text(modelMode == "area" ? areasViewModel.mapArea.name : placesViewModel.mapPlace.name)
           .font(.system(size: 24))
           .fontWeight(.bold)
-        TextField("Description", text: modelMode == "area" ? $areasViewModel.mapArea.desc : $placesViewModel.mapPlace.notes, axis: .vertical)
-          .font(.system(size: 16))
+        let text = modelMode == "area" ? areasViewModel.mapArea.desc : placesViewModel.mapPlace.notes
+        var textBind: Binding<String> { Binding(get: { text }, set: { _ in }) }
+        TextEditor(text: textBind)
+          .font(.system(size: 14))
           .foregroundColor(.black)
+          .scrollContentBackground(.hidden)
+          .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
+          .padding(.top, -5)
       }
     }
     .padding()
@@ -329,41 +341,38 @@ extension AreaDetailView {
   
   private var historicHouseSection: some View {
     VStack(alignment: .leading) {
+      Divider()
       HStack {
         Text("Year built")
-          .font(.subheadline)
+          .font(.system(size: 12))
         Text("\(placesViewModel.mapPlace.yearBuilt)".replacingOccurrences(of: ",", with: ""))
-          .font(.subheadline)
-          .foregroundColor(.secondary)
+          .font(.system(size: 12))
         Spacer()
         Text("Style")
-          .font(.subheadline)
+          .font(.system(size: 12))
         Text(placesViewModel.mapPlace.archStyle)
-          .font(.subheadline)
-          .foregroundColor(.secondary)
+          .font(.system(size: 12))
         Spacer()
         Text("Lot size")
-          .font(.subheadline)
+          .font(.system(size: 12))
         Text("\(placesViewModel.mapPlace.lotSize == 0 ? "unknown" : String(placesViewModel.mapPlace.lotSize) + " sq ft")")
-          .font(.subheadline)
-          .foregroundColor(.secondary)
+          .font(.system(size: 12))
       }
       HStack {
         Text("Square feet")
-          .font(.subheadline)
-        Text("\(placesViewModel.mapPlace.squareFeet == 0 ? "unknown" : String(placesViewModel.mapPlace.squareFeet))")
-          .font(.subheadline)
-          .foregroundColor(.secondary)
+          .font(.system(size: 12))
+          Text("\(placesViewModel.mapPlace.squareFeet == 0 ? "unknown" : String(placesViewModel.mapPlace.squareFeet))")
+          .font(.system(size: 12))
         Spacer()
         Text("Estimated value")
-          .font(.subheadline)
+          .font(.system(size: 12))
           .padding(.trailing, 10)
         Text("$\(placesViewModel.mapPlace.estimatedValue)")
-          .font(.subheadline)
-          .foregroundColor(.secondary)
+          .font(.system(size: 12))
         Spacer()
       }
     }
+    .padding(.top, 15)
   }
   
   private var reviewsSection: some View {

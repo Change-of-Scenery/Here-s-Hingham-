@@ -101,16 +101,19 @@ extension AreaPreviewView {
   }
   
   private var nextButton: some View {
-    Button {
-      areasViewModel.nextButtonPressed()
-    } label: {
-      Text("Next")
-        .font(.headline)
-        .frame(width: 50, height: 35)
+    HStack {
+      Button {
+        areasViewModel.nextButtonPressed()
+      } label: {
+        Text("Next")
+          .font(.headline)
+          .frame(width: 50, height: 35)
+      }
+      .buttonStyle(.bordered)
+      .padding(.top, 43)
     }
-    .buttonStyle(.bordered)
-    .padding(.top, 43)
-  }}
+  }
+}
 
 #Preview {
   AreaPreviewView(area: AreasViewModel().areas.first!)
