@@ -20,11 +20,12 @@ struct AreasView: View {
       mapLayer
       
       VStack(spacing: 0) {
-//        header
-//          .padding()
-//        
+        HStack(alignment: .top) {
+          Image("AppTitleTop")
+        }
+        .padding(.top, 15)
         Spacer()
-        areasPreviewStack        
+        areasPreviewStack
       }
     }
     .sheet(item: $areasViewModel.sheetArea) { area in

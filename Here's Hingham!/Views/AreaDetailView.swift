@@ -191,7 +191,7 @@ extension AreaDetailView {
 //          dataService.updateYelp()
 //        })
         
-        Toggle("Place Watcher", isOn: $updatingLocation)
+        Toggle("Place Observer", isOn: $updatingLocation)
           .toggleStyle(CustomToggleButton())
           .onChange(of: updatingLocation) {
             location.areaId = area.areaId
@@ -267,7 +267,7 @@ extension AreaDetailView {
     return VStack(alignment: .leading) {
       HStack {
         Link(name, destination: url)
-          .font(.title2)
+          .font(name.count > 20 ? .headline : .title2)
           .fontWeight(.bold)
         Spacer()
         if modelMode == "place" {
@@ -277,6 +277,8 @@ extension AreaDetailView {
             .font(.system(size: 12))
         }
       }
+        .padding(.bottom, 1)
+      
       HStack {
         if modelMode == "place" {
           Text(placesViewModel.mapPlace.address)
@@ -300,6 +302,7 @@ extension AreaDetailView {
   private var descSection: some View {
     return VStack(alignment: .leading) {
       Divider()
+        .padding(.top, modelMode == "area" ? 0 : placesViewModel.mapPlace.type == 6 ? 10 : 4)
       let text = modelMode == "area" ? areasViewModel.mapArea.desc : placesViewModel.mapPlace.notes
       var textBind: Binding<String> { Binding(get: { text }, set: { _ in }) }
       TextEditor(text: textBind)
@@ -325,14 +328,23 @@ extension AreaDetailView {
         Text(modelMode == "area" ? areasViewModel.mapArea.name : placesViewModel.mapPlace.name)
           .font(.system(size: 24))
           .fontWeight(.bold)
-        let text = modelMode == "area" ? areasViewModel.mapArea.desc : placesViewModel.mapPlace.notes
-        var textBind: Binding<String> { Binding(get: { text }, set: { _ in }) }
-        TextEditor(text: textBind)
-          .font(.system(size: 14))
-          .foregroundColor(.black)
-          .scrollContentBackground(.hidden)
-          .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
-          .padding(.top, -5)
+        
+        let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
+        
+        ScrollView {
+          Text(descText)
+            .font(.system(size: 16))
+            .foregroundColor(.primary)
+        }
+        
+//        let text = modelMode == "area" ? areasViewModel.mapArea.desc : placesViewModel.mapPlace.notes
+//        var textBind: Binding<String> { Binding(get: { text }, set: { _ in }) }
+//        TextEditor(text: textBind)
+//          .font(.system(size: 14))
+//          .foregroundColor(.black)
+//          .scrollContentBackground(.hidden)
+//          .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
+//          .padding(.top, -5)
       }
     }
     .padding()
@@ -342,35 +354,65 @@ extension AreaDetailView {
   private var historicHouseSection: some View {
     VStack(alignment: .leading) {
       Divider()
+        .padding(.top, 20)
       HStack {
         Text("Year built")
           .font(.system(size: 12))
+          .fontWeight(.semibold)
         Text("\(placesViewModel.mapPlace.yearBuilt)".replacingOccurrences(of: ",", with: ""))
           .font(.system(size: 12))
         Spacer()
         Text("Style")
           .font(.system(size: 12))
+          .fontWeight(.semibold)
         Text(placesViewModel.mapPlace.archStyle)
           .font(.system(size: 12))
         Spacer()
         Text("Lot size")
           .font(.system(size: 12))
+          .fontWeight(.semibold)
         Text("\(placesViewModel.mapPlace.lotSize == 0 ? "unknown" : String(placesViewModel.mapPlace.lotSize) + " sq ft")")
           .font(.system(size: 12))
       }
+      .padding(.bottom, -3)
       HStack {
         Text("Square feet")
           .font(.system(size: 12))
+          .fontWeight(.semibold)
           Text("\(placesViewModel.mapPlace.squareFeet == 0 ? "unknown" : String(placesViewModel.mapPlace.squareFeet))")
           .font(.system(size: 12))
         Spacer()
         Text("Estimated value")
           .font(.system(size: 12))
+          .fontWeight(.semibold)
           .padding(.trailing, 10)
-        Text("$\(placesViewModel.mapPlace.estimatedValue)")
+          Text("\(placesViewModel.mapPlace.estimatedValue == "unknown" ? "unknown" : "$" + placesViewModel.mapPlace.estimatedValue)")
           .font(.system(size: 12))
         Spacer()
+        let logoWidth = UIScreen.main.bounds.size.height < 900 ? 48.0 : 84.0
+        if let url = URL(string: placesViewModel.mapPlace.website) {
+          if placesViewModel.mapPlace.website.contains("zillow") {
+            Link(destination: url) {
+              Image("Reviews/Zillow")
+                .resizable()
+                .scaledToFill()
+                .frame(width: logoWidth)
+            }
+          } else {
+            Link(destination: url) {
+              Text("Website")
+                .font(.system(size: 12))
+                .padding(.top, 3)
+            }
+          }
+        } else {
+          Image("Reviews/Zillow")
+            .resizable()
+            .scaledToFill()
+            .frame(width: logoWidth)
+        }
       }
+      .padding(.bottom, 20)
     }
     .padding(.top, 15)
   }
