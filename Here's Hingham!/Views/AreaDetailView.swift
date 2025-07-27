@@ -14,6 +14,7 @@ struct AreaDetailView: View {
   
   @EnvironmentObject private var areasViewModel: AreasViewModel
   @EnvironmentObject private var placesViewModel: PlacesViewModel
+  @Environment(\.colorScheme) var colorScheme
   @State var imageCount:Int = 10
   @State var notes = ""
   @State var modelMode = "area"
@@ -51,6 +52,8 @@ struct AreaDetailView: View {
       GridItem(.fixed(UIScreen.main.bounds.size.height * 0.038)),  // menu
       GridItem(.fixed(UIScreen.main.bounds.size.height * 0.829))   // desc
     ]
+    
+    let backgroundColor = colorScheme == .dark ? Color(red: 0.01, green: 0.01,  blue: 0.0) : Color(red: 0.99, green: 0.99,  blue: 0.9)
 
     if showExpanded == "map" {
       LazyHGrid(rows: expandedMapRows, spacing: 10) {
@@ -58,14 +61,14 @@ struct AreaDetailView: View {
         mapLayer
       }
       .frame(width: UIScreen.main.bounds.size.width)
-      .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
+      .background(backgroundColor)
     } else if showExpanded == "desc" {
       LazyHGrid(rows: expandedDescRows, spacing: 10) {
         menuSection
         expandedDescSection
       }
       .frame(width: UIScreen.main.bounds.size.width)
-      .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
+      .background(backgroundColor)
     } else  {
       LazyHGrid(rows: rows, spacing: 10) {
         menuSection
@@ -82,12 +85,9 @@ struct AreaDetailView: View {
         }
         descSection
         mapLayer
-//        if showMessage || location.showMessage {
-//          messageLayer
-//        }
       }
       .frame(width: UIScreen.main.bounds.size.width)
-      .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
+      .background(backgroundColor)
       .onChange(of: location.newPlaceAtCurrentLocation) {
         placesViewModel.showPlace(areasViewModel.mapArea, location.newPlaceAtCurrentLocation!)
         modelMode = "place"
@@ -137,7 +137,7 @@ extension AreaDetailView {
       } label: {
         Image(systemName: "x.square.fill")
           .font(.system(size: 20))
-          .tint(.black)
+          .tint(.primary)
       }
       Spacer()
       Button {
@@ -151,7 +151,7 @@ extension AreaDetailView {
       } label: {
         Image(systemName: "text.page")
           .font(.system(size: 20))
-          .tint(.black)
+          .tint(.primary)
       }
       Spacer()
       Button {
@@ -164,7 +164,7 @@ extension AreaDetailView {
       } label: {
         Image(systemName: "map")
           .font(.system(size: 20))
-          .tint(.black)
+          .tint(.primary)
       }
       Spacer()
       Menu {
@@ -205,7 +205,7 @@ extension AreaDetailView {
         } label: {
           Image(systemName: "ellipsis.circle")
             .font(.system(size: 20))
-            .tint(.black)
+            .tint(.primary)
         }
     }
     .padding(.top, menuTopPadding)
@@ -268,6 +268,7 @@ extension AreaDetailView {
       HStack {
         Link(name, destination: url)
           .font(name.count > 20 ? .headline : .title2)
+          .foregroundColor(.red)
           .fontWeight(.bold)
         Spacer()
         if modelMode == "place" {
@@ -300,6 +301,8 @@ extension AreaDetailView {
   }
   
   private var descSection: some View {
+    let backgroundColor = colorScheme == .dark ? Color(red: 0.01, green: 0.01,  blue: 0.0) : Color(red: 0.99, green: 0.99,  blue: 0.9)
+    
     return VStack(alignment: .leading) {
       Divider()
         .padding(.top, modelMode == "area" ? 0 : placesViewModel.mapPlace.type == 6 ? 10 : 4)
@@ -307,9 +310,9 @@ extension AreaDetailView {
       var textBind: Binding<String> { Binding(get: { text }, set: { _ in }) }
       TextEditor(text: textBind)
         .font(.system(size: 13))
-        .foregroundColor(.black)
+        .foregroundColor(.primary)
         .scrollContentBackground(.hidden)
-        .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
+        .background(backgroundColor)
         .padding(.top, -7)
       Divider()
     }

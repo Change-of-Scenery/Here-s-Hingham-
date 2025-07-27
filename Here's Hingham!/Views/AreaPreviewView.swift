@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AreaPreviewView: View {
   @EnvironmentObject private var areasViewModel: AreasViewModel
+  @Environment(\.colorScheme) var colorScheme
   let area: SchemaV1.Area
   
   var body: some View {
@@ -33,7 +34,7 @@ struct AreaPreviewView: View {
     .frame(height: 200)
     .background(
       RoundedRectangle(cornerRadius: 10)
-        .fill(Color(red: 0.99, green: 0.99,  blue: 0.9))  // .ultraThinMaterial
+        .fill(colorScheme == .dark ? Color(red: 0.12, green: 0.0,  blue: 0.0) : Color(red: 0.99, green: 0.99,  blue: 0.9))  // .ultraThinMaterial
         .offset(y: 22)
     )
   }
@@ -64,9 +65,9 @@ extension AreaPreviewView {
         }
     }
     .padding(6)
-    .background(.white)
+    .background(.accent.opacity(0.75))
     .cornerRadius(10)
-    .shadow(color: Color(red: 0.35, green: 0.35, blue: 0.35), radius: 4, x: 3, y: 3)
+    .shadow(color: .black.opacity(0.75), radius: 4, x: 3, y: 3)
   }
   
   private var titleSection: some View {
@@ -74,13 +75,14 @@ extension AreaPreviewView {
       Text(area.name)
         .font(.title2)
         .fontWeight(.bold)
+        .foregroundColor(.primary)
         .scaledToFill()
         .minimumScaleFactor(0.5)
         .lineLimit(1)
       
       Text(area.desc)
         .font(.system(size: 14))
-        .foregroundColor(.secondary)
+        .foregroundColor(.primary)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding([.trailing], 10)
@@ -94,8 +96,11 @@ extension AreaPreviewView {
       Text("Learn more")
         .font(.headline)
         .frame(width: 100, height: 35)
+        .foregroundColor(.white)
     }
     .buttonStyle(.borderedProminent)
+    .background(.accent)
+    .cornerRadius(10.0)
     .padding()
     .padding(.top, 28)
   }

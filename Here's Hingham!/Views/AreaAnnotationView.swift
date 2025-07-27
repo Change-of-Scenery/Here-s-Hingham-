@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct AreaAnnotationView: View {
+  @Environment(\.colorScheme) var colorScheme
   var title: String
   let selected: Bool
-  let accentColor = Color("AccentColor")
     
   var body: some View {
     var strokeWidth = 0.75
@@ -25,22 +25,23 @@ struct AreaAnnotationView: View {
       zIndex = 100.0
       weight = Font.Weight.semibold
     }
-
+    
     return VStack(spacing: 0) {
       Image(systemName: "map.circle.fill")
         .resizable()
         .scaledToFit()
         .frame(width: 30, height: 30)
-        .foregroundColor(.white)
+        .foregroundColor(.white.opacity(0.95))
         .padding(6)
-        .background(accentColor)
+        .background(.accent)
         .cornerRadius(36)
         .zIndex(zIndex)
       Text(title)
         .font(font)
+        .foregroundStyle(.primary.opacity(0.75))
         .fontWeight(weight)
         .padding(.top, titlePadding)
-        .customStroke(color: .white, width: strokeWidth)
+        .customStroke(color: colorScheme == .dark ? .clear : .white, width: strokeWidth)
         .zIndex(zIndex)
     }
   }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PlaceAnnotationView: View {
+  @Environment(\.colorScheme) var colorScheme
   let areaName: String
   let placeName: String
   let shortName: String
@@ -55,7 +56,7 @@ struct PlaceAnnotationView: View {
         
         Text(name)
           .font(font)
-          .customStroke(color: .white, width: strokeWidth)
+          .customStroke(color: colorScheme == .dark ? .clear : .white, width: strokeWidth)
           .padding(.top, titlePadding)
       }
       .zIndex(zIndex)
