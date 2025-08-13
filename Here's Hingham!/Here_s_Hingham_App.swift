@@ -25,6 +25,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     
     return true
   }
+  
+  static var orientationLock = UIInterfaceOrientationMask.all
+  static var orientationForImage = false
+
+  func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+    return AppDelegate.orientationLock // AppDelegate.orientationForImage == false ? AppDelegate.orientationLock : .landscape
+  }
 }
 
 
@@ -255,42 +262,46 @@ struct Here_s_Hingham_App: App {
       for document in queryPlace!.documents {
         let place = SchemaV1.Place()
         place.documentID = document.documentID
-        place.name = document.get("name") as! String
-        place.address = document.get("address") as! String
-        place.archStyle = document.get("archStyle") as! String
-        place.areaId = document.get("areaId") as! Int
-        place.desc = document.get("desc") as! String
-        place.googleId = document.get("googleId") as! String
-        place.googleRating = document.get("googleRating") as! Double
-        place.googleReviews = document.get("googleReviews") as! Int
-        place.googleUrl = document.get("googleUrl") as! String
-        place.hinghamRatings = document.get("hinghamRatings") as! String
-        place.updateHinghamRating()
-        place.hinghamReviews = document.get("hinghamReviews") as! Int
-        place.hours = document.get("hours") as! String
-        place.iconSize = document.get("iconSize") as! Double
-        place.imageCount = document.get("imageCount") as! Int
-        place.likes = document.get("likes") as! Int
-        place.locationLat = document.get("locationLat") as! Double
-        place.locationLng = document.get("locationLng") as! Double
-        place.nickname = document.get("nickname") as! String
-        place.notes = document.get("notes") as! String
-        place.phone = document.get("phone") as! String
-        place.shortName = document.get("shortName") as! String
-        place.type = document.get("type") as! Int
-        place.website = document.get("website") as! String
-        place.yelpCategory = document.get("yelpCategory") as! String
-        place.yelpId = document.get("yelpId") as! String
-        place.yelpRating = document.get("yelpRating") as! Double
-        place.yelpReviews = document.get("yelpReviews") as! Int
-        place.yelpPrice = document.get("yelpPrice") as! String
-        place.yelpUrl = document.get("yelpUrl") as! String
-        place.estimatedValue = document.get("estimatedValue") as! String
-        place.lotSize = document.get("lotSize") as! Double
-        place.squareFeet = document.get("squareFeet") as! Int
-        place.yearBuilt = document.get("yearBuilt") as! Int
-
-        placesViewModel.addPlace(place)
+        
+        if let name = document.get("name") as? String {
+          place.name = name
+          place.address = document.get("address") as! String
+          place.archStyle = document.get("archStyle") as! String
+          place.areaId = document.get("areaId") as! Int
+          place.desc = document.get("desc") as! String
+          place.googleId = document.get("googleId") as! String
+          place.googleRating = document.get("googleRating") as! Double
+          place.googleReviews = document.get("googleReviews") as! Int
+          place.googleUrl = document.get("googleUrl") as! String
+          place.hinghamRatings = document.get("hinghamRatings") as! String
+          place.updateHinghamRating()
+          place.hinghamReviews = document.get("hinghamReviews") as! Int
+          place.hours = document.get("hours") as! String
+          place.iconSize = document.get("iconSize") as! Double
+          place.imageCount = document.get("imageCount") as! Int
+          place.likes = document.get("likes") as! Int
+          place.locationLat = document.get("locationLat") as! Double
+          place.locationLng = document.get("locationLng") as! Double
+          place.menuUrl = document.get("menuUrl") as! String
+          place.nickname = document.get("nickname") as! String
+          place.notes = document.get("notes") as! String
+          place.phone = document.get("phone") as! String
+          place.shortName = document.get("shortName") as! String
+          place.type = document.get("type") as! Int
+          place.website = document.get("website") as! String
+          place.yelpCategory = document.get("yelpCategory") as! String
+          place.yelpId = document.get("yelpId") as! String
+          place.yelpRating = document.get("yelpRating") as! Double
+          place.yelpReviews = document.get("yelpReviews") as! Int
+          place.yelpPrice = document.get("yelpPrice") as! String
+          place.yelpUrl = document.get("yelpUrl") as! String
+          place.estimatedValue = document.get("estimatedValue") as! String
+          place.lotSize = document.get("lotSize") as! Double
+          place.squareFeet = document.get("squareFeet") as! Int
+          place.yearBuilt = document.get("yearBuilt") as! Int
+          
+          placesViewModel.addPlace(place)
+        }
       }
     }
   }

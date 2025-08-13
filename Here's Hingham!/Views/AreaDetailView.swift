@@ -14,12 +14,15 @@ struct AreaDetailView: View {
   
   @EnvironmentObject private var areasViewModel: AreasViewModel
   @EnvironmentObject private var placesViewModel: PlacesViewModel
+  @Environment(\.verticalSizeClass) var verticalSizeClass
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @Environment(\.colorScheme) var colorScheme
   @State var imageCount:Int = 10
   @State var notes = ""
   @State var modelMode = "area"
   @State var showExpanded = ""
   @State var showRatingSelector = false
+  @State var showHours = false
   @State var mapPosition = CGPoint(x: 10, y: 10)
   @State var placeBrewedAwakenings = SchemaV1.Place()
   @State var placeNonas = SchemaV1.Place()
@@ -31,76 +34,92 @@ struct AreaDetailView: View {
   @State private var message = ""
   @State private var tabSelection = 0
   @State private var updatingLocation = false
+  @State private var annotationOpacity: Double = 1.0
   @ObservedObject var location: LocationManager = LocationManager()
    
   let area: SchemaV1.Area
                         
   var body: some View {
+    let screenHeight = UIScreen.main.bounds.size.height
+    
     let rows = [
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.038)),  // menu
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.3)),   // image
-      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.02 : 0.036))),  // title
-      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.0 : 0.04))),    // reviews
-      GridItem(.fixed(UIScreen.main.bounds.size.height * (modelMode == "area" ? 0.1325 : 0.1))), // desc
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.335))    // map
+      GridItem(.fixed(screenHeight * 0.04)),  // menu
+      GridItem(.fixed(screenHeight * 0.3)),   // image
+      GridItem(.fixed(screenHeight * (modelMode == "area" ? 0.008 : 0.018))),  // title
+      GridItem(.fixed(screenHeight * (modelMode == "area" ? 0.0 : 0.04))),    // reviews
+      GridItem(.fixed(modelMode == "area" ? 125 : 80)), // desc
+      GridItem(.fixed(screenHeight * 0.335))    // map
     ]
     let expandedMapRows = [
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.038)),  // menu
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.82))   // map
+      GridItem(.fixed(screenHeight * 0.038)),  // menu
+      GridItem(.fixed(screenHeight * 0.82))   // map
     ]
     let expandedDescRows = [
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.038)),  // menu
-      GridItem(.fixed(UIScreen.main.bounds.size.height * 0.829))   // desc
+      GridItem(.fixed(screenHeight * 0.038)),  // menu
+      GridItem(.fixed(screenHeight * 0.829))   // desc
     ]
     
     let backgroundColor = colorScheme == .dark ? Color(red: 0.01, green: 0.01,  blue: 0.0) : Color(red: 0.99, green: 0.99,  blue: 0.9)
 
-    if showExpanded == "map" {
-      LazyHGrid(rows: expandedMapRows, spacing: 10) {
-        menuSection
-        mapLayer
-      }
-      .frame(width: UIScreen.main.bounds.size.width)
-      .background(backgroundColor)
-    } else if showExpanded == "desc" {
-      LazyHGrid(rows: expandedDescRows, spacing: 10) {
-        menuSection
-        expandedDescSection
-      }
-      .frame(width: UIScreen.main.bounds.size.width)
-      .background(backgroundColor)
-    } else  {
-      LazyHGrid(rows: rows, spacing: 10) {
-        menuSection
-        imageSection
-        titleSection
-        if modelMode == "place" {
-          if placesViewModel.mapPlace.type == 6 {
-            historicHouseSection
+    if verticalSizeClass == .compact || horizontalSizeClass == .regular {
+      menuSection
+      expandedImageSection
+    } else {
+      if showExpanded == "map" {
+        LazyHGrid(rows: expandedMapRows, spacing: 10) {
+          menuSection
+          mapLayer
+        }
+        .frame(width: UIScreen.main.bounds.size.width)
+        .background(backgroundColor)
+      } else if showExpanded == "desc" {
+        LazyHGrid(rows: expandedDescRows, spacing: 10) {
+          menuSection
+          expandedDescSection
+        }
+        .frame(width: UIScreen.main.bounds.size.width)
+        .background(backgroundColor)
+      } else  {
+        LazyHGrid(rows: rows, spacing: 10) {
+          menuSection
+          imageSection
+          titleSection
+          
+          if modelMode == "place" {
+            if placesViewModel.mapPlace.type == 6 {
+              historicHouseSection
+            } else {
+              reviewsSection
+            }
           } else {
-            reviewsSection
+            areaSection
           }
-        } else {
-          areaSection
+          descSection
+          mapLayer
         }
-        descSection
-        mapLayer
-      }
-      .frame(width: UIScreen.main.bounds.size.width)
-      .background(backgroundColor)
-      .onChange(of: location.newPlaceAtCurrentLocation) {
-        placesViewModel.showPlace(areasViewModel.mapArea, location.newPlaceAtCurrentLocation!)
-        modelMode = "place"
-        if showExpanded == "map" {
-          areasViewModel.zoomIn()
+        .frame(width: UIScreen.main.bounds.size.width)
+        .background(backgroundColor)
+        .onChange(of: location.newPlaceAtCurrentLocation) {
+          modelMode = "place"
+          placesViewModel.showPlace(areasViewModel.mapArea, location.newPlaceAtCurrentLocation!)
+          if showExpanded == "map" {
+            areasViewModel.zoomIn()
+          }
+          showExpanded = ""
         }
-        showExpanded = ""
-      }
-      .onChange(of: placesViewModel.mapPlace.name) {
-        notes = placesViewModel.mapPlace.notes
-      }
-      .onChange(of: areasViewModel.mapArea.name) {
-        notes = areasViewModel.mapArea.desc
+        .onChange(of: placesViewModel.mapPlace.name) {
+          notes = placesViewModel.mapPlace.notes
+        }
+        .onChange(of: areasViewModel.mapArea.name) {
+          notes = areasViewModel.mapArea.desc
+        }
+        .overlay {
+          if showHours == true {
+            if placesViewModel.mapPlace.hours != "" {
+              hoursWindow
+            }
+          }
+        }
       }
     }
   }
@@ -114,8 +133,6 @@ extension Date {
 
 extension AreaDetailView {
   private var menuSection: some View {
-    let height = UIScreen.main.bounds.size.height
-    let menuTopPadding = height < 900 ? 12.0 : 6.0
 
     return HStack {
       Button {
@@ -130,6 +147,8 @@ extension AreaDetailView {
           withAnimation(.easeInOut) {
             modelMode = "area"
           }
+        } else if showExpanded == "image" {
+          rotateBack()
         } else {
           areasViewModel.sheetArea = nil
         }
@@ -141,9 +160,28 @@ extension AreaDetailView {
       }
       Spacer()
       Button {
+        if showExpanded == "image" {
+          rotateBack()
+        } else {
+          if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            showExpanded = "image"
+            AppDelegate.orientationForImage = true
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
+          }
+        }
+      } label: {
+        Image(systemName: "photo")
+          .font(.system(size: 20))
+          .tint(.primary)
+      }
+      Spacer()
+      Button {
         if showExpanded == "desc" {
           showExpanded = ""
         } else {
+          if showExpanded == "image" {
+            rotateBack()
+          }
           withAnimation(.easeInOut) {
             self.showExpanded = "desc"
           }
@@ -158,6 +196,9 @@ extension AreaDetailView {
         if showExpanded == "map" {
           showExpanded = ""
         } else {
+          if showExpanded == "image" {
+            rotateBack()
+          }
           areasViewModel.zoomOut()
           self.showExpanded = "map"
         }
@@ -168,19 +209,6 @@ extension AreaDetailView {
       }
       Spacer()
       Menu {
-        Button("Expand Map", action: {
-          withAnimation(.easeInOut) {
-            self.showExpanded = "map"
-            areasViewModel.zoomOut()
-          }
-        })
-        
-        Button("Expand Notes", action: {
-          withAnimation(.easeInOut) {
-            self.showExpanded = "desc"
-          }
-        })
-        
 //        Button("Update Google Data", action: {
 //          let dataService = DataService()
 //          dataService.updateGoogle()
@@ -208,7 +236,55 @@ extension AreaDetailView {
             .tint(.primary)
         }
     }
-    .padding(.top, menuTopPadding)
+    .padding([.top, .bottom], 10)
+    .onAppear {
+      
+    }
+  }
+  
+  func rotateBack() {
+    if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+      scene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+      AppDelegate.orientationForImage = false
+      showExpanded = ""
+    }
+  }
+  
+  private var hoursWindow: some View {
+    let hours = placesViewModel.mapPlace.hours.components(separatedBy: ";")
+    let cols = [GridItem(.fixed(100)), GridItem(.fixed(120))]
+    
+    return ZStack {
+      VStack(alignment: .center) {
+        Text("Hours")
+          .fontWeight(.bold)
+        
+        ForEach(0..<7, id: \.self) { index in
+          LazyVGrid(columns: cols, alignment: .leading) {
+            let weekDay = WeekDays.allCases[index]
+            Text("\(weekDay)")
+              .font(.system(size: 13))
+              .foregroundColor(.primary)
+            Text(hours[index].components(separatedBy: ",")[1])
+              .font(.system(size: 13))
+              .foregroundColor(.primary)
+          }
+          .padding([.top, .bottom], -3)
+        }
+      }
+      .padding()
+    }
+    .background(.white)
+    .border(.red, width: 2)
+    .frame(width: 280)
+    .cornerRadius(25)
+    .onTapGesture {
+      showHours = false
+    }
+    .overlay(
+        RoundedRectangle(cornerRadius: 25)   // Specify the desired corner radius
+            .stroke(Color.red, lineWidth: 3) // Set the border color and width
+    )
   }
   
   private var areaSection: some View {
@@ -226,11 +302,12 @@ extension AreaDetailView {
         if UIImage(named: "\(path)/\(index)") != nil {
           Image("\(path)/\(index)")
             .resizable()
-            .scaledToFill()
+            .scaledToFit()
+            .cornerRadius(25)
         }
       }
       
-      if modelMode == "place" {
+      if modelMode == "place" && imageCount < 10 {
         ForEach(10..<15, id: \.self) { index in
           if UIImage(named: "\(path)/\(index)") != nil {
             ZStack(alignment: .bottomLeading) {
@@ -238,19 +315,14 @@ extension AreaDetailView {
                 .resizable()
                 .scaledToFill()
                 .clipped()
-              
-              Text("Photo by Hammer. Go to findagrave.com")
-                .font(.system(size: 8))
-                .foregroundColor(.white)
-                .background(Color.black.opacity(0.4)) // Optional: Add a semi-transparent background for better readability
-                .cornerRadius(5) // Optional: Round the corners of the background
+                .cornerRadius(25)
             }
           }
         }
       }
     }
-    .cornerRadius(25)
     .tabViewStyle(PageTabViewStyle())
+    .padding(.top, -15)
   }
   
   private var titleSection: some View {
@@ -266,28 +338,51 @@ extension AreaDetailView {
     
     return VStack(alignment: .leading) {
       HStack {
-        Link(name, destination: url)
-          .font(name.count > 20 ? .headline : .title2)
-          .foregroundColor(.red)
-          .fontWeight(.bold)
-        Spacer()
+        if url.absoluteString == "" {
+          Text(name)
+            .font(name.count > 20 ? .headline : .title2)
+            .fontWeight(.bold)
+        } else {
+          Link(name, destination: url)
+            .font(name.count > 20 ? .headline : .title2)
+            .foregroundColor(.red)
+            .fontWeight(.bold)
+        }
+
         if modelMode == "place" {
+          Spacer()
           Text(placesViewModel.mapPlace.desc == "" ? placesViewModel.mapPlace.yelpCategory : placesViewModel.mapPlace.desc)
             .font(.system(size: 12))
           Text(placesViewModel.mapPlace.yelpPrice)
             .font(.system(size: 12))
         }
       }
-        .padding(.bottom, 1)
-      
-      HStack {
-        if modelMode == "place" {
+      .padding(.bottom, modelMode == "place" ? 0.25 : 0.0)
+    
+      if modelMode == "place" {
+        HStack {
           Text(placesViewModel.mapPlace.address)
             .font(.system(size: 12))
           Spacer()
-          Text(getHoursOpen(hours: placesViewModel.mapPlace.hours))
-            .font(.system(size: 12))
-            .frame(width: 100, alignment: .trailing)
+          if placesViewModel.mapPlace.menuUrl != "" {
+            let menuUrl = URL(string: placesViewModel.mapPlace.menuUrl)!
+            Link(destination: menuUrl) {
+              Text("Menu")
+                .font(.system(size: 12))
+                .fontWeight(.bold)
+                .foregroundColor(.red)
+                .frame(width: 37)
+            }
+            Spacer()
+          }
+          Button {
+            showHours = true
+          } label: {
+            Text(getHoursOpen(hours: placesViewModel.mapPlace.hours))
+              .font(.system(size: 12))
+              .foregroundColor(.red)
+              .frame(width: 100, alignment: .trailing)
+          }
           Spacer()
           Link(destination: URL(string: "tel:" + placesViewModel.mapPlace.phone)!) {
             Text(placesViewModel.mapPlace.phone)
@@ -297,31 +392,69 @@ extension AreaDetailView {
         }
       }
     }
-    .padding(.bottom, -7)
+    .frame(width: UIScreen.main.bounds.width * 0.93)
   }
   
   private var descSection: some View {
-    let backgroundColor = colorScheme == .dark ? Color(red: 0.01, green: 0.01,  blue: 0.0) : Color(red: 0.99, green: 0.99,  blue: 0.9)
-    
-    return VStack(alignment: .leading) {
-      Divider()
-        .padding(.top, modelMode == "area" ? 0 : placesViewModel.mapPlace.type == 6 ? 10 : 4)
-      let text = modelMode == "area" ? areasViewModel.mapArea.desc : placesViewModel.mapPlace.notes
-      var textBind: Binding<String> { Binding(get: { text }, set: { _ in }) }
-      TextEditor(text: textBind)
-        .font(.system(size: 13))
-        .foregroundColor(.primary)
-        .scrollContentBackground(.hidden)
-        .background(backgroundColor)
-        .padding(.top, -7)
-      Divider()
+    HStack(alignment: .top) {
+      VStack(alignment: .leading) {
+        Divider()
+        
+        let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
+        
+        ScrollView {
+          Text(descText)
+            .font(.system(size: 13))
+            .foregroundColor(.primary)
+        }
+        Divider()
+      }
     }
+    .frame(width: UIScreen.main.bounds.size.width * 0.93)
   }
   
   private var foundLocation: some View {
     ZStack {
       Text("Found the place!")
     }
+  }
+  
+  private var expandedImageSection: some View {
+    HStack(alignment: .top) {
+      VStack(alignment: .leading) {
+        TabView(selection:$tabSelection) {
+          let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
+          let imageCount = modelMode == "place" ? placesViewModel.mapPlace.imageCount : area.imageCount == 0 ? 1 : area.imageCount
+          
+          ForEach(0..<imageCount, id: \.self) { index in
+            if UIImage(named: "\(path)/\(index)") != nil {
+              Image("\(path)/\(index)")
+                .resizable()
+                .scaledToFit()
+                .cornerRadius(25)
+            }
+          }
+          
+          if modelMode == "place" && imageCount < 10 {
+            ForEach(10..<15, id: \.self) { index in
+              if UIImage(named: "\(path)/\(index)") != nil {
+                ZStack(alignment: .bottomLeading) {
+                  Image("\(path)/\(index)")
+                    .resizable()
+                    .scaledToFill()
+                    .clipped()
+                    .cornerRadius(25)
+                }
+              }
+            }
+          }
+        }
+        .tabViewStyle(PageTabViewStyle())
+        .padding(.top, -15)
+      }
+    }
+    .padding()
+    .frame(width: UIScreen.main.bounds.size.width * 0.93)
   }
   
   private var expandedDescSection: some View {
@@ -339,15 +472,6 @@ extension AreaDetailView {
             .font(.system(size: 16))
             .foregroundColor(.primary)
         }
-        
-//        let text = modelMode == "area" ? areasViewModel.mapArea.desc : placesViewModel.mapPlace.notes
-//        var textBind: Binding<String> { Binding(get: { text }, set: { _ in }) }
-//        TextEditor(text: textBind)
-//          .font(.system(size: 14))
-//          .foregroundColor(.black)
-//          .scrollContentBackground(.hidden)
-//          .background(Color(red: 0.99, green: 0.99,  blue: 0.9))
-//          .padding(.top, -5)
       }
     }
     .padding()
@@ -374,7 +498,7 @@ extension AreaDetailView {
         Text("Lot size")
           .font(.system(size: 12))
           .fontWeight(.semibold)
-        Text("\(placesViewModel.mapPlace.lotSize == 0 ? "unknown" : String(placesViewModel.mapPlace.lotSize) + " sq ft")")
+        Text("\(placesViewModel.mapPlace.lotSize == 0 ? "unknown" : String(placesViewModel.mapPlace.lotSize) + " acre(s)")")
           .font(.system(size: 12))
       }
       .padding(.bottom, -3)
@@ -392,7 +516,7 @@ extension AreaDetailView {
           Text("\(placesViewModel.mapPlace.estimatedValue == "unknown" ? "unknown" : "$" + placesViewModel.mapPlace.estimatedValue)")
           .font(.system(size: 12))
         Spacer()
-        let logoWidth = UIScreen.main.bounds.size.height < 900 ? 48.0 : 84.0
+        let logoWidth = UIScreen.main.bounds.size.height < 900 ? 48.0 : 64.0
         if let url = URL(string: placesViewModel.mapPlace.website) {
           if placesViewModel.mapPlace.website.contains("zillow") {
             Link(destination: url) {
@@ -422,17 +546,17 @@ extension AreaDetailView {
   
   private var reviewsSection: some View {
     let height = UIScreen.main.bounds.size.height
-    let starPadding = height < 900 ? height < 850 ? -1.5 : -1.0 : -1.0
+    let starPadding = height < 900 ? height < 850 ? -1.5 : -1.5 : -1.5
     
     let halfStar = Image("Reviews/HalfStar")
       .resizable()
       .scaledToFill()
-      .frame(width: 5, height: 10)
+      .frame(width: 4, height: 8)
       .padding(starPadding)
     let star = Image("Reviews/Star")
       .resizable()
       .scaledToFill()
-      .frame(width: 5, height: 10)
+      .frame(width: 4, height: 8)
       .padding(starPadding)
 
     let logoWidth = height < 900 ? 48.0 : 56.0
@@ -449,6 +573,7 @@ extension AreaDetailView {
     return VStack {
       Divider()
         .padding(4)
+        .padding(.top, 5)
       
       if showRatingSelector == false {
         HStack {
@@ -541,8 +666,8 @@ extension AreaDetailView {
               showRatingSelector = true
             }
           } label: {
-            Image("Reviews/Bucket\(placesViewModel.mapPlace.hinghamRating)Star").resizable().scaledToFit().frame(width: 58, height: 32)
-              .padding(.top, 1)
+            Image("Reviews/Bucket\(placesViewModel.mapPlace.hinghamRating)Star").resizable().scaledToFit().frame(width: 52, height: 26)
+              .padding(.top, -3)
           }
           .padding(.leading, -20)
           
@@ -592,16 +717,18 @@ extension AreaDetailView {
       places.append(placeMaggies)
     }
     
+    let screenSize = UIScreen.main.bounds.size
+    
     return Map(position: $areasViewModel.mapCameraPosition, interactionModes: [.pan, .zoom]) {
       ForEach(places) { place in
         Annotation("", coordinate: place.coordinates) {
           withAnimation(.easeInOut) {
-            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected)
+            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity)
               .shadow(radius: 10)
               .onTapGesture {
                 withAnimation(.easeInOut) {
-                  placesViewModel.showPlace(area, place)
                   modelMode = "place"
+                  placesViewModel.showPlace(area, place)
                   if showExpanded == "map" {
                     areasViewModel.zoomIn()
                   }
@@ -617,12 +744,13 @@ extension AreaDetailView {
     }
     .onMapCameraChange(frequency: .continuous) { context in
       areasViewModel.centerCoordinate = context.region.center
+
       if areasViewModel.mapCameraPosition.region == nil {
-          areasViewModel.mapCameraPosition = MapCameraPosition.region(context.region)
+        areasViewModel.mapCameraPosition = MapCameraPosition.region(context.region)
       }
     }
     .background(.white)
-    .frame(width: UIScreen.main.bounds.size.width * 0.93)
+    .frame(width: screenSize.width * 0.93, height: showExpanded == "map" ? screenSize.height * 0.83 : screenSize.height * 0.33)
     .cornerRadius(25)
     .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
     .mapControls {
@@ -633,6 +761,33 @@ extension AreaDetailView {
         Image(systemName: "location.fill")
       }
     }
+    .overlay {
+      ZStack {
+        VStack {
+          HStack {
+            Spacer(minLength: 0)
+            Button {
+              areasViewModel.showArea(area)
+            } label: {
+              Image(systemName: "return")
+                .padding([.top, .trailing], 10)
+                .foregroundColor(.black)
+            }
+          }
+          Spacer(minLength: 0)
+        }
+      }
+    }
+  }
+  
+  enum WeekDays: CaseIterable {
+    case Sunday
+    case Monday
+    case Tuesday
+    case Wednesday
+    case Thursday
+    case Friday
+    case Saturday
   }
   
   private func getHoursOpen(hours: String) -> String {

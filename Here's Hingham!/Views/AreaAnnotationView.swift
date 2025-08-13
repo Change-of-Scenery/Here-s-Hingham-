@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct AreaAnnotationView: View {
-  @Environment(\.colorScheme) var colorScheme
   var title: String
   let selected: Bool
-    
+  let opacity: Double
+  @Environment(\.colorScheme) var colorScheme
+
   var body: some View {
     var strokeWidth = 0.75
     var font = Font.system(size: 14)
@@ -36,6 +37,7 @@ struct AreaAnnotationView: View {
         .background(.accent)
         .cornerRadius(36)
         .zIndex(zIndex)
+        .opacity(opacity)
       Text(title)
         .font(font)
         .foregroundStyle(.primary.opacity(0.75))
@@ -43,6 +45,7 @@ struct AreaAnnotationView: View {
         .padding(.top, titlePadding)
         .customStroke(color: colorScheme == .dark ? .clear : .white, width: strokeWidth)
         .zIndex(zIndex)
+        .opacity(opacity)
     }
   }
 }
@@ -50,6 +53,6 @@ struct AreaAnnotationView: View {
 #Preview {
   ZStack {
     Color.black.ignoresSafeArea()
-    AreaAnnotationView(title: "Hingham Square", selected: false)
+    AreaAnnotationView(title: "Hingham Square", selected: false, opacity: 1.0)
   }
 }

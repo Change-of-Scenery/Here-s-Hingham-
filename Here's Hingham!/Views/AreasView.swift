@@ -11,8 +11,11 @@ import MapKit
 
 struct AreasView: View {
   @EnvironmentObject private var areasViewModel: AreasViewModel
+  @Environment(\.verticalSizeClass) var verticalSizeClass
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @State private var position = MapCameraPosition.region(
     MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.23227,longitude: -70.89828), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)))
+  @State private var annotationOpacity: Double = 1.0
   var showAppBanner = true
   
   var body: some View {
@@ -20,10 +23,6 @@ struct AreasView: View {
       mapLayer
       
       VStack(spacing: 0) {
-        HStack(alignment: .top) {
-          Image("AppTitleTop")
-        }
-        .padding(.top, 15)
         Spacer()
         areasPreviewStack
       }
@@ -36,6 +35,7 @@ struct AreasView: View {
         }
         area.imageCount = imageCounter
       }
+      
       return AreaDetailView(area: area)
     }
   }
@@ -72,6 +72,7 @@ extension AreasView {
       if areasViewModel.showAreasList {
         AreasListView()
       }
+      
     }
     .background(.thickMaterial)
     .cornerRadius(10)
@@ -82,7 +83,7 @@ extension AreasView {
     Map(initialPosition: position) {
       ForEach(areasViewModel.areas) { area in
         Annotation(area.name, coordinate: area.coordinates) {
-          AreaAnnotationView(title: area.name, selected: areasViewModel.mapArea == area)
+          AreaAnnotationView(title: area.name, selected: areasViewModel.mapArea == area, opacity: annotationOpacity)
             .scaleEffect(areasViewModel.mapArea == area ? 1.2 : 0.7)
             .shadow(radius: 10)
             .onTapGesture {
@@ -93,6 +94,12 @@ extension AreasView {
       }
     }
     .ignoresSafeArea()
+    .onMapCameraChange(frequency: .continuous, {
+      annotationOpacity = 0.3
+    })
+    .onMapCameraChange(frequency: .onEnd) { context in
+      annotationOpacity = 1.0
+    }
   }
   
   private var appBanner: some View {

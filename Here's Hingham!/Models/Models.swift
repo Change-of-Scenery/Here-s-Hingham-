@@ -38,6 +38,7 @@ enum SchemaV1: VersionedSchema {
       case locationLat
       case locationLng
       case lotSize
+      case menuUrl
       case name
       case nickname
       case notes
@@ -72,6 +73,7 @@ enum SchemaV1: VersionedSchema {
     var likes = 0
     var locationLat = 0.0
     var locationLng = 0.0
+    var menuUrl = ""
     @Attribute(.unique) var name = ""
     var nickname = ""
     var notes = ""
@@ -127,6 +129,7 @@ enum SchemaV1: VersionedSchema {
       self.likes = try container.decode(Int.self, forKey: .likes)
       self.locationLat = try container.decode(Double.self, forKey: .locationLat)
       self.locationLng = try container.decode(Double.self, forKey: .locationLng)
+      self.menuUrl = try container.decode(String.self, forKey: .menuUrl)
       self.name = try container.decode(String.self, forKey: .name)
       self.nickname = try container.decode(String.self, forKey: .nickname)
       self.notes = try container.decode(String.self, forKey: .notes)

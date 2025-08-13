@@ -8,13 +8,14 @@
 import SwiftUI
 
 struct PlaceAnnotationView: View {
-  @Environment(\.colorScheme) var colorScheme
   let areaName: String
   let placeName: String
   let shortName: String
   let type: Int
   let iconSize: CGFloat
   let selected: Bool
+  let opacity: Double
+  @Environment(\.colorScheme) var colorScheme
 
   // let accentColor = Color("AccentColor")
   
@@ -53,11 +54,13 @@ struct PlaceAnnotationView: View {
           .scaledToFit()
           .frame(width: iconSize, height: iconSize)
           .zIndex(zIndex)
+          .opacity(opacity)
         
         Text(name)
           .font(font)
           .customStroke(color: colorScheme == .dark ? .clear : .white, width: strokeWidth)
           .padding(.top, titlePadding)
+          .opacity(opacity)
       }
       .zIndex(zIndex)
     }
@@ -101,6 +104,6 @@ extension View {
 #Preview {
   ZStack {
     Color.black.ignoresSafeArea()
-    PlaceAnnotationView(areaName: "Square", placeName: "The Snug", shortName: "Pub", type: 2, iconSize: 64.0, selected: false)
+    PlaceAnnotationView(areaName: "Square", placeName: "The Snug", shortName: "Pub", type: 2, iconSize: 64.0, selected: false, opacity: 1.0)
   }
 }

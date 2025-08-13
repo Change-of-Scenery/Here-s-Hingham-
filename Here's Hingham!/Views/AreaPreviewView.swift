@@ -11,6 +11,7 @@ struct AreaPreviewView: View {
   @EnvironmentObject private var areasViewModel: AreasViewModel
   @Environment(\.colorScheme) var colorScheme
   let area: SchemaV1.Area
+  let screenWidth = UIScreen.main.bounds.size.width
   
   var body: some View {
     VStack {
@@ -57,7 +58,7 @@ extension AreaPreviewView {
       Image(area.shortName + "/Area/0")
         .resizable()
         .scaledToFill()
-        .frame(width: 100, height: 100)
+        .frame(width: UIScreen.main.bounds.size.height < 900 ? 100.0 : 140)
         .cornerRadius(10)
         .onTapGesture {
           areasViewModel.sheetArea = area
@@ -84,8 +85,9 @@ extension AreaPreviewView {
         .font(.system(size: 14))
         .foregroundColor(.primary)
     }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .padding([.trailing], 10)
+    .frame(width: screenWidth * 0.9, height: 100)
+    .padding(.trailing, 10)
+    .padding(.top, screenWidth < 360 ? -5 : 18)
   }
   
   private var learnMoreButton: some View {
@@ -95,14 +97,14 @@ extension AreaPreviewView {
     } label: {
       Text("Learn more")
         .font(.headline)
-        .frame(width: 100, height: 35)
+        .frame(width: screenWidth < 360 ? 90 : 100, height: 35)
         .foregroundColor(.white)
     }
     .buttonStyle(.borderedProminent)
     .background(.accent)
     .cornerRadius(10.0)
-    .padding()
-    .padding(.top, 28)
+    .padding([.leading, .trailing], screenWidth < 360 ? 7 : 25)
+    .padding(.top, UIScreen.main.bounds.size.height < 900 ? 32.0 : 42.0)
   }
   
   private var nextButton: some View {
@@ -112,10 +114,10 @@ extension AreaPreviewView {
       } label: {
         Text("Next")
           .font(.headline)
-          .frame(width: 50, height: 35)
+          .frame(width: screenWidth < 360 ? 40 : 50, height: 35)
       }
       .buttonStyle(.bordered)
-      .padding(.top, 43)
+      .padding(.top, UIScreen.main.bounds.size.height < 900 ? 32.0 : 42.0)
     }
   }
 }
