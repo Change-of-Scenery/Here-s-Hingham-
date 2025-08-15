@@ -35,6 +35,7 @@ class AreasViewModel: ObservableObject {
   @Published var sheetArea: SchemaV1.Area? = nil
   @Published var centerCoordinate: CLLocationCoordinate2D
   @Published var showWatermark = true
+  @Published var visible = true
 
   let span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
   

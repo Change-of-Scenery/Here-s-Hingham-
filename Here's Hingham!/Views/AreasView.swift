@@ -11,16 +11,23 @@ import MapKit
 
 struct AreasView: View {
   @EnvironmentObject private var areasViewModel: AreasViewModel
+  @EnvironmentObject private var placesViewModel: PlacesViewModel
   @Environment(\.verticalSizeClass) var verticalSizeClass
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @State private var position = MapCameraPosition.region(
     MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.23227,longitude: -70.89828), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)))
   @State private var annotationOpacity: Double = 1.0
+  @ObservedObject var location: LocationManager = LocationManager()
+
   var showAppBanner = true
   
   var body: some View {
     ZStack {
-      mapLayer
+      if areasViewModel.visible == true {
+        areaMapLayer
+      } else {
+        placeMapLayer
+      }
       
       VStack(spacing: 0) {
         Spacer()
@@ -79,7 +86,7 @@ extension AreasView {
     .shadow(color: Color.black.opacity(0.3), radius: 20, x:0, y:15)
   }
   
-  private var mapLayer: some View {
+  private var areaMapLayer: some View {
     Map(initialPosition: position) {
       ForEach(areasViewModel.areas) { area in
         Annotation(area.name, coordinate: area.coordinates) {
@@ -102,6 +109,67 @@ extension AreasView {
     }
   }
   
+  private var placeMapLayer: some View {
+    let area = areasViewModel.mapArea
+    let places = placesViewModel.places.filter { $0.areaId == area.areaId }
+    
+    return Map(position: $areasViewModel.mapCameraPosition, interactionModes: [.pan, .zoom]) {
+      ForEach(places) { place in
+        Annotation("", coordinate: place.coordinates) {
+          withAnimation(.easeInOut) {
+            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity)
+              .shadow(radius: 10)
+              .onTapGesture {
+                withAnimation(.easeInOut) {
+                  placesViewModel.showPlace(area, place)
+                  areasViewModel.zoomIn()
+                }
+              }
+          }
+        }
+        .annotationTitles(.visible)
+      }
+      
+      UserAnnotation()
+    }
+    .ignoresSafeArea()
+    .onMapCameraChange(frequency: .continuous) { context in
+      areasViewModel.centerCoordinate = context.region.center
+
+      if areasViewModel.mapCameraPosition.region == nil {
+        areasViewModel.mapCameraPosition = MapCameraPosition.region(context.region)
+      }
+    }
+    .background(.white)
+    .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
+    .mapControls {
+      Button {
+        let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
+        areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: location.userLocation?.coordinate.latitude ?? 0.0, longitude: location.userLocation?.coordinate.longitude ?? 0.0), span: span))
+      } label: {
+        Image(systemName: "location.fill")
+      }
+    }
+    .overlay {
+      ZStack {
+        VStack {
+          HStack {
+            Spacer(minLength: 0)
+            Button {
+              areasViewModel.showArea(area)
+            } label: {
+              Image(systemName: "return")
+                .padding([.top, .trailing], 10)
+                .foregroundColor(.black)
+            }
+          }
+          Spacer(minLength: 0)
+        }
+      }
+    }
+  }
+
+  
   private var appBanner: some View {
     Image("AppBanner")
   }
@@ -119,3 +187,4 @@ extension AreasView {
     }
   }
 }
+

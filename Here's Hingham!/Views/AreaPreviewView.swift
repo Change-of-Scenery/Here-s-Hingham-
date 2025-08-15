@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct AreaPreviewView: View {
   @EnvironmentObject private var areasViewModel: AreasViewModel
+  @EnvironmentObject private var placesViewModel: PlacesViewModel
   @Environment(\.colorScheme) var colorScheme
   let area: SchemaV1.Area
   let screenWidth = UIScreen.main.bounds.size.width
@@ -52,10 +54,23 @@ struct AreaPreviewView_Previews: PreviewProvider {
   }
 }
 
+//let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
+//let imageCount = modelMode == "place" ? placesViewModel.mapPlace.imageCount : area.imageCount == 0 ? 1 : area.imageCount
+//
+//ForEach(0..<imageCount, id: \.self) { index in
+//  if UIImage(named: "\(path)/\(index)") != nil {
+//    Image("\(path)/\(index)")
+//      .resizable()
+//      .scaledToFit()
+//      .cornerRadius(25)
+//  }
+//}
+//
+
 extension AreaPreviewView {
   private var imageSection: some View {
     ZStack {
-      Image(area.shortName + "/Area/0")
+      Image(areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.shortName + "/Area/0" : "\(area.shortName)/\(placesViewModel.mapPlace.name)/0")
         .resizable()
         .scaledToFill()
         .frame(width: UIScreen.main.bounds.size.height < 900 ? 100.0 : 140)
@@ -73,7 +88,7 @@ extension AreaPreviewView {
   
   private var titleSection: some View {
     VStack(alignment: .leading, spacing: 4) {
-      Text(area.name)
+      Text(areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.name : placesViewModel.mapPlace.name)
         .font(.title2)
         .fontWeight(.bold)
         .foregroundColor(.primary)
@@ -81,23 +96,28 @@ extension AreaPreviewView {
         .minimumScaleFactor(0.5)
         .lineLimit(1)
       
-      Text(area.desc)
+      Text(areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.desc : placesViewModel.mapPlace.notes)
         .font(.system(size: 14))
         .foregroundColor(.primary)
     }
     .frame(width: screenWidth * 0.9, height: 100)
     .padding(.trailing, 10)
-    .padding(.top, screenWidth < 360 ? -5 : 18)
+    .padding(.top, screenWidth < 360 ? -5 : 10)
   }
   
   private var learnMoreButton: some View {
     Button {
-      areasViewModel.sheetArea = area
-      areasViewModel.mapArea = area
+//      areasViewModel.sheetArea = area
+//      areasViewModel.mapArea = area
+      withAnimation(.easeInOut) {
+        let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
+        areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
+        areasViewModel.visible = false
+      }
     } label: {
-      Text("Learn more")
+      Text(areasViewModel.visible == true ? "Take me there!" : "Show Details")
         .font(.headline)
-        .frame(width: screenWidth < 360 ? 90 : 100, height: 35)
+        .frame(width: screenWidth < 360 ? 90 : 120, height: 35)
         .foregroundColor(.white)
     }
     .buttonStyle(.borderedProminent)

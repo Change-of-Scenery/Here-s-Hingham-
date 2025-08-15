@@ -13,6 +13,7 @@ import SwiftData
 class PlacesViewModel: ObservableObject {
   @Published var places: [SchemaV1.Place] = []
   @Published var mapPlace: SchemaV1.Place
+  @Published var visible = false
   
   init() {
     mapPlace = SchemaV1.Place()
