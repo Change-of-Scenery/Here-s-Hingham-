@@ -39,6 +39,8 @@ class PlacesViewModel: ObservableObject {
       place.imageCount = imageCounter
     }
     
+    visible = true
+    
     withAnimation(.easeInOut) {
       mapPlace = place
     }

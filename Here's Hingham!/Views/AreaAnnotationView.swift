@@ -8,18 +8,18 @@
 import SwiftUI
 
 struct AreaAnnotationView: View {
-  var title: String
+  let area: SchemaV1.Area
   let selected: Bool
   let opacity: Double
   @Environment(\.colorScheme) var colorScheme
-
+  
   var body: some View {
     var strokeWidth = 0.75
     var font = Font.system(size: 14)
     var zIndex = -100.0
     var weight = Font.Weight.medium
     let titlePadding = 0.0
-    
+
     if selected == true {
       font = Font.system(size: 12)
       strokeWidth = 2
@@ -28,7 +28,7 @@ struct AreaAnnotationView: View {
     }
     
     return VStack(spacing: 0) {
-      Image(systemName: "map.circle.fill")
+      Image("MapIcons/\(area.iconImage)")
         .resizable()
         .scaledToFit()
         .frame(width: 30, height: 30)
@@ -38,7 +38,7 @@ struct AreaAnnotationView: View {
         .cornerRadius(36)
         .zIndex(zIndex)
         .opacity(opacity)
-      Text(title)
+      Text(area.name)
         .font(font)
         .foregroundStyle(.primary.opacity(0.75))
         .fontWeight(weight)
@@ -50,9 +50,9 @@ struct AreaAnnotationView: View {
   }
 }
 
-#Preview {
-  ZStack {
-    Color.black.ignoresSafeArea()
-    AreaAnnotationView(title: "Hingham Square", selected: false, opacity: 1.0)
-  }
-}
+//#Preview {
+//  ZStack {
+//    Color.black.ignoresSafeArea()
+//    AreaAnnotationView(title: "Hingham Square", selected: false, opacity: 1.0, filter: 0)
+//  }
+//}

@@ -60,7 +60,7 @@ struct Here_s_Hingham_App: App {
   var body: some Scene {
     WindowGroup {
 //    ContentView()
-      AreasView()
+      MainView()
         .environmentObject(areasViewModel)
         .environmentObject(placesViewModel)
     }
@@ -307,9 +307,9 @@ struct Here_s_Hingham_App: App {
   }
 }
 
-
 struct GroceryProduct: Codable {
     var name: String
     var points: Int
     var description: String?
 }
+

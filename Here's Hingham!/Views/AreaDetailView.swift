@@ -19,7 +19,7 @@ struct AreaDetailView: View {
   @Environment(\.colorScheme) var colorScheme
   @State var imageCount:Int = 10
   @State var notes = ""
-  @State var modelMode = "area"
+  @State var modelMode = "place"
   @State var showExpanded = ""
   @State var showRatingSelector = false
   @State var showHours = false
@@ -43,45 +43,38 @@ struct AreaDetailView: View {
     let screenHeight = UIScreen.main.bounds.size.height
     
     let rows = [
-      GridItem(.fixed(screenHeight * 0.04)),  // menu
       GridItem(.fixed(screenHeight * 0.3)),   // image
       GridItem(.fixed(screenHeight * (modelMode == "area" ? 0.008 : 0.018))),  // title
       GridItem(.fixed(screenHeight * (modelMode == "area" ? 0.0 : 0.04))),    // reviews
-      GridItem(.fixed(modelMode == "area" ? 125 : 80)), // desc
-      GridItem(.fixed(screenHeight * 0.335))    // map
+//      GridItem(.fixed(modelMode == "area" ? 125 : 80)), // desc
+      GridItem(.fixed(screenHeight * 0.44))    // map
     ]
     let expandedMapRows = [
-      GridItem(.fixed(screenHeight * 0.038)),  // menu
       GridItem(.fixed(screenHeight * 0.82))   // map
     ]
     let expandedDescRows = [
-      GridItem(.fixed(screenHeight * 0.038)),  // menu
       GridItem(.fixed(screenHeight * 0.829))   // desc
     ]
     
     let backgroundColor = colorScheme == .dark ? Color(red: 0.01, green: 0.01,  blue: 0.0) : Color(red: 0.99, green: 0.99,  blue: 0.9)
 
     if verticalSizeClass == .compact || horizontalSizeClass == .regular {
-      menuSection
       expandedImageSection
     } else {
       if showExpanded == "map" {
         LazyHGrid(rows: expandedMapRows, spacing: 10) {
-          menuSection
-          mapLayer
+//          mapLayer
         }
         .frame(width: UIScreen.main.bounds.size.width)
         .background(backgroundColor)
       } else if showExpanded == "desc" {
         LazyHGrid(rows: expandedDescRows, spacing: 10) {
-          menuSection
           expandedDescSection
         }
         .frame(width: UIScreen.main.bounds.size.width)
         .background(backgroundColor)
       } else  {
         LazyHGrid(rows: rows, spacing: 10) {
-          menuSection
           imageSection
           titleSection
           
@@ -95,7 +88,7 @@ struct AreaDetailView: View {
             areaSection
           }
           descSection
-          mapLayer
+//          mapLayer
         }
         .frame(width: UIScreen.main.bounds.size.width)
         .background(backgroundColor)
@@ -103,7 +96,7 @@ struct AreaDetailView: View {
           modelMode = "place"
           placesViewModel.showPlace(areasViewModel.mapArea, location.newPlaceAtCurrentLocation!)
           if showExpanded == "map" {
-            areasViewModel.zoomIn()
+            areasViewModel.zoomIn(0.0007)
           }
           showExpanded = ""
         }
@@ -135,110 +128,108 @@ extension AreaDetailView {
   private var menuSection: some View {
 
     return HStack {
-      Button {
-        if showExpanded == "map" {
-          let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
-          areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
-          showExpanded = ""
-        } else if showExpanded == "desc" {
-          showExpanded = ""
-        } else if modelMode == "place" {
-          tabSelection = 0
-          withAnimation(.easeInOut) {
-            modelMode = "area"
-          }
-        } else if showExpanded == "image" {
-          rotateBack()
-        } else {
-          areasViewModel.sheetArea = nil
-        }
-        showRatingSelector = false
-      } label: {
-        Image(systemName: "x.square.fill")
-          .font(.system(size: 20))
-          .tint(.primary)
-      }
-      Spacer()
-      Button {
-        if showExpanded == "image" {
-          rotateBack()
-        } else {
-          if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            showExpanded = "image"
-            AppDelegate.orientationForImage = true
-            scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
-          }
-        }
-      } label: {
-        Image(systemName: "photo")
-          .font(.system(size: 20))
-          .tint(.primary)
-      }
-      Spacer()
-      Button {
-        if showExpanded == "desc" {
-          showExpanded = ""
-        } else {
-          if showExpanded == "image" {
-            rotateBack()
-          }
-          withAnimation(.easeInOut) {
-            self.showExpanded = "desc"
-          }
-        }
-      } label: {
-        Image(systemName: "text.page")
-          .font(.system(size: 20))
-          .tint(.primary)
-      }
-      Spacer()
-      Button {
-        if showExpanded == "map" {
-          showExpanded = ""
-        } else {
-          if showExpanded == "image" {
-            rotateBack()
-          }
-          areasViewModel.zoomOut()
-          self.showExpanded = "map"
-        }
-      } label: {
-        Image(systemName: "map")
-          .font(.system(size: 20))
-          .tint(.primary)
-      }
-      Spacer()
-      Menu {
-//        Button("Update Google Data", action: {
-//          let dataService = DataService()
-//          dataService.updateGoogle()
-//        })
+//      Button {
+//        if showExpanded == "map" {
+//          let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
+//          areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
+//          showExpanded = ""
+//        } else if showExpanded == "desc" {
+//          showExpanded = ""
+////        } else if modelMode == "place" {
+////          tabSelection = 0
+////          withAnimation(.easeInOut) {
+////            modelMode = "area"
+////          }
+//        } else if showExpanded == "image" {
+//          rotateBack()
+//        } else {
+//          let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
+//          areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
+//          areasViewModel.sheetArea = nil
+//        }
+//        showRatingSelector = false
+//      } label: {
+//        Image(systemName: "x.square.fill")
+//          .font(.system(size: 20))
+//          .tint(.primary)
+//      }
+//      Spacer()
+//      Button {
+//        if showExpanded == "image" {
+//          rotateBack()
+//        } else {
+//          if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+//            showExpanded = "image"
+//            AppDelegate.orientationForImage = true
+//            scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
+//          }
+//        }
+//      } label: {
+//        Image(systemName: "photo")
+//          .font(.system(size: 20))
+//          .tint(.primary)
+//      }
+//      Spacer()
+//      Button {
+//        if showExpanded == "desc" {
+//          showExpanded = ""
+//        } else {
+//          if showExpanded == "image" {
+//            rotateBack()
+//          }
+//          withAnimation(.easeInOut) {
+//            self.showExpanded = "desc"
+//          }
+//        }
+//      } label: {
+//        Image(systemName: "text.page")
+//          .font(.system(size: 20))
+//          .tint(.primary)
+//      }
+////      Spacer()
+////      Button {
+////        if showExpanded == "map" {
+////          showExpanded = ""
+////        } else {
+////          if showExpanded == "image" {
+////            rotateBack()
+////          }
+////          areasViewModel.zoomOut()
+////          self.showExpanded = "map"
+////        }
+////      } label: {
+////        Image(systemName: "map")
+////          .font(.system(size: 20))
+////          .tint(.primary)
+////      }
+//      Spacer()
+//      Menu {
+////        Button("Update Google Data", action: {
+////          let dataService = DataService()
+////          dataService.updateGoogle()
+////        })
+////        
+////        Button("Update Yelp Data", action: {
+////          let dataService = DataService()
+////          dataService.updateYelp()
+////        })
 //        
-//        Button("Update Yelp Data", action: {
-//          let dataService = DataService()
-//          dataService.updateYelp()
-//        })
-        
-        Toggle("Place Observer", isOn: $updatingLocation)
-          .toggleStyle(CustomToggleButton())
-          .onChange(of: updatingLocation) {
-            location.areaId = area.areaId
-            if updatingLocation == true {
-              location.placesViewModel = placesViewModel
-              location.startUpdating()
-            } else {
-              location.stopUpdating()
-            }
-          }
-        } label: {
-          Image(systemName: "ellipsis.circle")
-            .font(.system(size: 20))
-            .tint(.primary)
-        }
-    }
-    .padding([.top, .bottom], 10)
-    .onAppear {
-      
+//        Toggle("Show Here", isOn: $updatingLocation)
+//          .toggleStyle(CustomToggleButton())
+//          .onChange(of: updatingLocation) {
+//            location.areaId = area.areaId
+//            if updatingLocation == true {
+//              location.placesViewModel = placesViewModel
+//              location.startUpdating()
+//            } else {
+//              location.stopUpdating()
+//            }
+//          }
+//        } label: {
+//          Image(systemName: "ellipsis.circle")
+//            .font(.system(size: 20))
+//            .tint(.primary)
+//        }
     }
   }
   
@@ -323,6 +314,7 @@ extension AreaDetailView {
     }
     .tabViewStyle(PageTabViewStyle())
     .padding(.top, -15)
+    .padding(.bottom, 10)
   }
   
   private var titleSection: some View {
@@ -399,6 +391,7 @@ extension AreaDetailView {
     HStack(alignment: .top) {
       VStack(alignment: .leading) {
         Divider()
+          .padding(.top, 6)
         
         let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
         
@@ -407,7 +400,6 @@ extension AreaDetailView {
             .font(.system(size: 13))
             .foregroundColor(.primary)
         }
-        Divider()
       }
     }
     .frame(width: UIScreen.main.bounds.size.width * 0.93)
@@ -723,14 +715,14 @@ extension AreaDetailView {
       ForEach(places) { place in
         Annotation("", coordinate: place.coordinates) {
           withAnimation(.easeInOut) {
-            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity)
+            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity, iconResizePercent: 0.0, filter: areasViewModel.filter)
               .shadow(radius: 10)
               .onTapGesture {
                 withAnimation(.easeInOut) {
                   modelMode = "place"
                   placesViewModel.showPlace(area, place)
                   if showExpanded == "map" {
-                    areasViewModel.zoomIn()
+                    areasViewModel.zoomIn(0.0007)
                   }
                   showExpanded = ""
                 }
@@ -919,55 +911,6 @@ extension AreaDetailView {
     .environmentObject(AreasViewModel())
     .environmentObject(PlacesViewModel())
 
-}
-
-class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
-  private let manager = CLLocationManager()
-  @Published var userLocation: CLLocation?
-  @Published var message: String = ""
-  @Published var showMessage = false
-  @Published var newPlaceAtCurrentLocation: SchemaV1.Place?
-  @Published var placesViewModel: PlacesViewModel = PlacesViewModel()
-  @Published var areaId = 0
-  
-  func startUpdating() {
-    manager.delegate = self
-    manager.requestWhenInUseAuthorization()
-    manager.startUpdatingLocation()
-  }
-  
-  func stopUpdating() {
-    manager.stopUpdatingLocation()
-  }
-  
-  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-    userLocation = locations.last
-    
-    let placesFound = placesViewModel.places.filter {
-      return $0.areaId == areaId &&
-      userLocation!.coordinate.latitude > $0.locationLat - 0.0005 &&
-      userLocation!.coordinate.latitude < $0.locationLat + 0.0005 &&
-      userLocation!.coordinate.longitude > $0.locationLng - 0.0005 &&
-      userLocation!.coordinate.longitude < $0.locationLng + 0.0005
-    }
-    
-    let placeCount = placesFound.count
-    
-    if placeCount > 0 {
-      var closestPlace = placesFound[0]
-      placesFound.forEach { place in
-        if closestPlace.name != place.name {
-          if abs(userLocation!.coordinate.latitude - place.locationLat) <= abs(userLocation!.coordinate.latitude - closestPlace.locationLat) &&
-              abs(userLocation!.coordinate.longitude - place.locationLng) <= abs(userLocation!.coordinate.longitude - closestPlace.locationLng)
-          {
-            closestPlace = place
-          }
-        }
-      }
-      
-      newPlaceAtCurrentLocation = closestPlace
-    }
-  }
 }
 
 struct CustomToggleButton: ToggleStyle {

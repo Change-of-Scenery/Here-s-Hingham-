@@ -209,7 +209,7 @@ enum SchemaV1: VersionedSchema {
       case desc
       case attributedDesc
     }
-    var id: String { name }
+    var id = UUID()
     var areaId = 0
     var centerCoordinateLat = 0.0
     var centerCoordinateLng = 0.0
@@ -224,6 +224,7 @@ enum SchemaV1: VersionedSchema {
     var wikiName = ""
     var imageCount = 0
     var fontStyle = "<style>html { font-family: Helvetica, Arial, sans-serif; font-size: 16px; color: gray; } a:link { color: red; text-decoration: none; }</style>"
+    var iconImage = "map.circle.fill"
     
     var centerCoordinates: CLLocationCoordinate2D {
       CLLocationCoordinate2D(latitude: centerCoordinateLat, longitude: centerCoordinateLng)

@@ -14,36 +14,53 @@ import FirebaseCore
 import FirebaseFirestore
 
 class AreasViewModel: ObservableObject {
-//  @Published var mapCameraPosition: MapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0,longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)))
   @Published var mapCameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
   @Published var areas: [SchemaV1.Area] = []
   @Published var previewArea = SchemaV1.Area()
-  @Published var mapArea: SchemaV1.Area {
+  @Published var mapArea: SchemaV1.Area = SchemaV1.Area() {
     didSet {
-      let span = MKCoordinateSpan(latitudeDelta: mapArea.zoom, longitudeDelta:  mapArea.zoom) //  mapArea.areaId == 0 || mapArea.areaId == 6 ? mapArea.zoomInSpan : mapArea.zoomSpan
+      let span = MKCoordinateSpan(latitudeDelta: mapArea.zoom, longitudeDelta:  mapArea.zoom)
       mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: mapArea.centerCoordinates, span: span))
-//      if let latitude = mapCameraPosition.region?.center.latitude {
-//        if latitude == 42.23227 {
-//          let span = mapArea.areaId == 0 || mapArea.areaId == 6 ? mapArea.zoomInSpan : mapArea.zoomSpan
-//          mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: mapArea.centerCoordinates, span: span))
-//        }
-//      }
       updateRegion(mapCameraPosition)
     }
   }
   @Published var showAreasList:Bool = false
   @Published var sheetArea: SchemaV1.Area? = nil
-  @Published var centerCoordinate: CLLocationCoordinate2D
+  @Published var centerCoordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)
   @Published var showWatermark = true
   @Published var visible = true
+  @Published var distance: Double = 0.0
+  @Published var zoom: Double = 0.0
+  @Published var filter: Int = 0 {
+    didSet {
+      let db = Firestore.firestore()
+      
+      for area in areas {
+        db.collection("HinghamPlace").whereField("areaId", isEqualTo: area.areaId).whereField("type", in: [self.filter]).getDocuments { queryPlace, err in
+          if queryPlace!.documents.count > 0 {
+            switch self.filter {
+            case 1:
+              area.iconImage = "fork.knife.circle.fill"
+            case 2, 3, 5, 9:
+              area.iconImage = "handbag.circle.fill"
+            case 6:
+              area.iconImage = "house.circle.fill"
+            case 7:
+              area.iconImage = "cup.and.saucer.circle.fill"
+            case 8:
+              area.iconImage = "tree.circle.fill"
+            default:
+              area.iconImage = "map.circle.fill"
+            }
+          } else {
+            area.iconImage = "map.circle.fill"
+          }
+        }
+      }
+    }
+  }
 
   let span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-  
-  init() {
-    mapArea = SchemaV1.Area()
-    centerCoordinate = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0) // , span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))
-//    updateRegion(MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.23227,longitude: -70.89828), span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))))
-  }
   
   public func addArea(_ area: SchemaV1.Area) {
     areas.append(area)
@@ -71,7 +88,7 @@ class AreasViewModel: ObservableObject {
     }
     
     withAnimation(.easeInOut) {
-      self.mapArea = area
+//      self.mapArea = area
       self.showAreasList = false
     }
   }
@@ -107,7 +124,58 @@ class AreasViewModel: ObservableObject {
     updateRegion(mapCameraPosition)
   }
   
-  func zoomIn() {
-    updateRegion(MapCameraPosition.region(MKCoordinateRegion(center: centerCoordinate, span: MKCoordinateSpan(latitudeDelta: mapArea.zoom, longitudeDelta: mapArea.zoom))))
+  func zoomIn(_ zoom:Double) {
+    updateRegion(MapCameraPosition.region(MKCoordinateRegion(center: centerCoordinate, span: MKCoordinateSpan(latitudeDelta: zoom, longitudeDelta: zoom))))
+  }
+  
+  func setFilterZoomDistance(filter:Int, areaId:Int) {
+    if filter > 0 {
+      switch filter {
+      case 1:
+        if areaId == 0 {
+          zoom = 0.005
+          distance = 800
+        }
+        break
+      case 2:
+        if areaId == 0 {
+          zoom = 0.005
+          distance = 400
+        }
+        break
+      case 3:
+        if areaId == 0 {
+          zoom = 0.005
+          distance = 700
+        }
+        break
+      case 5:
+        if areaId == 0 {
+          zoom = 0.007
+          distance = 400
+        }
+        break
+      case 6, 8:
+        zoom = 0.02
+        distance = 500
+        break
+      case 7:
+        if areaId == 0 {
+          zoom = 0.007
+          distance = 400
+        }
+        break
+      default:
+        if areaId == 3 {
+          zoom = 0.002
+        } else {
+          zoom = 0.01
+        }
+        break
+      }
+    } else {
+      zoom = mapArea.zoom
+      distance = 0.0
+    }
   }
 }

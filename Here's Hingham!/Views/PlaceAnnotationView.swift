@@ -15,17 +15,20 @@ struct PlaceAnnotationView: View {
   let iconSize: CGFloat
   let selected: Bool
   let opacity: Double
+  let iconResizePercent: Double
+  let filter: Int
   @Environment(\.colorScheme) var colorScheme
 
   // let accentColor = Color("AccentColor")
   
   var body: some View {
 //    var size = 64.0
-    var name = shortName
+    var name = filter > 0 ? placeName : shortName
     var font = Font.system(size: 8)
     var strokeWidth = 0.75
     var zIndex = 0.0
     let titlePadding = 0.0
+    var newIconSize = 0.0
     
 //    if (shortName == "Bank" && placeName != "Eastern Bank") || placeName == "Hawkes Fearing" || shortName == "Library" {
 //      size = 156.0
@@ -47,12 +50,14 @@ struct PlaceAnnotationView: View {
       zIndex = 100.0
     }
     
+    newIconSize = iconResizePercent != 0 ? iconSize * iconResizePercent : iconSize
+    
     return ZStack {
       VStack(spacing: 0) {
         Image("\(areaName)/\(placeName)/icon")
           .resizable()
           .scaledToFit()
-          .frame(width: iconSize, height: iconSize)
+          .frame(width: newIconSize, height: newIconSize)
           .zIndex(zIndex)
           .opacity(opacity)
         
@@ -104,6 +109,6 @@ extension View {
 #Preview {
   ZStack {
     Color.black.ignoresSafeArea()
-    PlaceAnnotationView(areaName: "Square", placeName: "The Snug", shortName: "Pub", type: 2, iconSize: 64.0, selected: false, opacity: 1.0)
+    PlaceAnnotationView(areaName: "Square", placeName: "The Snug", shortName: "Pub", type: 2, iconSize: 64.0, selected: false, opacity: 1.0, iconResizePercent: 0.0, filter: 0)
   }
 }
