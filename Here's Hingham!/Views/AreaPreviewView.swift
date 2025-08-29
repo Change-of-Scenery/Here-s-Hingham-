@@ -104,9 +104,13 @@ extension AreaPreviewView {
         .minimumScaleFactor(0.5)
         .lineLimit(1)
       
-      Text(areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.desc : placesViewModel.mapPlace.notes)
-        .font(.system(size: 14))
-        .foregroundColor(.primary)
+      let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: areasViewModel.visible == true || placesViewModel.mapPlace.name == ""  ? area.desc : placesViewModel.mapPlace.notes)
+      
+      ScrollView {
+        Text(descText)
+          .font(.system(size: 14))
+          .foregroundColor(.primary)
+      }
     }
     .frame(width: screenWidth * 0.9, height: 100)
     .padding(.trailing, 10)
@@ -116,8 +120,9 @@ extension AreaPreviewView {
   private var zoomInButton: some View {
     Button {
       if areasViewModel.visible == false {
-        areasViewModel.sheetArea = area
-        areasViewModel.mapArea = area
+        if areasViewModel.mapArea != area {
+          areasViewModel.mapArea = area
+        }
         placesViewModel.showPlace(area, placesViewModel.mapPlace)
         showPlaceDetail = true
       } else {
@@ -127,7 +132,6 @@ extension AreaPreviewView {
           let span = MKCoordinateSpan(latitudeDelta: areasViewModel.zoom, longitudeDelta: areasViewModel.zoom)
           areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
           areasViewModel.visible = false
-
         }
       }
     } label: {

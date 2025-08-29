@@ -603,10 +603,6 @@ extension AreaDetailView {
               .font(.system(size: 12))
               .frame(width: 50)
               .padding(.leading, -11)
-          } else {
-            Text("No reviews")
-              .font(.system(size: 12))
-              .padding(.leading, 5)
           }
           
           if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
@@ -643,10 +639,6 @@ extension AreaDetailView {
               .font(.system(size: 12))
               .frame(width: 50)
               .padding(.leading, -12)
-          } else {
-            Text("No reviews")
-              .font(.system(size: 12))
-              .padding(.leading, 5)
           }
           
           Button {

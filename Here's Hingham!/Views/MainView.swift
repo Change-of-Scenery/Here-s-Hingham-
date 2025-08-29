@@ -305,6 +305,7 @@ extension MainView {
             areasViewModel.mapArea.areaId = -1
             iconResizePercent = areasViewModel.distance / context.camera.distance
             areasViewModel.mapArea.areaId = saveAreaId
+            print(iconResizePercent)
           }
           
           areasViewModel.centerCoordinate = context.region.center
