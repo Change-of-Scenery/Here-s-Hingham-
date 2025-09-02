@@ -313,3 +313,11 @@ struct GroceryProduct: Codable {
     var description: String?
 }
 
+extension String {
+    var isNumber: Bool {
+      return self.replacingOccurrences(of: ",", with: "").range(
+            of: "^[0-9]*$",
+            options: .regularExpression) != nil && self != ""
+    }
+}
+

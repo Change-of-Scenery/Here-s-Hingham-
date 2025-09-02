@@ -67,7 +67,9 @@ struct MainView: View {
                 FilterButtonView(title: "Coffee", imageName: "cup.and.saucer", type: 7)
                 FilterButtonView(title: "Retail", imageName: "handbag", type: 2)
                 FilterButtonView(title: "Historic", imageName: "house", type: 6)
-                FilterButtonView(title: "Parks / Cemeteries", imageName: "tree", type: 8)
+                FilterButtonView(title: "Parks", imageName: "tree", type: 8)
+                FilterButtonView(title: "Events", imageName: "calendar", type: 100)
+                FilterButtonView(title: "Videos", imageName: "video", type: 100)
               }
               .padding(.horizontal)
               .padding([.leading, .trailing], 10)
@@ -173,7 +175,23 @@ struct FilterButtonView: View {
   
   var body: some View {
     Button(action: {
-      areasViewModel.filter = type
+      if title == "Events" {
+        let urlString = "https://www.hinghamanchor.com/calendar/"
+        if let url = URL(string: urlString) {
+          if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+          }
+        }
+      } else if title == "Videos" {
+        let urlString = "https://www.youtube.com/@HarborMedia"
+        if let url = URL(string: urlString) {
+          if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+          }
+        }
+      } else if type < 100 {
+        areasViewModel.filter = type
+      }
     }) {
       HStack {
         Image(systemName: imageName)

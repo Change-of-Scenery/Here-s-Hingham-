@@ -19,33 +19,18 @@ struct PlaceAnnotationView: View {
   let filter: Int
   @Environment(\.colorScheme) var colorScheme
 
-  // let accentColor = Color("AccentColor")
-  
   var body: some View {
-//    var size = 64.0
     var name = filter > 0 ? placeName : shortName
-    var font = Font.system(size: 8)
+    let design = type == 6 ? Font.Design.serif : Font.Design.default
+    var size = 8.0
     var strokeWidth = 0.75
     var zIndex = 0.0
     let titlePadding = 0.0
     var newIconSize = 0.0
     
-//    if (shortName == "Bank" && placeName != "Eastern Bank") || placeName == "Hawkes Fearing" || shortName == "Library" {
-//      size = 156.0
-//      titlePadding = -30.0
-//    } else if shortName == "Church" {
-//      size = 121.0
-//    } else if shortName == "Old Derby" || shortName == "Paint"  || shortName == "Tree" {
-//      size = 110.0
-//    } else if placeName == "La Petite Maison" || placeName == "Square Cafe" || shortName == "Lawyer" {
-//      size = 86.0
-//    } else if type == 6 {
-//      size = 72.0
-//    }
-    
     if selected == true {
+      size = 9.0
       name = placeName
-      font = Font.system(size: 9)
       strokeWidth = 2.5
       zIndex = 100.0
     }
@@ -62,7 +47,7 @@ struct PlaceAnnotationView: View {
           .opacity(opacity)
         
         Text(name)
-          .font(font)
+          .font(.system(size: size, weight: .regular, design: design))
           .customStroke(color: colorScheme == .dark ? .clear : .white, width: strokeWidth)
           .padding(.top, titlePadding)
           .opacity(opacity)

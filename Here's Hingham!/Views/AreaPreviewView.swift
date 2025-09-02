@@ -95,10 +95,13 @@ extension AreaPreviewView {
   }
   
   private var titleSection: some View {
-    VStack(alignment: .leading, spacing: 4) {
+    let design = placesViewModel.mapPlace.type == 6 ? Font.Design.serif : Font.Design.default
+    let weight = placesViewModel.mapPlace.type == 6 ? Font.Weight.semibold : Font.Weight.bold
+    let bodySize = placesViewModel.mapPlace.type == 6 ? 12.0 : 14.0
+    
+    return VStack(alignment: .leading, spacing: 4) {
       Text(areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.name : placesViewModel.mapPlace.name)
-        .font(.title2)
-        .fontWeight(.bold)
+        .font(.system(.title2, design: design, weight: weight))
         .foregroundColor(.primary)
         .scaledToFill()
         .minimumScaleFactor(0.5)
@@ -108,7 +111,7 @@ extension AreaPreviewView {
       
       ScrollView {
         Text(descText)
-          .font(.system(size: 14))
+          .font(.system(size: bodySize, weight: .regular, design: design))
           .foregroundColor(.primary)
       }
     }
@@ -118,7 +121,10 @@ extension AreaPreviewView {
   }
   
   private var zoomInButton: some View {
-    Button {
+    let design = placesViewModel.mapPlace.type == 6 ? Font.Design.serif : Font.Design.default
+    let weight = placesViewModel.mapPlace.type == 6 ? Font.Weight.semibold : Font.Weight.bold
+
+    return Button {
       if areasViewModel.visible == false {
         if areasViewModel.mapArea != area {
           areasViewModel.mapArea = area
@@ -136,7 +142,7 @@ extension AreaPreviewView {
       }
     } label: {
       Text("View Details")
-        .font(.headline)
+        .font(.system(.headline, design: design, weight: weight))
         .frame(width: screenWidth < 360 ? 90 : 120, height: 35)
         .foregroundColor(.white)
     }
@@ -148,7 +154,10 @@ extension AreaPreviewView {
   }
   
   private var directionsButton: some View {
-    HStack {
+    let design = placesViewModel.mapPlace.type == 6 ? Font.Design.serif : Font.Design.default
+    let weight = placesViewModel.mapPlace.type == 6 ? Font.Weight.semibold : Font.Weight.bold
+
+    return HStack {
       Button {
         location.startUpdating()
         
@@ -172,8 +181,7 @@ extension AreaPreviewView {
         }
       } label: {
         Text("Directions")
-          .font(.subheadline)
-          .fontWeight(.bold)
+          .font(.system(.subheadline, design: design, weight: weight))
           .frame(width: screenWidth < 360 ? 60 : 80, height: 35)
       }
       .buttonStyle(.bordered)
