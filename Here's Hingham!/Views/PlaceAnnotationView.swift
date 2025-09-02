@@ -35,7 +35,11 @@ struct PlaceAnnotationView: View {
       zIndex = 100.0
     }
     
-    newIconSize = iconResizePercent != 0 ? iconSize * iconResizePercent : iconSize
+//    if iconSize == 224 {
+//      
+//    } else {
+      newIconSize = iconResizePercent != 0 ? iconSize * iconResizePercent : iconSize
+//    }
     
     return ZStack {
       VStack(spacing: 0) {
