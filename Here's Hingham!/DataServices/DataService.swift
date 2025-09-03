@@ -15,10 +15,11 @@ import Alamofire
 import CDYelpFusionKit
 
 class DataService {
-  @State var name = "Star Nails & Spa"
+  @State var name = ""
   public static var yelpAPIClient = CDYelpAPIClient(apiKey: "iQQOaKrSKp4-7jORkK8tYfQiUxHIn78-HefSRafOvFG-AvvoNRwjQhj4_Kb0mqX3IOM__qcUBApaUcTY-YZQLHWY2THQxsiZjKV5zoSD0tcZP5GCCCfFJclGTX33Y3Yx")
   
-  func updateYelp() {
+  func updateYelp(name: String) {
+    self.name = name
     let db = Firestore.firestore()
     
     db.collection("HinghamPlace").whereField("name", isEqualTo: name).getDocuments { queryPlace, err in
@@ -77,7 +78,8 @@ class DataService {
     }
   }
   
-  func updateGoogle() {
+  func updateGoogle(name: String) {
+    self.name = name
     let db = Firestore.firestore()
     
     db.collection("HinghamPlace").whereField("name", isEqualTo: name).getDocuments { queryPlace, err in

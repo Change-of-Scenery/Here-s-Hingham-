@@ -16,7 +16,7 @@ import FirebaseFirestore
 class AreasViewModel: ObservableObject {
   @Published var mapCameraPosition: MapCameraPosition = .userLocation(fallback: .automatic) {
     didSet {
-        print("changed")
+
     }
   }
   @Published var areas: [SchemaV1.Area] = []

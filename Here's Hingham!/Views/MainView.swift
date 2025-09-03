@@ -70,6 +70,8 @@ struct MainView: View {
                 FilterButtonView(title: "Parks", imageName: "tree", type: 8)
                 FilterButtonView(title: "Events", imageName: "calendar", type: 100)
                 FilterButtonView(title: "Videos", imageName: "video", type: 100)
+                FilterButtonView(title: "Update Yelp", imageName: "gear", type: 100)
+                FilterButtonView(title: "Update Google", imageName: "gear", type: 100)
               }
               .padding(.horizontal)
               .padding([.leading, .trailing], 10)
@@ -168,6 +170,7 @@ struct MainView: View {
 
 struct FilterButtonView: View {
   @EnvironmentObject private var areasViewModel: AreasViewModel
+  @EnvironmentObject private var placesViewModel: PlacesViewModel
   @Environment(\.colorScheme) var colorScheme
   let title: String
   let imageName: String
@@ -188,6 +191,22 @@ struct FilterButtonView: View {
           if UIApplication.shared.canOpenURL(url) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
           }
+        }
+      } else if title == "Update Yelp" {
+        let dataService = DataService()
+        let places = placesViewModel.places.filter { $0.areaId == 5 }
+        var counter = 0
+        places.forEach { place in
+          if place.yelpCategory == "" && counter < 11 {
+            dataService.updateYelp(name: place.name)
+            counter += 1
+          }
+        }
+      } else if title == "Update Google" {
+        let dataService = DataService()
+        let places = placesViewModel.places.filter { $0.areaId == 5 }
+        places.forEach { place in
+          dataService.updateGoogle(name: place.name)
         }
       } else if type < 100 {
         areasViewModel.filter = type
@@ -323,7 +342,6 @@ extension MainView {
             areasViewModel.mapArea.areaId = -1
             iconResizePercent = areasViewModel.distance / context.camera.distance
             areasViewModel.mapArea.areaId = saveAreaId
-            print(iconResizePercent)
           }
           
           areasViewModel.centerCoordinate = context.region.center

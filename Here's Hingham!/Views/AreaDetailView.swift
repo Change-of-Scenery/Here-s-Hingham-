@@ -392,9 +392,11 @@ extension AreaDetailView {
   
   private var descSection: some View {
     let place = placesViewModel.mapPlace
-    let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
+    let desc = modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes
+    let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: desc)
     let textFont = place.type == 6 ? Font.system(size: 13.0, weight: .regular, design: .serif) : Font.system(size: 13.0, weight: .regular, design: .default)
-
+    let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
+    
     return HStack(alignment: .top) {
       VStack(alignment: .leading) {
         Divider()
@@ -404,6 +406,17 @@ extension AreaDetailView {
           Text(descText)
             .font(textFont)
             .foregroundColor(.primary)
+          
+          ForEach(20..<30, id: \.self) { index in
+            if UIImage(named: "\(path)/\(index)") != nil {
+              Image("\(path)/\(index)")
+                .resizable()
+                .scaledToFit()
+                .cornerRadius(25)
+                .frame(width: UIScreen.main.bounds.width * 0.75)
+                .padding()
+            }
+          }
         }
       }
     }

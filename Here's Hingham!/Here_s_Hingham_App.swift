@@ -255,7 +255,7 @@ struct Here_s_Hingham_App: App {
         area.zoom = document.get("zoom") as! Double
         areasViewModel.addArea(area)
       }
-      areasViewModel.mapArea = areasViewModel.areas.filter { $0.areaId == 0}.first!
+      areasViewModel.mapArea = areasViewModel.areas.filter { $0.areaId == 5}.first!    // Hingham Harbor
     }
     
     db.collection("HinghamPlace").getDocuments { queryPlace, err in
