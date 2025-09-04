@@ -71,6 +71,7 @@ struct RatingsView: View {
       }
     }
     .frame(width: UIScreen.main.bounds.size.width * 0.93, height: 11)
+    .padding(.bottom, 5)
   }
   
   func image(for number: Double) -> Image {

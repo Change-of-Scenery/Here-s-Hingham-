@@ -249,6 +249,7 @@ extension AreaDetailView {
       VStack(alignment: .center) {
         Text("Hours")
           .fontWeight(.bold)
+          .padding(.top, -3)
         
         ForEach(0..<7, id: \.self) { index in
           LazyVGrid(columns: cols, alignment: .leading) {
@@ -266,16 +267,12 @@ extension AreaDetailView {
       .padding()
     }
     .background(.white)
-    .border(.red, width: 2)
     .frame(width: 280)
     .cornerRadius(25)
     .onTapGesture {
       showHours = false
     }
-    .overlay(
-        RoundedRectangle(cornerRadius: 25)   // Specify the desired corner radius
-            .stroke(Color.red, lineWidth: 3) // Set the border color and width
-    )
+    .shadow(color: .black.opacity(0.75), radius: 4, x: 3, y: 3)
   }
   
   private var areaSection: some View {
@@ -393,9 +390,17 @@ extension AreaDetailView {
   private var descSection: some View {
     let place = placesViewModel.mapPlace
     let desc = modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes
-    let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: desc)
+    let descText: LocalizedStringKey
+    var historyText: LocalizedStringKey? = nil
     let textFont = place.type == 6 ? Font.system(size: 13.0, weight: .regular, design: .serif) : Font.system(size: 13.0, weight: .regular, design: .default)
     let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
+    
+    if let tildeIndex = desc.firstIndex(of: "~") {
+      descText = LocalizedStringKey(stringLiteral: String(desc[..<tildeIndex]))
+      historyText = LocalizedStringKey(stringLiteral: String(desc[desc.index(after: tildeIndex)...]))
+    } else {
+      descText = LocalizedStringKey(stringLiteral: desc)
+    }
     
     return HStack(alignment: .top) {
       VStack(alignment: .leading) {
@@ -416,6 +421,12 @@ extension AreaDetailView {
                 .frame(width: UIScreen.main.bounds.width * 0.75)
                 .padding()
             }
+          }
+          
+          if historyText != nil {
+            Text(historyText!)
+              .font(textFont)
+              .foregroundColor(.primary)
           }
         }
       }
