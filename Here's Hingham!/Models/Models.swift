@@ -54,6 +54,7 @@ enum SchemaV1: VersionedSchema {
       case yelpReviews
       case yelpPrice
       case yelpUrl
+      case instagram
     }
     
     var documentID = ""
@@ -92,6 +93,7 @@ enum SchemaV1: VersionedSchema {
     var lotSize = 0.0
     var squareFeet = 0
     var yearBuilt = 0
+    var instagram = ""
 
     @Transient var placeMarkerAnnotationView: PlaceMarkerAnnotationView?
     @Transient var sizeHeight: Double?
@@ -148,6 +150,7 @@ enum SchemaV1: VersionedSchema {
       self.lotSize = try container.decode(Double.self, forKey: .lotSize)
       self.squareFeet = try container.decode(Int.self, forKey: .squareFeet)
       self.yearBuilt = try container.decode(Int.self, forKey: .yearBuilt)
+      self.instagram = try container.decode(String.self, forKey: .instagram)
       self.timestamp = Date.now
     }
     

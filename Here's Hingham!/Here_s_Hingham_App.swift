@@ -299,6 +299,7 @@ struct Here_s_Hingham_App: App {
           place.lotSize = document.get("lotSize") as! Double
           place.squareFeet = document.get("squareFeet") as! Int
           place.yearBuilt = document.get("yearBuilt") as! Int
+          place.instagram = document.get("instagram") as! String
           
           placesViewModel.addPlace(place)
         }

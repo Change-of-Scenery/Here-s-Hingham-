@@ -584,11 +584,11 @@ extension AreaDetailView {
     var paddingLeading = 0.0
     
     if height == 956.0 {
-      paddingLeading = 40.0
+      paddingLeading = 32.0
     } else if height == 874.0 {
       paddingLeading = 24.0
     } else {
-      paddingLeading = 34.0
+      paddingLeading = 16.0
     }
 
     return VStack {
@@ -598,6 +598,18 @@ extension AreaDetailView {
       
       if showRatingSelector == false {
         HStack {
+          if placesViewModel.mapPlace.instagram != "" {
+            Link(destination: URL(string: "https://www.instagram.com/\(placesViewModel.mapPlace.instagram)")!) {
+              Image("Reviews/Instagram")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 20)
+                .padding(.top, -2)
+                .padding(.leading, 32)
+                .padding(.trailing, 4)
+            }
+
+          }
           if let url = URL(string: placesViewModel.mapPlace.yelpUrl) {
             Link(destination: url) {
               Image("Reviews/Google")
@@ -605,7 +617,6 @@ extension AreaDetailView {
                 .scaledToFill()
                 .frame(width: logoWidth)
                 .padding(.top, -4)
-                .padding(.leading, paddingLeading)
             }
           } else {
             Image("Reviews/Google")

@@ -98,9 +98,11 @@ extension AreaPreviewView {
     let design = placesViewModel.mapPlace.type == 6 ? Font.Design.serif : Font.Design.default
     let weight = placesViewModel.mapPlace.type == 6 ? Font.Weight.semibold : Font.Weight.bold
     let bodySize = placesViewModel.mapPlace.type == 6 ? 12.0 : 14.0
+    var name = areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.name : placesViewModel.mapPlace.name
+    name += name.hasSuffix("Historic") ? " District" : ""
     
     return VStack(alignment: .leading, spacing: 4) {
-      Text(areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.name : placesViewModel.mapPlace.name)
+      Text(name)
         .font(.system(.title2, design: design, weight: weight))
         .foregroundColor(.primary)
         .scaledToFill()
