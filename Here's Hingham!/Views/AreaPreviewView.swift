@@ -15,6 +15,7 @@ struct AreaPreviewView: View {
   @ObservedObject var location: LocationManager = LocationManager()
   @Binding var iconResizePercent: Double
   @Binding var showPlaceDetail: Bool
+  @State private var scrollViewID = UUID()
   
   let area: SchemaV1.Area
   let screenWidth = UIScreen.main.bounds.size.width
@@ -108,14 +109,18 @@ extension AreaPreviewView {
         .scaledToFill()
         .minimumScaleFactor(0.5)
         .lineLimit(1)
+        .onChange(of: placesViewModel.mapPlace) {
+          scrollViewID = UUID()
+        }
       
       let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: areasViewModel.visible == true || placesViewModel.mapPlace.name == ""  ? area.desc : placesViewModel.mapPlace.notes)
       
-      ScrollView {
+      ScrollView(.vertical, showsIndicators: true) {
         Text(descText)
           .font(.system(size: bodySize, weight: .regular, design: design))
           .foregroundColor(.primary)
       }
+      .id(self.scrollViewID)
     }
     .frame(width: screenWidth * 0.9, height: 100)
     .padding(.trailing, 10)

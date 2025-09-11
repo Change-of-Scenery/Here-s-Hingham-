@@ -391,13 +391,13 @@ extension AreaDetailView {
     let place = placesViewModel.mapPlace
     let desc = modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes
     let descText: LocalizedStringKey
-    var historyText: LocalizedStringKey? = nil
+    var afterImageText: LocalizedStringKey? = nil
     let textFont = place.type == 6 ? Font.system(size: 13.0, weight: .regular, design: .serif) : Font.system(size: 13.0, weight: .regular, design: .default)
     let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
-    
+        
     if let tildeIndex = desc.firstIndex(of: "~") {
       descText = LocalizedStringKey(stringLiteral: String(desc[..<tildeIndex]))
-      historyText = LocalizedStringKey(stringLiteral: String(desc[desc.index(after: tildeIndex)...]))
+      afterImageText = LocalizedStringKey(stringLiteral: String(desc[desc.index(after: tildeIndex)...]))
     } else {
       descText = LocalizedStringKey(stringLiteral: desc)
     }
@@ -405,30 +405,30 @@ extension AreaDetailView {
     return HStack(alignment: .top) {
       VStack(alignment: .leading) {
         Divider()
-          .padding(.top, place.type == 6 ? 18 : 0)
-        
-        ScrollView {
-          Text(descText)
-            .font(textFont)
-            .foregroundColor(.primary)
-          
-          ForEach(20..<30, id: \.self) { index in
-            if UIImage(named: "\(path)/\(index)") != nil {
-              Image("\(path)/\(index)")
-                .resizable()
-                .scaledToFit()
-                .cornerRadius(25)
-                .frame(width: UIScreen.main.bounds.width * 0.75)
-                .padding()
-            }
-          }
-          
-          if historyText != nil {
-            Text(historyText!)
+          .padding(.top, place.type == 6 ? 18 : 0)       
+
+          ScrollView {
+            Text(descText)
               .font(textFont)
               .foregroundColor(.primary)
+            
+            if afterImageText != nil {
+              ForEach(1..<10, id: \.self) { index in
+                if UIImage(named: "\(path)/\(index)") != nil {
+                  Image("\(path)/\(index)")
+                    .resizable()
+                    .scaledToFit()
+                    .cornerRadius(2)
+                    .frame(width: UIScreen.main.bounds.width * 0.95)
+                    .padding(0)
+                }
+              }
+              
+              Text(afterImageText!)
+                .font(textFont)
+                .foregroundColor(.primary)
+            }
           }
-        }
       }
     }
     .frame(width: UIScreen.main.bounds.size.width * 0.93)
