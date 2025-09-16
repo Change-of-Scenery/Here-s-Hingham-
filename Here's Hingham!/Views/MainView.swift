@@ -94,8 +94,8 @@ struct MainView: View {
               } else {
                 placesViewModel.visible = false
                 areasViewModel.visible = true
+                areasViewModel.distance = 0.0
               }
-              areasViewModel.distance = 0.0
             } label:
             {
               Image(systemName: "chevron.left")
