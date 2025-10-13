@@ -24,7 +24,7 @@ struct AreaPreviewView: View {
     VStack {
       HStack(alignment: .top, spacing: 0) {
         imageSection
-        zoomInButton
+        viewDetailsButton
         directionsButton
       }
       .padding(10)
@@ -97,6 +97,7 @@ extension AreaPreviewView {
   
   private var titleSection: some View {
     let design = placesViewModel.mapPlace.type == 6 ? Font.Design.serif : Font.Design.default
+    let textHeight = placesViewModel.mapPlace.type == 6 ? 103.0 : 115.0
     let weight = placesViewModel.mapPlace.type == 6 ? Font.Weight.semibold : Font.Weight.bold
     let bodySize = placesViewModel.mapPlace.type == 6 ? 12.0 : 14.0
     var name = areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.name : placesViewModel.mapPlace.name
@@ -122,12 +123,12 @@ extension AreaPreviewView {
       }
       .id(self.scrollViewID)
     }
-    .frame(width: screenWidth * 0.9, height: 100)
+    .frame(width: screenWidth * 0.9, height: textHeight)
     .padding(.trailing, 10)
     .padding(.top, screenWidth < 360 ? -5 : 10)
   }
   
-  private var zoomInButton: some View {
+  private var viewDetailsButton: some View {
     let design = placesViewModel.mapPlace.type == 6 ? Font.Design.serif : Font.Design.default
     let weight = placesViewModel.mapPlace.type == 6 ? Font.Weight.semibold : Font.Weight.bold
 
@@ -137,15 +138,25 @@ extension AreaPreviewView {
           areasViewModel.mapArea = area
         }
         placesViewModel.showPlace(area, placesViewModel.mapPlace)
+        areasViewModel.visible = placesViewModel.mapPlace.name == ""
         showPlaceDetail = true
       } else {
-        withAnimation(.easeInOut) {
-          areasViewModel.distance = 0.0
-          areasViewModel.setFilterZoomDistance(filter: areasViewModel.filter, areaId: area.areaId)
-          let span = MKCoordinateSpan(latitudeDelta: areasViewModel.zoom, longitudeDelta: areasViewModel.zoom)
-          areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
-          areasViewModel.visible = false
+        iconResizePercent = 0.0
+        if (area.areaId == areasViewModel.mapArea.areaId) {
+          withAnimation(.easeInOut) {
+            areasViewModel.distance = 0.0
+            areasViewModel.setFilterZoomDistance(filter: areasViewModel.filter, areaId: area.areaId)
+            let span = MKCoordinateSpan(latitudeDelta: areasViewModel.zoom, longitudeDelta: areasViewModel.zoom)
+            areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
+            areasViewModel.visible = false
+          }
+        } else {
+          areasViewModel.mapArea = area
+          placesViewModel.mapPlace = SchemaV1.Place()
+          areasViewModel.showArea(area)
         }
+        
+        areasViewModel.firstScreenVisible = false
       }
     } label: {
       Text("View Details")
@@ -157,7 +168,6 @@ extension AreaPreviewView {
     .cornerRadius(10.0)
     .padding([.leading, .trailing], screenWidth < 360 ? 7 : 15)
     .padding(.top, UIScreen.main.bounds.size.height < 900 ? 32.0 : 42.0)
-    .opacity(areasViewModel.visible == true || placesViewModel.visible == true ? 1.0 : 0.0)    
   }
   
   private var directionsButton: some View {
@@ -194,7 +204,6 @@ extension AreaPreviewView {
       .buttonStyle(.bordered)
       .padding(.top, UIScreen.main.bounds.size.height < 900 ? 32.0 : 42.0)
       .frame(width: 75.0)
-      .opacity(areasViewModel.visible == true || placesViewModel.visible == true ? 1.0 : 0.0)
     }
     .padding([.leading, .trailing], 10)
   }  

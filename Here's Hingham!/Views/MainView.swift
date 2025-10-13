@@ -87,14 +87,23 @@ struct MainView: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .navigationBarLeading) {
-          if areasViewModel.visible == false {
+          if areasViewModel.firstScreenVisible == false {
             Button {
               if showPlaceDetail == true {
                 showPlaceDetail = false
+//               placesViewModel.mapPlace = SchemaV1.Place()
+                withAnimation(.easeInOut) {
+//                  areasViewModel.distance = 0.0
+//                  areasViewModel.setFilterZoomDistance(filter: areasViewModel.filter, areaId: areasViewModel.mapArea.areaId)
+//                  let span = MKCoordinateSpan(latitudeDelta: areasViewModel.zoom, longitudeDelta: areasViewModel.zoom)
+//                  areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: areasViewModel.mapArea.centerCoordinates, span: span))
+                  areasViewModel.visible = false
+                }
               } else {
                 placesViewModel.visible = false
                 areasViewModel.visible = true
                 areasViewModel.distance = 0.0
+                areasViewModel.firstScreenVisible = true
               }
             } label:
             {
@@ -321,7 +330,7 @@ extension MainView {
                   .onTapGesture {
                     withAnimation(.easeInOut) {
                       placesViewModel.showPlace(area, place)
-                      //                  areasViewModel.zoomIn(area.zoom)
+                      areasViewModel.visible = false
                     }
                   }
               }

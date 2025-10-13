@@ -28,18 +28,25 @@ class PlacesViewModel: ObservableObject {
       place.selected = false
     } else {
       mapPlace.selected = false
-      place.selected = true
+      place.selected = place.name != ""
     }
     
     if place.imageCount == 0 {
       var imageCounter = 0
-      while UIImage(named: ("\(area.shortName)/\(place.name)/\(imageCounter)")) != nil {
+      let placeName = place.name == "" ? "Area" : place.name
+      while UIImage(named: ("\(area.shortName)/\(placeName)/\(imageCounter)")) != nil {
         imageCounter += 1
       }
-      place.imageCount = imageCounter
+      if placeName == "Area" {
+        area.imageCount = imageCounter
+        visible = false
+      } else {
+        place.imageCount = imageCounter
+        visible = true
+      }
+    } else {      
+      visible = true
     }
-    
-    visible = true
     
     withAnimation(.easeInOut) {
       mapPlace = place

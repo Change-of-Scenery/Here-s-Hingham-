@@ -19,6 +19,7 @@ class AreasViewModel: ObservableObject {
 
     }
   }
+
   @Published var areas: [SchemaV1.Area] = []
   @Published var previewArea = SchemaV1.Area()
   @Published var mapArea: SchemaV1.Area = SchemaV1.Area() {
@@ -33,6 +34,7 @@ class AreasViewModel: ObservableObject {
   @Published var centerCoordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)
   @Published var showWatermark = true
   @Published var visible = true
+  @Published var firstScreenVisible = true
   @Published var distance: Double = 0.0
   @Published var zoom: Double = 0.0
   @Published var filter: Int = 0 {

@@ -19,7 +19,6 @@ struct AreaDetailView: View {
   @Environment(\.colorScheme) var colorScheme
   @State var imageCount:Int = 10
   @State var notes = ""
-  @State var modelMode = "place"
   @State var showExpanded = ""
   @State var showRatingSelector = false
   @State var showHours = false
@@ -44,9 +43,8 @@ struct AreaDetailView: View {
     
     let rows = [
       GridItem(.fixed(screenHeight * 0.3)),   // image
-      GridItem(.fixed(screenHeight * (modelMode == "area" ? 0.008 : 0.018))),  // title
-      GridItem(.fixed(screenHeight * (modelMode == "area" ? 0.0 : 0.04))),    // reviews
-//      GridItem(.fixed(modelMode == "area" ? 125 : 80)), // desc
+      GridItem(.fixed(screenHeight * (areasViewModel.visible == true ? 0.008 : 0.018))),  // title
+      GridItem(.fixed(screenHeight * (areasViewModel.visible == true ? 0.0 : 0.04))),    // reviews
       GridItem(.fixed(screenHeight * 0.44))    // map
     ]
     let expandedMapRows = [
@@ -78,7 +76,7 @@ struct AreaDetailView: View {
           imageSection
           titleSection
           
-          if modelMode == "place" {
+          if placesViewModel.visible == true {
             if placesViewModel.mapPlace.type == 6 {
               historicHouseSection
             } else {
@@ -93,7 +91,7 @@ struct AreaDetailView: View {
         .frame(width: UIScreen.main.bounds.size.width)
         .background(backgroundColor)
         .onChange(of: location.newPlaceAtCurrentLocation) {
-          modelMode = "place"
+          placesViewModel.visible = true
           placesViewModel.showPlace(areasViewModel.mapArea, location.newPlaceAtCurrentLocation!)
           if showExpanded == "map" {
             areasViewModel.zoomIn(0.0007)
@@ -283,10 +281,11 @@ extension AreaDetailView {
   private var imageSection: some View {
        
     return TabView(selection:$tabSelection) {
-      let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
-      let imageCount = modelMode == "place" ? placesViewModel.mapPlace.imageCount : area.imageCount == 0 ? 1 : area.imageCount
+      let path = placesViewModel.visible == true ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
+      let imageCount = placesViewModel.visible == true ? placesViewModel.mapPlace.imageCount : area.imageCount == 0 ? 1 : area.imageCount
+      let startIndex = areasViewModel.visible == true ? 1 : 0
       
-      ForEach(0..<imageCount, id: \.self) { index in
+      ForEach(startIndex..<imageCount, id: \.self) { index in
         if UIImage(named: "\(path)/\(index)") != nil {
           Image("\(path)/\(index)")
             .resizable()
@@ -295,7 +294,7 @@ extension AreaDetailView {
         }
       }
       
-      if modelMode == "place" && imageCount < 10 {
+      if placesViewModel.visible == true && imageCount < 10 {
         ForEach(10..<15, id: \.self) { index in
           if UIImage(named: "\(path)/\(index)") != nil {
             ZStack(alignment: .bottomLeading) {
@@ -323,7 +322,7 @@ extension AreaDetailView {
     let smallTextFont = place.type == 6 ? Font.system(size: 12.0, weight: .regular, design: .serif) : Font.system(size: 12.0, weight: .regular, design: .default)
     let addressFont = place.type == 6 ? Font.system(size: 14.0, weight: .regular, design: .serif) : Font.system(size: 12.0, weight: .regular, design: .default)
     
-    if modelMode == "place" {
+    if placesViewModel.visible == true {
       name = place.type == 6 && !place.name.hasSuffix("Church") ? place.name + " House" : place.name
       if place.website != "" {
         url = URL(string: place.website)!
@@ -341,7 +340,7 @@ extension AreaDetailView {
             .foregroundColor(.red)
         }
 
-        if modelMode == "place" {
+        if placesViewModel.visible == true {
           Spacer()
           Text(place.desc == "" ? place.yelpCategory : place.desc)
             .font(smallTextFont)
@@ -351,7 +350,7 @@ extension AreaDetailView {
       }
       .padding(.bottom, 2.0)
     
-      if modelMode == "place" {
+      if placesViewModel.visible == true {
         HStack {
           Text(place.address)
             .font(addressFont)
@@ -389,11 +388,11 @@ extension AreaDetailView {
   
   private var descSection: some View {
     let place = placesViewModel.mapPlace
-    let desc = modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes
+    let desc = areasViewModel.visible == true ? area.desc : placesViewModel.mapPlace.notes
     let descText: LocalizedStringKey
     var afterImageText: LocalizedStringKey? = nil
     let textFont = place.type == 6 ? Font.system(size: 13.0, weight: .regular, design: .serif) : Font.system(size: 13.0, weight: .regular, design: .default)
-    let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
+    let path = placesViewModel.visible == true ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
         
     if let tildeIndex = desc.firstIndex(of: "~") {
       descText = LocalizedStringKey(stringLiteral: String(desc[..<tildeIndex]))
@@ -444,8 +443,8 @@ extension AreaDetailView {
     HStack(alignment: .top) {
       VStack(alignment: .leading) {
         TabView(selection:$tabSelection) {
-          let path = modelMode == "place" ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
-          let imageCount = modelMode == "place" ? placesViewModel.mapPlace.imageCount : area.imageCount == 0 ? 1 : area.imageCount
+          let path = placesViewModel.visible == true ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
+          let imageCount = placesViewModel.visible == true ? placesViewModel.mapPlace.imageCount : area.imageCount == 0 ? 1 : area.imageCount
           
           ForEach(0..<imageCount, id: \.self) { index in
             if UIImage(named: "\(path)/\(index)") != nil {
@@ -456,7 +455,7 @@ extension AreaDetailView {
             }
           }
           
-          if modelMode == "place" && imageCount < 10 {
+          if placesViewModel.visible == true && imageCount < 10 {
             ForEach(10..<15, id: \.self) { index in
               if UIImage(named: "\(path)/\(index)") != nil {
                 ZStack(alignment: .bottomLeading) {
@@ -482,11 +481,11 @@ extension AreaDetailView {
 // Markdown: "*Italics*", "**Bold**", "~Strikethrough~", "`Code`", "[Link](https://apple.com)"
     HStack(alignment: .top) {
       VStack(alignment: .leading) {
-        Text(modelMode == "area" ? areasViewModel.mapArea.name : placesViewModel.mapPlace.name)
+        Text(areasViewModel.visible == true ? areasViewModel.mapArea.name : placesViewModel.mapPlace.name)
           .font(.system(size: 24))
           .fontWeight(.bold)
         
-        let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: modelMode == "area" ? area.desc : placesViewModel.mapPlace.notes)
+        let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: areasViewModel.visible == true ? area.desc : placesViewModel.mapPlace.notes)
         
         ScrollView {
           Text(descText)
@@ -618,7 +617,7 @@ extension AreaDetailView {
                 .frame(width: logoWidth)
                 .padding(.top, -4)
             }
-          } else {
+          } else if placesViewModel.mapPlace.googleReviews > 0 {
             Image("Reviews/Google")
               .resizable()
               .scaledToFill()
@@ -654,7 +653,7 @@ extension AreaDetailView {
                 .padding(.bottom, 5)
                 .padding(.leading, -8)
             }
-          } else {
+          } else if placesViewModel.mapPlace.yelpReviews > 0 {
             Image("Reviews/Yelp")
               .resizable()
               .scaledToFill()
@@ -730,70 +729,69 @@ extension AreaDetailView {
       }
   }
   
-  private var mapLayer: some View {
-    var places = placesViewModel.places.filter { $0.areaId == area.areaId }
-    let screenSize = UIScreen.main.bounds.size
-    
-    return Map(position: $areasViewModel.mapCameraPosition, interactionModes: [.pan, .zoom]) {
-      ForEach(places) { place in
-        Annotation("", coordinate: place.coordinates) {
-          withAnimation(.easeInOut) {
-            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity, iconResizePercent: 0.0, filter: areasViewModel.filter)
-              .shadow(radius: 10)
-              .onTapGesture {
-                withAnimation(.easeInOut) {
-                  modelMode = "place"
-                  placesViewModel.showPlace(area, place)
-                  if showExpanded == "map" {
-                    areasViewModel.zoomIn(0.0007)
-                  }
-                  showExpanded = ""
-                }
-              }
-          }
-        }
-        .annotationTitles(.visible)
-      }
-      
-      UserAnnotation()
-    }
-    .onMapCameraChange(frequency: .continuous) { context in
-      areasViewModel.centerCoordinate = context.region.center
-
-      if areasViewModel.mapCameraPosition.region == nil {
-        areasViewModel.mapCameraPosition = MapCameraPosition.region(context.region)
-      }
-    }
-    .background(.white)
-    .frame(width: screenSize.width * 0.93, height: showExpanded == "map" ? screenSize.height * 0.83 : screenSize.height * 0.33)
-    .cornerRadius(25)
-    .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
-    .mapControls {
-      Button {
-        let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
-        areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: location.userLocation?.coordinate.latitude ?? 0.0, longitude: location.userLocation?.coordinate.longitude ?? 0.0), span: span))
-      } label: {
-        Image(systemName: "location.fill")
-      }
-    }
-    .overlay {
-      ZStack {
-        VStack {
-          HStack {
-            Spacer(minLength: 0)
-            Button {
-              areasViewModel.showArea(area)
-            } label: {
-              Image(systemName: "return")
-                .padding([.top, .trailing], 10)
-                .foregroundColor(.black)
-            }
-          }
-          Spacer(minLength: 0)
-        }
-      }
-    }
-  }
+//  private var mapLayer: some View {
+//    var places = placesViewModel.places.filter { $0.areaId == area.areaId }
+//    let screenSize = UIScreen.main.bounds.size
+//    
+//    return Map(position: $areasViewModel.mapCameraPosition, interactionModes: [.pan, .zoom]) {
+//      ForEach(places) { place in
+//        Annotation("", coordinate: place.coordinates) {
+//          withAnimation(.easeInOut) {
+//            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity, iconResizePercent: 0.0, filter: areasViewModel.filter)
+//              .shadow(radius: 10)
+//              .onTapGesture {
+//                withAnimation(.easeInOut) {
+//                  placesViewModel.showPlace(area, place)
+//                  if showExpanded == "map" {
+//                    areasViewModel.zoomIn(0.0007)
+//                  }
+//                  showExpanded = ""
+//                }
+//              }
+//          }
+//        }
+//        .annotationTitles(.visible)
+//      }
+//      
+//      UserAnnotation()
+//    }
+//    .onMapCameraChange(frequency: .continuous) { context in
+//      areasViewModel.centerCoordinate = context.region.center
+//
+//      if areasViewModel.mapCameraPosition.region == nil {
+//        areasViewModel.mapCameraPosition = MapCameraPosition.region(context.region)
+//      }
+//    }
+//    .background(.white)
+//    .frame(width: screenSize.width * 0.93, height: showExpanded == "map" ? screenSize.height * 0.83 : screenSize.height * 0.33)
+//    .cornerRadius(25)
+//    .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
+//    .mapControls {
+//      Button {
+//        let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
+//        areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: location.userLocation?.coordinate.latitude ?? 0.0, longitude: location.userLocation?.coordinate.longitude ?? 0.0), span: span))
+//      } label: {
+//        Image(systemName: "location.fill")
+//      }
+//    }
+//    .overlay {
+//      ZStack {
+//        VStack {
+//          HStack {
+//            Spacer(minLength: 0)
+//            Button {
+//              areasViewModel.showArea(area)
+//            } label: {
+//              Image(systemName: "return")
+//                .padding([.top, .trailing], 10)
+//                .foregroundColor(.black)
+//            }
+//          }
+//          Spacer(minLength: 0)
+//        }
+//      }
+//    }
+//  }
   
   enum WeekDays: CaseIterable {
     case Sunday
