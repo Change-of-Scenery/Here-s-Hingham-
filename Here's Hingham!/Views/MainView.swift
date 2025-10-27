@@ -25,6 +25,7 @@ struct MainView: View {
   @State private var lookAroundScene: MKLookAroundScene?
   @State private var isShowingLookAroundViewer = false
   @State private var isLookAroundUnavailable = false
+  @State private var cameraIsChanging = false
   @ObservedObject var location: LocationManager = LocationManager()
   
   var body: some View {
@@ -277,6 +278,7 @@ extension MainView {
             .shadow(radius: 10)
             .onTapGesture {
               iconResizePercent = 0.0
+              areasViewModel.firstScreenVisible = false
               if (area.areaId == areasViewModel.mapArea.areaId) {
                 withAnimation(.easeInOut) {
                   areasViewModel.distance = 0.0
@@ -306,8 +308,8 @@ extension MainView {
   
   private var placeMapLayer: some View {
     let area = areasViewModel.mapArea
-    var places = placesViewModel.places.filter { $0.areaId == area.areaId }
-    
+    var places = placesViewModel.places // .filter { $0.areaId == area.areaId || $0.areaId == 7}
+        
     if areasViewModel.filter > 0 {
       if areasViewModel.filter == 2 {
         let includedTypes = [2, 3, 5, 9]
@@ -318,32 +320,44 @@ extension MainView {
         places = places.filter { $0.type == areasViewModel.filter }
       }
     }
-      
+
+    let latDeltaHalf = areasViewModel.mapCameraPosition.region!.span.latitudeDelta / 2
+    let lngDeltaHalf = areasViewModel.mapCameraPosition.region!.span.longitudeDelta / 2
+    let lat = areasViewModel.mapCameraPosition.region!.center.latitude
+    let lng = areasViewModel.mapCameraPosition.region!.center.longitude
+    
+    places = places.filter { $0.locationLat > lat - latDeltaHalf && $0.locationLat < lat + latDeltaHalf && $0.locationLat > lng - lngDeltaHalf && $0.locationLng < lng + lngDeltaHalf }   
+   
     return ZStack {
       MapReader { proxy in
         Map(position: $areasViewModel.mapCameraPosition) {
-          ForEach(places) { place in
-            Annotation("", coordinate: place.coordinates) {
-              withAnimation(.easeInOut) {
-                PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity, iconResizePercent: iconResizePercent, filter: areasViewModel.filter)
-                  .shadow(radius: 10)
-                  .onTapGesture {
-                    withAnimation(.easeInOut) {
-                      placesViewModel.showPlace(area, place)
-                      areasViewModel.visible = false
+          if latDeltaHalf < 0.0056 {
+            ForEach(places) { place in
+              Annotation("", coordinate: place.coordinates) {
+                withAnimation(.easeInOut) {
+                  PlaceAnnotationView(areaName: place.areaName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity, iconResizePercent: iconResizePercent, filter: areasViewModel.filter)
+                    .shadow(radius: 10)
+                    .onTapGesture {
+                      withAnimation(.easeInOut) {
+                        placesViewModel.showPlace(area, place)
+                        areasViewModel.visible = false
+                      }
                     }
-                  }
+                }
               }
+              .annotationTitles(.visible)
             }
-            .annotationTitles(.visible)
           }
           
           UserAnnotation()
         }
         .ignoresSafeArea()
+        .onMapCameraChange(frequency: .onEnd) { context in
+          cameraIsChanging = false
+        }
         .onMapCameraChange(frequency: .continuous) { context in
           let distanceDelta = areasViewModel.distance - context.camera.distance
-          
+          cameraIsChanging = true
           if areasViewModel.distance == 0.0 {
             iconResizePercent = 0.0
             areasViewModel.distance = context.camera.distance
@@ -460,9 +474,8 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
     userLocation = locations.last
     
-    let placesFound = placesViewModel.places.filter {
-      return $0.areaId == areaId &&
-      userLocation!.coordinate.latitude > $0.locationLat - 0.0005 &&
+    let placesFound = placesViewModel.places.filter {   // $0.areaId == areaId &&
+      return userLocation!.coordinate.latitude > $0.locationLat - 0.0005 &&
       userLocation!.coordinate.latitude < $0.locationLat + 0.0005 &&
       userLocation!.coordinate.longitude > $0.locationLng - 0.0005 &&
       userLocation!.coordinate.longitude < $0.locationLng + 0.0005

@@ -23,6 +23,7 @@ enum SchemaV1: VersionedSchema {
       case address
       case archStyle
       case areaId
+      case areaName
       case desc
       case estimatedValue
       case googleId
@@ -61,6 +62,7 @@ enum SchemaV1: VersionedSchema {
     var address = ""
     var archStyle = ""
     var areaId = 0
+    var areaName = ""
     var desc = ""
     var googleId = ""
     var googleRating = 0.0
@@ -119,6 +121,7 @@ enum SchemaV1: VersionedSchema {
       self.documentID = try container.decode(String.self, forKey: .documentID)
       self.address = try container.decode(String.self, forKey: .address)
       self.areaId = try container.decode(Int.self, forKey: .areaId)
+      self.areaName = try container.decode(String.self, forKey: .areaName)
       self.desc = try container.decode(String.self, forKey: .desc)
       self.googleId = try container.decode(String.self, forKey: .googleId)
       self.googleRating = try container.decode(Double.self, forKey: .googleRating)

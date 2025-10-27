@@ -31,6 +31,10 @@ class PlacesViewModel: ObservableObject {
       place.selected = place.name != ""
     }
     
+    withAnimation(.easeInOut) {
+      mapPlace = place
+    }
+    
     if place.imageCount == 0 {
       var imageCounter = 0
       let placeName = place.name == "" ? "Area" : place.name
@@ -46,10 +50,6 @@ class PlacesViewModel: ObservableObject {
       }
     } else {      
       visible = true
-    }
-    
-    withAnimation(.easeInOut) {
-      mapPlace = place
     }
   }
 }

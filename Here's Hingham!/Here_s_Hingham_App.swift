@@ -268,6 +268,7 @@ struct Here_s_Hingham_App: App {
           place.address = document.get("address") as! String
           place.archStyle = document.get("archStyle") as! String
           place.areaId = document.get("areaId") as! Int
+          place.areaName = document.get("areaName") as! String
           place.desc = document.get("desc") as! String
           place.googleId = document.get("googleId") as! String
           place.googleRating = document.get("googleRating") as! Double
@@ -300,6 +301,10 @@ struct Here_s_Hingham_App: App {
           place.squareFeet = document.get("squareFeet") as! Int
           place.yearBuilt = document.get("yearBuilt") as! Int
           place.instagram = document.get("instagram") as! String
+          
+          if place.notes.contains("tavern") {
+            print(place.name, place.address)
+          }
           
           placesViewModel.addPlace(place)
         }

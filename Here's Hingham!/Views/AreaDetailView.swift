@@ -251,8 +251,8 @@ extension AreaDetailView {
         
         ForEach(0..<7, id: \.self) { index in
           LazyVGrid(columns: cols, alignment: .leading) {
-            let weekDay = WeekDays.allCases[index]
-            Text("\(weekDay)")
+            let weekDay = String(describing: WeekDays.allCases[index])
+            Text(weekDay)
               .font(.system(size: 13))
               .foregroundColor(.primary)
             Text(hours[index].components(separatedBy: ",")[1])

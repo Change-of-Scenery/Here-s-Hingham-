@@ -24,6 +24,7 @@ struct AreaPreviewView: View {
     VStack {
       HStack(alignment: .top, spacing: 0) {
         imageSection
+          .padding(.bottom, 10)
         viewDetailsButton
         directionsButton
       }
@@ -75,7 +76,7 @@ struct AreaPreviewView: View {
 extension AreaPreviewView {  
   private var imageSection: some View {
     ZStack {
-      Image(areasViewModel.visible == true ? area.shortName + "/Area/0" : placesViewModel.mapPlace.name == "" ? area.shortName + "/Area/1" :  "\(area.shortName)/\(placesViewModel.mapPlace.name)/0")
+      Image(areasViewModel.visible == true ? area.shortName + "/Area/0" : placesViewModel.mapPlace.name == "" ? area.shortName + "/Area/1" :  "\(placesViewModel.mapPlace.areaName)/\(placesViewModel.mapPlace.name)/0")
         .resizable()
         .scaledToFill()
         .cornerRadius(10)
@@ -102,17 +103,23 @@ extension AreaPreviewView {
     let bodySize = placesViewModel.mapPlace.type == 6 ? 12.0 : 14.0
     var name = areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.name : placesViewModel.mapPlace.name
     name += name.hasSuffix("Historic") ? " District" : ""
+    let address = areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? "" : placesViewModel.mapPlace.address
     
     return VStack(alignment: .leading, spacing: 4) {
-      Text(name)
-        .font(.system(.title2, design: design, weight: weight))
-        .foregroundColor(.primary)
-        .scaledToFill()
-        .minimumScaleFactor(0.5)
-        .lineLimit(1)
-        .onChange(of: placesViewModel.mapPlace) {
-          scrollViewID = UUID()
-        }
+      HStack {
+        Text(name)
+          .font(.system(.title2, design: design, weight: weight))
+          .foregroundColor(.primary)
+          .scaledToFill()
+          .minimumScaleFactor(0.5)
+          .lineLimit(1)
+          .onChange(of: placesViewModel.mapPlace) {
+            scrollViewID = UUID()
+          }
+        Spacer()
+        Text(address)
+          .font(.system(.footnote, design: design, weight: .regular))
+      }
       
       let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: areasViewModel.visible == true || placesViewModel.mapPlace.name == ""  ? area.desc : placesViewModel.mapPlace.notes)
       
