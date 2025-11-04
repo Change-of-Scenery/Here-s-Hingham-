@@ -2,7 +2,7 @@
   "images" : [
     {
       "filename" : "LaunchScreen.png",
-      "idiom" : "universal",
+      "idiom" : "iphone",
       "scale" : "1x"
     },
     {
@@ -13,12 +13,12 @@
         }
       ],
       "filename" : "LaunchScreenDark.jpg",
-      "idiom" : "universal",
+      "idiom" : "iphone",
       "scale" : "1x"
     },
     {
       "filename" : "LaunchScreen 1.png",
-      "idiom" : "universal",
+      "idiom" : "iphone",
       "scale" : "2x"
     },
     {
@@ -29,12 +29,12 @@
         }
       ],
       "filename" : "LaunchScreenDark 1.jpg",
-      "idiom" : "universal",
+      "idiom" : "iphone",
       "scale" : "2x"
     },
     {
       "filename" : "LaunchScreen 2.png",
-      "idiom" : "universal",
+      "idiom" : "iphone",
       "scale" : "3x"
     },
     {
@@ -45,7 +45,7 @@
         }
       ],
       "filename" : "LaunchScreenDark 2.jpg",
-      "idiom" : "universal",
+      "idiom" : "iphone",
       "scale" : "3x"
     }
   ],

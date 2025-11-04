@@ -27,6 +27,9 @@ struct MainView: View {
   @State private var isLookAroundUnavailable = false
   @State private var cameraIsChanging = false
   @ObservedObject var location: LocationManager = LocationManager()
+  let maxWidth: CGFloat = 475
+  let maxHeight: CGFloat = 250
+  @State private var showPreviewView = true
   
   var body: some View {
     NavigationStack(path: $paths) {
@@ -165,13 +168,13 @@ struct MainView: View {
 //          // paths.append("Place Details")
 //        }
 //      }
-      .navigationDestination(for: String.self) { value in
+//      .navigationDestination(for: String.self) { value in
         //      if value == "Area Details" {
         //        AreaView()
         //      } else if value == "Place Details" {
         //        Text(value)
         //      }
-      }
+//      }
       .alert(isPresented: $isLookAroundUnavailable) {
         Alert(title: Text("Look Around"), message: Text("Look around is not available in this area."), dismissButton: .default(Text("OK")))
       }
@@ -239,36 +242,6 @@ struct FilterButtonView: View {
 }
   
 extension MainView {
-  
-  private var header: some View {
-    HStack {
-      Button(action: areasViewModel.toggleAreasList) {
-        Text(areasViewModel.mapArea.name)
-          .font(.title2)
-          .fontWeight(.black)
-          .foregroundColor(.primary)
-          .frame(height: 55)
-          .frame(maxWidth: .infinity)
-          .animation(.none, value: areasViewModel.mapArea)
-          .overlay(alignment: .leading) {
-            Image(systemName: "arrow.down")
-              .font(.headline)
-              .foregroundColor(.primary)
-              .padding()
-              .rotationEffect(Angle(degrees: areasViewModel.showAreasList ? 180 : 0))
-          }
-      }
-      
-      if areasViewModel.showAreasList {
-        AreasListView()
-      }
-      
-    }
-    .background(.thickMaterial)
-    .cornerRadius(10)
-    .shadow(color: Color.black.opacity(0.3), radius: 20, x:0, y:15)
-  }
-  
   private var areaMapLayer: some View {
     Map(initialPosition: position) {
       ForEach(areasViewModel.areas) { area in
@@ -277,7 +250,9 @@ extension MainView {
             .scaleEffect(areasViewModel.mapArea == area ? 1.2 : 0.7)
             .shadow(radius: 10)
             .onTapGesture {
+              showPreviewView = true
               iconResizePercent = 0.0
+              areasViewModel.firstScreenVisible = false
               areasViewModel.firstScreenVisible = false
               if (area.areaId == areasViewModel.mapArea.areaId) {
                 withAnimation(.easeInOut) {
@@ -338,6 +313,7 @@ extension MainView {
                   PlaceAnnotationView(areaName: place.areaName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity, iconResizePercent: iconResizePercent, filter: areasViewModel.filter)
                     .shadow(radius: 10)
                     .onTapGesture {
+                      showPreviewView = true
                       withAnimation(.easeInOut) {
                         placesViewModel.showPlace(area, place)
                         areasViewModel.visible = false
@@ -441,14 +417,24 @@ extension MainView {
   private var areasPreviewStack: some View {
     ZStack {
       ForEach(areasViewModel.areas) { area in
-        if areasViewModel.mapArea == area {
+        if areasViewModel.mapArea == area && showPreviewView == true {
           AreaPreviewView(iconResizePercent: $iconResizePercent, showPlaceDetail: $showPlaceDetail, area: area)
             .shadow(color: .black.opacity(0.3), radius: 20)
             .padding()
+            .frame(maxWidth: maxWidth, maxHeight: maxHeight)
             .transition(.asymmetric(insertion: .move(edge: .trailing) , removal: .move(edge: .leading)))
+          Button {
+            showPreviewView = false
+          }
+          label: {
+            Image(systemName: "xmark")
+          }
+          .padding(.top, maxHeight - 5)
+          .padding(.leading, maxWidth - (UIDevice.current.userInterfaceIdiom == .pad ? 90.0: 95.0))
         }
       }
     }
+    .padding(.bottom, 40)
   }
 }
 

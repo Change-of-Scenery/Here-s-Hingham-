@@ -55,21 +55,22 @@ struct AreaDetailView: View {
     ]
     
     let backgroundColor = colorScheme == .dark ? Color(red: 0.01, green: 0.01,  blue: 0.0) : Color(red: 0.99, green: 0.99,  blue: 0.9)
+    let width = UIScreen.main.bounds.size.width
 
-    if verticalSizeClass == .compact || horizontalSizeClass == .regular {
+    if (verticalSizeClass == .compact || horizontalSizeClass == .regular) && UIDevice.current.userInterfaceIdiom != .pad {
       expandedImageSection
     } else {
       if showExpanded == "map" {
         LazyHGrid(rows: expandedMapRows, spacing: 10) {
 //          mapLayer
         }
-        .frame(width: UIScreen.main.bounds.size.width)
+        .frame(width: width)
         .background(backgroundColor)
       } else if showExpanded == "desc" {
         LazyHGrid(rows: expandedDescRows, spacing: 10) {
           expandedDescSection
         }
-        .frame(width: UIScreen.main.bounds.size.width)
+        .frame(width: width)
         .background(backgroundColor)
       } else  {
         LazyHGrid(rows: rows, spacing: 10) {
@@ -88,7 +89,7 @@ struct AreaDetailView: View {
           descSection
 //          mapLayer
         }
-        .frame(width: UIScreen.main.bounds.size.width)
+        .frame(width: width)
         .background(backgroundColor)
         .onChange(of: location.newPlaceAtCurrentLocation) {
           placesViewModel.visible = true
@@ -321,6 +322,7 @@ extension AreaDetailView {
     let smallFont = place.type == 6 ? Font.system(size: 16.0, weight: .bold, design: .serif) : Font.system(size: 16.0, weight: .bold, design: .default)
     let smallTextFont = place.type == 6 ? Font.system(size: 12.0, weight: .regular, design: .serif) : Font.system(size: 12.0, weight: .regular, design: .default)
     let addressFont = place.type == 6 ? Font.system(size: 14.0, weight: .regular, design: .serif) : Font.system(size: 12.0, weight: .regular, design: .default)
+    let width = UIScreen.main.bounds.size.width * 0.93
     
     if placesViewModel.visible == true {
       name = place.type == 6 && !place.name.hasSuffix("Church") ? place.name + " House" : place.name
@@ -383,7 +385,7 @@ extension AreaDetailView {
         }
       }
     }
-    .frame(width: UIScreen.main.bounds.width * 0.93)
+    .frame(width: width)
   }
   
   private var descSection: some View {
@@ -393,6 +395,7 @@ extension AreaDetailView {
     var afterImageText: LocalizedStringKey? = nil
     let textFont = place.type == 6 ? Font.system(size: 13.0, weight: .regular, design: .serif) : Font.system(size: 13.0, weight: .regular, design: .default)
     let path = placesViewModel.visible == true ? "\(area.shortName)/\(placesViewModel.mapPlace.name)" : "\(area.shortName)/Area"
+    let width = UIScreen.main.bounds.size.width * 0.93
         
     if let tildeIndex = desc.firstIndex(of: "~") {
       descText = LocalizedStringKey(stringLiteral: String(desc[..<tildeIndex]))
@@ -404,7 +407,8 @@ extension AreaDetailView {
     return HStack(alignment: .top) {
       VStack(alignment: .leading) {
         Divider()
-          .padding(.top, place.type == 6 ? 18 : 0)       
+          .padding(.top, place.type == 6 ? 18 : 0)
+          .frame(width: width)
 
           ScrollView {
             Text(descText)
@@ -430,7 +434,7 @@ extension AreaDetailView {
           }
       }
     }
-    .frame(width: UIScreen.main.bounds.size.width * 0.93)
+    .frame(width: width)
   }
   
   private var foundLocation: some View {
@@ -502,10 +506,13 @@ extension AreaDetailView {
     let place = placesViewModel.mapPlace
     let labelFont = Font.system(size: 14.0, weight: .semibold, design: .serif)
     let textFont = Font.system(size: 14.0, weight: .regular, design: .serif)
+    let width = UIScreen.main.bounds.size.width * 0.93
     
     return VStack(alignment: .leading) {
       Divider()
         .padding(.top, 40)
+        .frame(width: width)
+      
       HStack {
         Text("Year built")
           .font(labelFont)
@@ -567,6 +574,7 @@ extension AreaDetailView {
   private var reviewsSection: some View {
     let height = UIScreen.main.bounds.size.height
     let starPadding = height < 900 ? height < 850 ? -1.5 : -1.5 : -1.5
+    let width = UIScreen.main.bounds.size.width * 0.93
     
     let halfStar = Image("Reviews/HalfStar")
       .resizable()
@@ -594,6 +602,7 @@ extension AreaDetailView {
       Divider()
         .padding(4)
         .padding(.top, 5)
+        .frame(width: width)
       
       if showRatingSelector == false {
         HStack {

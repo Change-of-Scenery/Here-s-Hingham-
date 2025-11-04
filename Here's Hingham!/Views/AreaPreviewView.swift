@@ -16,7 +16,7 @@ struct AreaPreviewView: View {
   @Binding var iconResizePercent: Double
   @Binding var showPlaceDetail: Bool
   @State private var scrollViewID = UUID()
-  
+    
   let area: SchemaV1.Area
   let screenWidth = UIScreen.main.bounds.size.width
   
@@ -24,27 +24,26 @@ struct AreaPreviewView: View {
     VStack {
       HStack(alignment: .top, spacing: 0) {
         imageSection
-          .padding(.bottom, 10)
+          .padding(.top, 2)
+          .padding(.trailing, 19)
         viewDetailsButton
         directionsButton
       }
       .padding(10)
-      .padding([.leading, .trailing], 10)
+      .padding([.leading, .trailing], 5)
       .cornerRadius(10)
       HStack (alignment: .top) {
         titleSection
-          .padding(.top, -10)
-          .padding(.bottom, 15)
-          .padding([.leading], 20)
+          .padding(.top, -20)
+          .padding(.bottom, -5)
+          .padding([.leading], 15)
           .padding([.trailing], 15)
-          .frame(height: 100)
       }
     }
-    .frame(height: 200)
     .background(
       RoundedRectangle(cornerRadius: 10)
         .fill(colorScheme == .dark ? .black : .white)  // .ultraThinMaterial
-        .offset(y: 22)
+        .offset(y: 40)
     )
   }
 }
@@ -78,8 +77,8 @@ extension AreaPreviewView {
     ZStack {
       Image(areasViewModel.visible == true ? area.shortName + "/Area/0" : placesViewModel.mapPlace.name == "" ? area.shortName + "/Area/1" :  "\(placesViewModel.mapPlace.areaName)/\(placesViewModel.mapPlace.name)/0")
         .resizable()
-        .scaledToFill()
         .cornerRadius(10)
+        .frame(width: 100, height: 80)
         .onTapGesture {
 //          areasViewModel.sheetArea = area
 //          areasViewModel.mapArea = area
@@ -128,11 +127,12 @@ extension AreaPreviewView {
           .font(.system(size: bodySize, weight: .regular, design: design))
           .foregroundColor(.primary)
       }
-      .id(self.scrollViewID)
+      .id(self.scrollViewID)      
     }
-    .frame(width: screenWidth * 0.9, height: textHeight)
+    .frame(width: 380, height: textHeight)
     .padding(.trailing, 10)
     .padding(.top, screenWidth < 360 ? -5 : 10)
+    .padding(.bottom, -20)
   }
   
   private var viewDetailsButton: some View {
@@ -168,13 +168,13 @@ extension AreaPreviewView {
     } label: {
       Text("View Details")
         .font(.system(.headline, design: design, weight: weight))
-        .frame(width: screenWidth < 360 ? 90 : 120, height: 35)
+        .frame(width: screenWidth < 360 ? 75 : 105, height: 35)
         .foregroundColor(.white)
     }
     .buttonStyle(.borderedProminent)
     .cornerRadius(10.0)
-    .padding([.leading, .trailing], screenWidth < 360 ? 7 : 15)
-    .padding(.top, UIScreen.main.bounds.size.height < 900 ? 32.0 : 42.0)
+    .padding([.trailing], screenWidth < 360 ? 18 : 26)
+    .padding(.top, UIScreen.main.bounds.size.height < 800 ? 36.0 : 46.0)
   }
   
   private var directionsButton: some View {
@@ -209,11 +209,12 @@ extension AreaPreviewView {
           .frame(width: screenWidth < 360 ? 60 : 80, height: 35)
       }
       .buttonStyle(.bordered)
-      .padding(.top, UIScreen.main.bounds.size.height < 900 ? 32.0 : 42.0)
+      .padding(.top, UIScreen.main.bounds.size.height < 800 ? 36.0 : 46.0)
+      .padding(.trailing, 16)
       .frame(width: 75.0)
     }
-    .padding([.leading, .trailing], 10)
-  }  
+    .padding(.leading, 5)
+  }
 }
 
 //#Preview {
