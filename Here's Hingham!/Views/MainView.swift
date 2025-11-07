@@ -429,7 +429,7 @@ extension MainView {
           label: {
             Image(systemName: "xmark")
           }
-          .padding(.top, maxHeight - 5)
+          .padding(.top, maxHeight - 8)
           .padding(.leading, maxWidth - (UIDevice.current.userInterfaceIdiom == .pad ? 90.0: 95.0))
         }
       }
