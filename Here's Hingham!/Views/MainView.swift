@@ -74,8 +74,9 @@ struct MainView: View {
                 FilterButtonView(title: "Parks", imageName: "tree", type: 8)
                 FilterButtonView(title: "Events", imageName: "calendar", type: 100)
                 FilterButtonView(title: "Videos", imageName: "video", type: 100)
-                FilterButtonView(title: "Update Yelp", imageName: "gear", type: 100)
-                FilterButtonView(title: "Update Google", imageName: "gear", type: 100)
+                FilterButtonView(title: "Bucket List", imageName: "paint.bucket.classic", type: 100)
+//                FilterButtonView(title: "Update Yelp", imageName: "gear", type: 100)
+//                FilterButtonView(title: "Update Google", imageName: "gear", type: 100)
               }
               .padding(.horizontal)
               .padding([.leading, .trailing], 10)
@@ -382,7 +383,7 @@ extension MainView {
                         isShowingLookAroundViewer = true
                         print("Successfully fetched Look Around scene for coordinate: \(coordinate)")
                       } else {
-                        isLookAroundUnavailable = true
+//                        isLookAroundUnavailable = true
                       }
                     }
                   }
