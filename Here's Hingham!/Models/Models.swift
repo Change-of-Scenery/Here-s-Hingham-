@@ -209,7 +209,6 @@ enum SchemaV1: VersionedSchema {
       case shortName
       case tilt
       case timestamp
-      case zoom
       case wikiName
       case imageCount
       case desc
@@ -226,7 +225,6 @@ enum SchemaV1: VersionedSchema {
     var desc = ""
     var tilt = 0
     var timestamp: Date
-    var zoom = 0.0
     var wikiName = ""
     var imageCount = 0
     var fontStyle = "<style>html { font-family: Helvetica, Arial, sans-serif; font-size: 16px; color: gray; } a:link { color: red; text-decoration: none; }</style>"
@@ -237,15 +235,6 @@ enum SchemaV1: VersionedSchema {
     }
     var coordinates: CLLocationCoordinate2D {
       CLLocationCoordinate2D(latitude: iconCoordinateLat, longitude: iconCoordinateLng)
-    }
-    var zoomInSpan: MKCoordinateSpan {
-      MKCoordinateSpan(latitudeDelta: 0.0007, longitudeDelta: 0.0007)
-    }
-    var zoomSpan: MKCoordinateSpan {
-      MKCoordinateSpan(latitudeDelta: 0.003, longitudeDelta: 0.003)
-    }
-    var zoomOutSpan: MKCoordinateSpan {
-      MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
     }
     
     @Transient var mapHeight = 0.0
@@ -266,10 +255,9 @@ enum SchemaV1: VersionedSchema {
       self.shortName = try container.decode(String.self, forKey: .shortName)
       self.tilt = try container.decode(Int.self, forKey: .tilt)
       self.timestamp = Date.now
-      self.zoom = try container.decode(Double.self, forKey: .zoom)
     }
     
-    init(areaId: Int, centerCoordinateLat: Double, centerCoordinateLng: Double, desc: String, iconCoordinateLat: Double, iconCoordinateLng: Double, name: String, shortName: String, tilt: Int, zoom: Double) {
+    init(areaId: Int, centerCoordinateLat: Double, centerCoordinateLng: Double, desc: String, iconCoordinateLat: Double, iconCoordinateLng: Double, name: String, shortName: String, tilt: Int) {
       self.areaId = areaId
       self.desc = desc
       self.centerCoordinateLat = centerCoordinateLat
@@ -280,7 +268,6 @@ enum SchemaV1: VersionedSchema {
       self.shortName = shortName
       self.tilt = tilt
       self.timestamp = Date.now
-      self.zoom = zoom
     }
     
     init() {

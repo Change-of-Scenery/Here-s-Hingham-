@@ -20,11 +20,12 @@ class AreasViewModel: ObservableObject {
     }
   }
 
+  @Published var zoom: Double = 0.005
   @Published var areas: [SchemaV1.Area] = []
   @Published var previewArea = SchemaV1.Area()
   @Published var mapArea: SchemaV1.Area = SchemaV1.Area() {
     didSet {
-      let span = MKCoordinateSpan(latitudeDelta: mapArea.zoom, longitudeDelta:  mapArea.zoom)
+      let span = MKCoordinateSpan(latitudeDelta: zoom, longitudeDelta: zoom)
       mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: mapArea.centerCoordinates, span: span))
       updateRegion(mapCameraPosition)
     }
@@ -36,7 +37,6 @@ class AreasViewModel: ObservableObject {
   @Published var visible = true
   @Published var firstScreenVisible = true
   @Published var distance: Double = 0.0
-  @Published var zoom: Double = 0.0
   @Published var filter: Int = 0 {
     didSet {
       let db = Firestore.firestore()
@@ -55,6 +55,8 @@ class AreasViewModel: ObservableObject {
               area.iconImage = "cup.and.saucer.circle.fill"
             case 8:
               area.iconImage = "tree.circle.fill"
+            case 11:
+              area.iconImage = "bucket.circle.fill"
             default:
               area.iconImage = "map.circle.fill"
             }
@@ -116,20 +118,6 @@ class AreasViewModel: ObservableObject {
     showArea(nextArea)
   }
   
-  func zoomOut() {
-    if centerCoordinate.latitude == 0.0 {
-      mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: mapArea.centerCoordinateLat - 0.0002, longitude: mapArea.centerCoordinateLng - 0.00005), span: MKCoordinateSpan(latitudeDelta: mapCameraPosition.region!.span.latitudeDelta + 0.0005, longitudeDelta: mapCameraPosition.region!.span.latitudeDelta + 0.0005)))
-    } else {
-      if let region = mapCameraPosition.region {
-        mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: centerCoordinate, span: MKCoordinateSpan(latitudeDelta: region.span.latitudeDelta + 0.0005, longitudeDelta: region.span.latitudeDelta + 0.0005)))
-      } else {
-        mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: mapArea.centerCoordinateLat - 0.0002, longitude: mapArea.centerCoordinateLng - 0.00005), span: MKCoordinateSpan(latitudeDelta: mapArea.zoom + 0.0005, longitudeDelta: mapArea.zoom + 0.0005)))
-      }
-    }
-
-    updateRegion(mapCameraPosition)
-  }
-  
   func zoomIn(_ zoom:Double) {
     updateRegion(MapCameraPosition.region(MKCoordinateRegion(center: centerCoordinate, span: MKCoordinateSpan(latitudeDelta: zoom, longitudeDelta: zoom))))
   }
@@ -180,7 +168,6 @@ class AreasViewModel: ObservableObject {
         break
       }
     } else {
-      zoom = mapArea.zoom
       distance = 0.0
     }
   }

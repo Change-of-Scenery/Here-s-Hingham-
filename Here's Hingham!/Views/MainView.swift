@@ -74,7 +74,7 @@ struct MainView: View {
                 FilterButtonView(title: "Parks", imageName: "tree", type: 8)
                 FilterButtonView(title: "Events", imageName: "calendar", type: 100)
                 FilterButtonView(title: "Videos", imageName: "video", type: 100)
-                FilterButtonView(title: "Bucket List", imageName: "paint.bucket.classic", type: 100)
+                FilterButtonView(title: "\"Bucket List\"", imageName: "bucket", type: 11)
 //                FilterButtonView(title: "Update Yelp", imageName: "gear", type: 100)
 //                FilterButtonView(title: "Update Google", imageName: "gear", type: 100)
               }
@@ -96,12 +96,7 @@ struct MainView: View {
             Button {
               if showPlaceDetail == true {
                 showPlaceDetail = false
-//               placesViewModel.mapPlace = SchemaV1.Place()
                 withAnimation(.easeInOut) {
-//                  areasViewModel.distance = 0.0
-//                  areasViewModel.setFilterZoomDistance(filter: areasViewModel.filter, areaId: areasViewModel.mapArea.areaId)
-//                  let span = MKCoordinateSpan(latitudeDelta: areasViewModel.zoom, longitudeDelta: areasViewModel.zoom)
-//                  areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: areasViewModel.mapArea.centerCoordinates, span: span))
                   areasViewModel.visible = false
                 }
               } else {
@@ -122,60 +117,7 @@ struct MainView: View {
             .scaledToFit()
             .frame(height: 30)
         }
-        //      ToolbarItem(placement: .navigationBarLeading) {
-        //        Button { areasViewModel.filter = 1 } label: { Image(systemName: "fork.knife")}.background(areasViewModel.filter == 1 ? Color.tabSelect : Color.clear)
-        //      }
-        //      ToolbarItem(placement: .automatic) {
-        //        Button { areasViewModel.filter = 7 } label: { Image(systemName: "cup.and.saucer")}.background(areasViewModel.filter == 7 ? Color.tabSelect : Color.clear)
-        //      }
-        //      ToolbarItem(placement: .automatic) {
-        //        Button { areasViewModel.filter = 2 } label: { Image(systemName: "handbag")}.background(areasViewModel.filter == 2 ? Color.tabSelect : Color.clear)
-        //      }
-        //        ToolbarItem(placement: .automatic) {
-        //          Button { areasViewModel.filter = 9 } label: { Image(systemName: "scissors")}.background(areasViewModel.filter == 9 ? Color.secondary : Color.clear)
-        //        }
-        //        ToolbarItem(placement: .automatic) {
-        //          Button { areasViewModel.filter = 3 } label: { Image(systemName: "tshirt")}.background(areasViewModel.filter == 3 ? Color.tabSelect : Color.clear)
-        //        }
-        //        ToolbarItem(placement: .automatic) {
-        //          Button { areasViewModel.filter = 5 } label: { Image(systemName: "pill")}.background(areasViewModel.filter == 5 ? Color.tabSelect : Color.clear)
-        //        }
-        //      ToolbarItem(placement: .automatic) {
-        //        Button { areasViewModel.filter = 6 } label: { Image(systemName: "house")}.background(areasViewModel.filter == 6 ? Color.tabSelect : Color.clear)
-        //      }
-        //      ToolbarItem(placement: .navigationBarTrailing) {
-        //        Button { areasViewModel.filter = 8 } label: { Image(systemName: "tree")}.background(areasViewModel.filter == 8 ? Color.tabSelect : Color.clear)
-        //      }
-        //        ToolbarItem(placement: .topBarTrailing) {
-        //          Button { areasViewModel.filter = 0 } label: { Image(systemName: "map").foregroundColor(colorScheme == .dark ? darkFColor : lightFColor) }.padding(.bottom, 10).background(areasViewModel.filter == 0 ? selectColor : unselectColor)
-        //        }
-        //        .sheet(item: $areasViewModel.sheetArea) { area in
-        //          if area.imageCount == 0 {
-        //            var imageCounter = 0
-        //            while UIImage(named: ("\(area.shortName)/Area/\(imageCounter)")) != nil {
-        //              imageCounter += 1
-        //            }
-        //            area.imageCount = imageCounter
-        //          }
-        //
-        //          AreaDetailView(area: area)
-        //        }
       }
-//      .toolbarTitleMenu {
-//        Button("Bucket Vision") {
-//          // paths.append("Area Details")
-//        }
-//        Button("Settings") {
-//          // paths.append("Place Details")
-//        }
-//      }
-//      .navigationDestination(for: String.self) { value in
-        //      if value == "Area Details" {
-        //        AreaView()
-        //      } else if value == "Place Details" {
-        //        Text(value)
-        //      }
-//      }
       .alert(isPresented: $isLookAroundUnavailable) {
         Alert(title: Text("Look Around"), message: Text("Look around is not available in this area."), dismissButton: .default(Text("OK")))
       }
@@ -228,7 +170,12 @@ struct FilterButtonView: View {
       }
     }) {
       HStack {
-        Image(systemName: imageName)
+        if type == 11 {
+          Image(imageName)
+        } else {
+          Image(systemName: imageName)
+        }
+        
         Text(title)
       }
       .padding(6)
@@ -307,7 +254,7 @@ extension MainView {
     return ZStack {
       MapReader { proxy in
         Map(position: $areasViewModel.mapCameraPosition) {
-          if latDeltaHalf < 0.0056 {
+          if latDeltaHalf < 0.02 {
             ForEach(places) { place in
               Annotation("", coordinate: place.coordinates) {
                 withAnimation(.easeInOut) {
@@ -355,7 +302,7 @@ extension MainView {
         .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
         .mapControls {
           Button {
-            let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
+            let span = MKCoordinateSpan(latitudeDelta: areasViewModel.zoom, longitudeDelta: areasViewModel.zoom)
             areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: location.userLocation?.coordinate.latitude ?? 0.0, longitude: location.userLocation?.coordinate.longitude ?? 0.0), span: span))
           } label: {
             Image(systemName: "location.fill")

@@ -75,7 +75,7 @@ struct AreaPreviewView: View {
 extension AreaPreviewView {  
   private var imageSection: some View {
     ZStack {
-      Image(areasViewModel.visible == true ? area.shortName + "/Area/0" : placesViewModel.mapPlace.name == "" ? area.shortName + "/Area/1" :  "\(placesViewModel.mapPlace.areaName)/\(placesViewModel.mapPlace.name)/0")
+      Image(area.shortName + "/Area/1")
         .resizable()
         .cornerRadius(10)
         .frame(width: 100, height: 80)
@@ -83,7 +83,7 @@ extension AreaPreviewView {
 //          areasViewModel.sheetArea = area
 //          areasViewModel.mapArea = area
           withAnimation(.easeInOut) {
-            let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
+            let span = MKCoordinateSpan(latitudeDelta: areasViewModel.zoom, longitudeDelta:  areasViewModel.zoom)
             areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
             areasViewModel.visible = false
           }

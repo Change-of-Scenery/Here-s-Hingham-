@@ -11,7 +11,6 @@ import CoreLocation
 import AVKit
 
 struct AreaDetailView: View {
-  
   @EnvironmentObject private var areasViewModel: AreasViewModel
   @EnvironmentObject private var placesViewModel: PlacesViewModel
   @Environment(\.verticalSizeClass) var verticalSizeClass
@@ -35,9 +34,9 @@ struct AreaDetailView: View {
   @State private var updatingLocation = false
   @State private var annotationOpacity: Double = 1.0
   @ObservedObject var location: LocationManager = LocationManager()
-   
+  
   let area: SchemaV1.Area
-                        
+  
   var body: some View {
     let screenHeight = UIScreen.main.bounds.size.height
     
@@ -56,13 +55,12 @@ struct AreaDetailView: View {
     
     let backgroundColor = colorScheme == .dark ? Color(red: 0.01, green: 0.01,  blue: 0.0) : Color(red: 0.99, green: 0.99,  blue: 0.9)
     let width = UIScreen.main.bounds.size.width
-
+    
     if (verticalSizeClass == .compact || horizontalSizeClass == .regular) && UIDevice.current.userInterfaceIdiom != .pad {
       expandedImageSection
     } else {
       if showExpanded == "map" {
         LazyHGrid(rows: expandedMapRows, spacing: 10) {
-//          mapLayer
         }
         .frame(width: width)
         .background(backgroundColor)
@@ -87,7 +85,6 @@ struct AreaDetailView: View {
             areaSection
           }
           descSection
-//          mapLayer
         }
         .frame(width: width)
         .background(backgroundColor)
@@ -115,131 +112,7 @@ struct AreaDetailView: View {
       }
     }
   }
-}
 
-extension Date {
-    func dayNumberOfWeek() -> Int {
-        return Calendar.current.dateComponents([.weekday], from: self).weekday! - 1
-    }
-}
-
-extension AreaDetailView {
-  private var menuSection: some View {
-
-    return HStack {
-//      Button {
-//        if showExpanded == "map" {
-//          let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
-//          areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
-//          showExpanded = ""
-//        } else if showExpanded == "desc" {
-//          showExpanded = ""
-////        } else if modelMode == "place" {
-////          tabSelection = 0
-////          withAnimation(.easeInOut) {
-////            modelMode = "area"
-////          }
-//        } else if showExpanded == "image" {
-//          rotateBack()
-//        } else {
-//          let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
-//          areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
-//          areasViewModel.sheetArea = nil
-//        }
-//        showRatingSelector = false
-//      } label: {
-//        Image(systemName: "x.square.fill")
-//          .font(.system(size: 20))
-//          .tint(.primary)
-//      }
-//      Spacer()
-//      Button {
-//        if showExpanded == "image" {
-//          rotateBack()
-//        } else {
-//          if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-//            showExpanded = "image"
-//            AppDelegate.orientationForImage = true
-//            scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
-//          }
-//        }
-//      } label: {
-//        Image(systemName: "photo")
-//          .font(.system(size: 20))
-//          .tint(.primary)
-//      }
-//      Spacer()
-//      Button {
-//        if showExpanded == "desc" {
-//          showExpanded = ""
-//        } else {
-//          if showExpanded == "image" {
-//            rotateBack()
-//          }
-//          withAnimation(.easeInOut) {
-//            self.showExpanded = "desc"
-//          }
-//        }
-//      } label: {
-//        Image(systemName: "text.page")
-//          .font(.system(size: 20))
-//          .tint(.primary)
-//      }
-////      Spacer()
-////      Button {
-////        if showExpanded == "map" {
-////          showExpanded = ""
-////        } else {
-////          if showExpanded == "image" {
-////            rotateBack()
-////          }
-////          areasViewModel.zoomOut()
-////          self.showExpanded = "map"
-////        }
-////      } label: {
-////        Image(systemName: "map")
-////          .font(.system(size: 20))
-////          .tint(.primary)
-////      }
-//      Spacer()
-//      Menu {
-////        Button("Update Google Data", action: {
-////          let dataService = DataService()
-////          dataService.updateGoogle()
-////        })
-////        
-////        Button("Update Yelp Data", action: {
-////          let dataService = DataService()
-////          dataService.updateYelp()
-////        })
-//        
-//        Toggle("Show Here", isOn: $updatingLocation)
-//          .toggleStyle(CustomToggleButton())
-//          .onChange(of: updatingLocation) {
-//            location.areaId = area.areaId
-//            if updatingLocation == true {
-//              location.placesViewModel = placesViewModel
-//              location.startUpdating()
-//            } else {
-//              location.stopUpdating()
-//            }
-//          }
-//        } label: {
-//          Image(systemName: "ellipsis.circle")
-//            .font(.system(size: 20))
-//            .tint(.primary)
-//        }
-    }
-  }
-  
-  func rotateBack() {
-    if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-      scene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
-      AppDelegate.orientationForImage = false
-      showExpanded = ""
-    }
-  }
-  
   private var hoursWindow: some View {
     let hours = placesViewModel.mapPlace.hours.components(separatedBy: ";")
     let cols = [GridItem(.fixed(100)), GridItem(.fixed(120))]
@@ -736,71 +609,7 @@ extension AreaDetailView {
           location.message = ""
         }
       }
-  }
-  
-//  private var mapLayer: some View {
-//    var places = placesViewModel.places.filter { $0.areaId == area.areaId }
-//    let screenSize = UIScreen.main.bounds.size
-//    
-//    return Map(position: $areasViewModel.mapCameraPosition, interactionModes: [.pan, .zoom]) {
-//      ForEach(places) { place in
-//        Annotation("", coordinate: place.coordinates) {
-//          withAnimation(.easeInOut) {
-//            PlaceAnnotationView(areaName: area.shortName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity, iconResizePercent: 0.0, filter: areasViewModel.filter)
-//              .shadow(radius: 10)
-//              .onTapGesture {
-//                withAnimation(.easeInOut) {
-//                  placesViewModel.showPlace(area, place)
-//                  if showExpanded == "map" {
-//                    areasViewModel.zoomIn(0.0007)
-//                  }
-//                  showExpanded = ""
-//                }
-//              }
-//          }
-//        }
-//        .annotationTitles(.visible)
-//      }
-//      
-//      UserAnnotation()
-//    }
-//    .onMapCameraChange(frequency: .continuous) { context in
-//      areasViewModel.centerCoordinate = context.region.center
-//
-//      if areasViewModel.mapCameraPosition.region == nil {
-//        areasViewModel.mapCameraPosition = MapCameraPosition.region(context.region)
-//      }
-//    }
-//    .background(.white)
-//    .frame(width: screenSize.width * 0.93, height: showExpanded == "map" ? screenSize.height * 0.83 : screenSize.height * 0.33)
-//    .cornerRadius(25)
-//    .mapStyle(.standard(pointsOfInterest: .including([.airport, .amusementPark, .evCharger, .fireStation, .library, .nationalPark, .park, .parking, .police, .restroom, .university, .publicTransport])))
-//    .mapControls {
-//      Button {
-//        let span = MKCoordinateSpan(latitudeDelta: area.zoom, longitudeDelta:  area.zoom)
-//        areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: location.userLocation?.coordinate.latitude ?? 0.0, longitude: location.userLocation?.coordinate.longitude ?? 0.0), span: span))
-//      } label: {
-//        Image(systemName: "location.fill")
-//      }
-//    }
-//    .overlay {
-//      ZStack {
-//        VStack {
-//          HStack {
-//            Spacer(minLength: 0)
-//            Button {
-//              areasViewModel.showArea(area)
-//            } label: {
-//              Image(systemName: "return")
-//                .padding([.top, .trailing], 10)
-//                .foregroundColor(.black)
-//            }
-//          }
-//          Spacer(minLength: 0)
-//        }
-//      }
-//    }
-//  }
+  } 
   
   enum WeekDays: CaseIterable {
     case Sunday
@@ -854,4 +663,11 @@ class SoundManager{
       }
     }
 }
+
+extension Date {
+    func dayNumberOfWeek() -> Int {
+        return Calendar.current.dateComponents([.weekday], from: self).weekday! - 1
+    }
+}
+
 

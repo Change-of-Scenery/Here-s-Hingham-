@@ -252,7 +252,6 @@ struct Here_s_Hingham_App: App {
         area.name = document.get("name") as! String
         area.shortName = document.get("shortName") as! String
         area.tilt = document.get("tilt") as! Int
-        area.zoom = document.get("zoom") as! Double
         areasViewModel.addArea(area)
       }
       areasViewModel.mapArea = areasViewModel.areas.filter { $0.areaId == 0}.first!    // Hingham Harbor
