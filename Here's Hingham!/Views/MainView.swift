@@ -28,7 +28,7 @@ struct MainView: View {
   @State private var cameraIsChanging = false
   @ObservedObject var location: LocationManager = LocationManager()
   let maxWidth: CGFloat = 475
-  let maxHeight: CGFloat = 250
+  let maxHeight: CGFloat = 275
   @State private var showPreviewView = true
   
   var body: some View {
@@ -377,7 +377,7 @@ extension MainView {
           label: {
             Image(systemName: "xmark")
           }
-          .padding(.top, maxHeight - 8)
+          .padding(.top, maxHeight + 50)
           .padding(.leading, maxWidth - (UIDevice.current.userInterfaceIdiom == .pad ? 90.0: 95.0))
         }
       }

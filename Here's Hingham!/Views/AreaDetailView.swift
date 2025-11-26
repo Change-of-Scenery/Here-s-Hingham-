@@ -283,7 +283,27 @@ struct AreaDetailView: View {
           .padding(.top, place.type == 6 ? 18 : 0)
           .frame(width: width)
 
-          ScrollView {
+        ScrollView {
+          if desc.contains("•") {
+            let bulletLines = desc.filter { $0 != "\n" } .components(separatedBy: "•")
+            let bodySize = placesViewModel.mapPlace.type == 6 ? 12.0 : 14.0
+            
+            VStack {
+              ForEach(bulletLines, id: \.self) { line in
+                HStack {
+                  if line[line.index(line.startIndex, offsetBy: 1, limitedBy: line.endIndex)!] != " " {
+                    Image("bucketpoint")
+                      .resizable()
+                      .frame(width: 27, height: 21)
+                      .padding(0)
+                  }
+                  Text(LocalizedStringKey(stringLiteral:line))
+                    .font(.system(size: bodySize, weight: .regular, design: Font.Design.default))
+                  Spacer()
+                }
+              }
+            }
+          } else {
             Text(descText)
               .font(textFont)
               .foregroundColor(.primary)
@@ -305,6 +325,7 @@ struct AreaDetailView: View {
                 .foregroundColor(.primary)
             }
           }
+        }
       }
     }
     .frame(width: width)
@@ -367,8 +388,7 @@ struct AreaDetailView: View {
         ScrollView {
           Text(descText)
             .font(.system(size: 16))
-            .foregroundColor(.primary)
-        }
+            .foregroundColor(.primary)        }
       }
     }
     .padding()

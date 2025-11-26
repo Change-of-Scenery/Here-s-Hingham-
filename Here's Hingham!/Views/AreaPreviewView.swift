@@ -75,7 +75,7 @@ struct AreaPreviewView: View {
 extension AreaPreviewView {  
   private var imageSection: some View {
     ZStack {
-      Image(area.shortName + "/Area/1")
+      Image(areasViewModel.visible || placesViewModel.mapPlace.name == "" ? area.shortName + "/Area/1" : area.shortName + "/" + placesViewModel.mapPlace.name + "/0")
         .resizable()
         .cornerRadius(10)
         .frame(width: 100, height: 80)
@@ -97,7 +97,7 @@ extension AreaPreviewView {
   
   private var titleSection: some View {
     let design = placesViewModel.mapPlace.type == 6 ? Font.Design.serif : Font.Design.default
-    let textHeight = placesViewModel.mapPlace.type == 6 ? 103.0 : 115.0
+    let textHeight = placesViewModel.mapPlace.type == 6 ? 103.0 : 200.0
     let weight = placesViewModel.mapPlace.type == 6 ? Font.Weight.semibold : Font.Weight.bold
     let bodySize = placesViewModel.mapPlace.type == 6 ? 12.0 : 14.0
     var name = areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.name : placesViewModel.mapPlace.name
@@ -120,12 +120,53 @@ extension AreaPreviewView {
           .font(.system(.footnote, design: design, weight: .regular))
       }
       
+//      if area.name == "World's End" {
+//        HStack {
+//            Text("Get a")
+//            .italic()
+//            .font(.system(size: 18))
+//            .fontWeight(.bold)
+//            .padding(.top, 12)
+//          
+//            Image("handle")
+//                .resizable()
+//                .frame(width: 60, height: 45)
+//                .padding(.bottom, 6)
+//          
+//            Text("on World's End!")
+//            .italic()
+//            .font(.system(size: 18))
+//            .fontWeight(.bold)
+//            .padding(.top, 12)
+//        }
+//      }
+      
       let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: areasViewModel.visible == true || placesViewModel.mapPlace.name == ""  ? area.desc : placesViewModel.mapPlace.notes)
       
       ScrollView(.vertical, showsIndicators: true) {
-        Text(descText)
-          .font(.system(size: bodySize, weight: .regular, design: design))
-          .foregroundColor(.primary)
+        if placesViewModel.mapPlace.name == "" && area.desc.contains("•") {
+          let bulletLines = area.desc.filter { $0 != "\n" } .components(separatedBy: "•")
+          
+          VStack {
+            ForEach(bulletLines, id: \.self) { line in
+              HStack {
+                if line[line.index(line.startIndex, offsetBy: 1, limitedBy: line.endIndex)!] != " " {
+                  Image("bucketpoint")
+                    .resizable()
+                    .frame(width: 27, height: 21)
+                    .padding(0)
+                }
+                Text(LocalizedStringKey(stringLiteral:line))
+                  .font(.system(size: bodySize, weight: .regular, design: Font.Design.default))
+                Spacer()
+              }
+            }
+          }
+        } else {
+          Text(descText)
+            .font(.system(size: bodySize, weight: .regular, design: design))
+            .foregroundColor(.primary)
+        }
       }
       .id(self.scrollViewID)      
     }
