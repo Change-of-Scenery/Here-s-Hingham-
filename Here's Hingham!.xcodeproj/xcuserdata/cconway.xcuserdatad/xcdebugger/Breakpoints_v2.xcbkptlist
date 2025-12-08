@@ -119,33 +119,33 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "3CFCC8F8-18DF-4E96-AE21-272CCF702A49"
-            shouldBeEnabled = "No"
+            uuid = "EBB5526C-5212-487A-9ABC-DF5B55EAF5FF"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Here&apos;s Hingham!/ViewModels/PlacesViewModel.swift"
+            filePath = "Here&apos;s Hingham!/Models/Models.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "27"
-            endingLineNumber = "27"
-            landmarkName = "showPlace(_:_:)"
+            startingLineNumber = "120"
+            endingLineNumber = "120"
+            landmarkName = "init(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9059DADA-2C63-4436-83EA-3962A8D0A57B"
-            shouldBeEnabled = "No"
+            uuid = "12075DA2-A5EB-432C-B50A-4BAA8257E5B2"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Here&apos;s Hingham!/Views/AreaPreviewView.swift"
+            filePath = "Here&apos;s Hingham!/Models/Models.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "148"
-            endingLineNumber = "148"
-            landmarkName = "titleSection"
-            landmarkType = "24">
+            startingLineNumber = "251"
+            endingLineNumber = "251"
+            landmarkName = "init(from:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

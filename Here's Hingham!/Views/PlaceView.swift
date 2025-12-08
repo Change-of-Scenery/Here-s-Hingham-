@@ -34,13 +34,13 @@ struct PlaceView: View {
           
         }
         ToolbarItem(placement: .automatic) {
-          Button { areasViewModel.filter = 1 } label: { Image(systemName: "fork.knife")}.background(areasViewModel.filter == 1 ? Color.tabSelect : Color.clear)
+          Button { areasViewModel.filter = 1 } label: { Image(systemName: "fork.knife")}.background(areasViewModel.filter == 1 ? Color("AccentTabColor") : Color.clear)
         }
         ToolbarItem(placement: .automatic) {
-          Button { areasViewModel.filter = 7 } label: { Image(systemName: "cup.and.saucer")}.background(areasViewModel.filter == 7 ? Color.tabSelect : Color.clear)
+          Button { areasViewModel.filter = 7 } label: { Image(systemName: "cup.and.saucer")}.background(areasViewModel.filter == 7 ? Color("AccentTabColor") : Color.clear)
         }
         ToolbarItem(placement: .automatic) {
-          Button { areasViewModel.filter = 2 } label: { Image(systemName: "handbag")}.background(areasViewModel.filter == 2 ? Color.tabSelect : Color.clear)
+          Button { areasViewModel.filter = 2 } label: { Image(systemName: "handbag")}.background(areasViewModel.filter == 2 ? Color("AccentTabColor") : Color.clear)
         }
         //        ToolbarItem(placement: .automatic) {
         //          Button { areasViewModel.filter = 9 } label: { Image(systemName: "scissors")}.background(areasViewModel.filter == 9 ? Color.secondary : Color.clear)
@@ -52,10 +52,10 @@ struct PlaceView: View {
 //          Button { areasViewModel.filter = 5 } label: { Image(systemName: "pill")}.background(areasViewModel.filter == 5 ? Color.tabSelect : Color.clear)
 //        }
         ToolbarItem(placement: .automatic) {
-          Button { areasViewModel.filter = 6 } label: { Image(systemName: "house")}.background(areasViewModel.filter == 6 ? Color.tabSelect : Color.clear)
+          Button { areasViewModel.filter = 6 } label: { Image(systemName: "house")}.background(areasViewModel.filter == 6 ? Color("AccentTabColor") : Color.clear)
         }
         ToolbarItem(placement: .automatic) {
-          Button { areasViewModel.filter = 8 } label: { Image(systemName: "tree")}.background(areasViewModel.filter == 8 ? Color.tabSelect : Color.clear)
+          Button { areasViewModel.filter = 8 } label: { Image(systemName: "tree")}.background(areasViewModel.filter == 8 ? Color("AccentTabColor") : Color.clear)
         }
         //        ToolbarItem(placement: .topBarTrailing) {
         //          Button { areasViewModel.filter = 0 } label: { Image(systemName: "map").foregroundColor(colorScheme == .dark ? darkFColor : lightFColor) }.padding(.bottom, 10).background(areasViewModel.filter == 0 ? selectColor : unselectColor)

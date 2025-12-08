@@ -30,13 +30,18 @@ class AreasViewModel: ObservableObject {
       updateRegion(mapCameraPosition)
     }
   }
+  @Published var previewImageUrl = ""
   @Published var showAreasList:Bool = false
   @Published var sheetArea: SchemaV1.Area? = nil
   @Published var centerCoordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)
   @Published var showWatermark = true
+  @Published var showExpandedImage = false
   @Published var visible = true
   @Published var firstScreenVisible = true
   @Published var distance: Double = 0.0
+  @Published var imagePath = ""
+  @Published var imageCount = 0
+
   @Published var filter: Int = 0 {
     didSet {
       let db = Firestore.firestore()

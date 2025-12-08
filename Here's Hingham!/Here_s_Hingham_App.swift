@@ -23,6 +23,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 //    GMSPlacesClient.provideAPIKey("AIzaSyCh8yeH__wOkR3Pb1Xt5A3HauZ1PdPySIg")
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
     
+    // Source - https://stackoverflow.com/a
+    // Posted by Achraf, modified by community. See post 'Timeline' for change history
+    // Retrieved 2025-12-03, License - CC BY-SA 4.0
+
+    UIPageControl.appearance().currentPageIndicatorTintColor = UIColor(.accentColor)
+    UIPageControl.appearance().pageIndicatorTintColor = UIColor(named: "AccentSecondary")
+    
     return true
   }
   
@@ -243,6 +250,7 @@ struct Here_s_Hingham_App: App {
     db.collection("HinghamArea").getDocuments { queryArea, err in
       for document in queryArea!.documents {
         let area = SchemaV1.Area()
+        area.documentID = document.documentID
         area.areaId = document.get("areaId") as! Int
         area.centerCoordinateLat = document.get("centerCoordinateLat") as! Double
         area.centerCoordinateLng = document.get("centerCoordinateLng") as! Double
@@ -252,6 +260,7 @@ struct Here_s_Hingham_App: App {
         area.name = document.get("name") as! String
         area.shortName = document.get("shortName") as! String
         area.tilt = document.get("tilt") as! Int
+        area.imageCount = document.get("imageCount") as! Int
         areasViewModel.addArea(area)
       }
       areasViewModel.mapArea = areasViewModel.areas.filter { $0.areaId == 0}.first!    // Hingham Harbor
@@ -275,7 +284,7 @@ struct Here_s_Hingham_App: App {
           place.googleUrl = document.get("googleUrl") as! String
           place.hinghamRatings = document.get("hinghamRatings") as! String
           place.updateHinghamRating()
-          place.hinghamReviews = document.get("hinghamReviews") as! Int
+          place.hinghamReviews = document.get("hinghamReviews") as! Double
           place.hours = document.get("hours") as! String
           place.iconSize = document.get("iconSize") as! Double
           place.imageCount = document.get("imageCount") as! Int

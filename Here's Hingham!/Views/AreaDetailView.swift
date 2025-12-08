@@ -584,14 +584,14 @@ struct AreaDetailView: View {
           
           Button {
             let defaults = UserDefaults.standard
-            if let _ = defaults.string(forKey: "Rated:\(placesViewModel.mapPlace.documentID)") {
+            if let _ = defaults.string(forKey: "Rated:\(placesViewModel.mapPlace.id)") {
               message = "You've already rated this place."
               showMessage = true
             } else {
               showRatingSelector = true
             }
           } label: {
-            Image("Reviews/Bucket\(placesViewModel.mapPlace.hinghamRating)Star").resizable().scaledToFit().frame(width: 52, height: 26)
+            Image("Reviews/Bucket\(placesViewModel.mapPlace.hinghamReviews)Star").resizable().scaledToFit().frame(width: 52, height: 26)
               .padding(.top, -3)
           }
           .padding(.leading, -20)

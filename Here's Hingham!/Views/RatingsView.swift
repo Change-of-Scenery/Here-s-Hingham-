@@ -50,7 +50,7 @@ struct RatingsView: View {
           let db = Firestore.firestore()
           let placeRef = db.collection("HinghamPlace").document(place.documentID)
           placeRef.updateData(["hinghamRatings" : place.hinghamRatings, "hinghamReviews" : place.hinghamReviews])
-          defaults.set("true", forKey: "Rated:\(place.documentID)")
+          defaults.set("true", forKey: "Rated:\(place.id)")
         }
         showRatingSelector = false
       } label: {

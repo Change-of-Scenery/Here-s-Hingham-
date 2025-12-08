@@ -26,6 +26,8 @@ struct MainView: View {
   @State private var isShowingLookAroundViewer = false
   @State private var isLookAroundUnavailable = false
   @State private var cameraIsChanging = false
+  @State private var tabSelection = 0
+  @State private var currentPage = 0
   @ObservedObject var location: LocationManager = LocationManager()
   let maxWidth: CGFloat = 475
   let maxHeight: CGFloat = 275
@@ -83,6 +85,9 @@ struct MainView: View {
             }
             .frame(height:50)
             .background(.clear)
+            if areasViewModel.showExpandedImage == true {
+              expandedImageSection
+            }
             Spacer()
             areasPreviewStack
           }
@@ -181,7 +186,7 @@ struct FilterButtonView: View {
       .padding(6)
     }
     .foregroundColor(colorScheme == .dark ? .white : .black)
-    .background(areasViewModel.filter == type ? Color.tabSelect : colorScheme == .dark ? .black : .white)
+    .background(areasViewModel.filter == type ? Color("AccentTabColor") : colorScheme == .dark ? .black : .white)
     .font(.system(size: 10))
     .fontWeight(.semibold)
     .cornerRadius(10.0)
@@ -200,7 +205,7 @@ extension MainView {
             .onTapGesture {
               showPreviewView = true
               iconResizePercent = 0.0
-              areasViewModel.firstScreenVisible = false
+              areasViewModel.previewImageUrl = ""
               areasViewModel.firstScreenVisible = false
               if (area.areaId == areasViewModel.mapArea.areaId) {
                 withAnimation(.easeInOut) {
@@ -262,6 +267,7 @@ extension MainView {
                     .shadow(radius: 10)
                     .onTapGesture {
                       showPreviewView = true
+                      areasViewModel.previewImageUrl = ""
                       withAnimation(.easeInOut) {
                         placesViewModel.showPlace(area, place)
                         areasViewModel.visible = false
@@ -377,13 +383,74 @@ extension MainView {
           label: {
             Image(systemName: "xmark")
           }
-          .padding(.top, maxHeight + 50)
           .padding(.leading, maxWidth - (UIDevice.current.userInterfaceIdiom == .pad ? 90.0: 95.0))
+          .padding(.top, 340)
         }
       }
     }
-    .padding(.bottom, 40)
+    .padding(.bottom, 60)
   }
+  
+  private var expandedImageSection: some View {
+    HStack(alignment: .top) {
+      ZStack(alignment: .leading) {
+        TabView(selection:$tabSelection) {
+          ForEach(1..<areasViewModel.imageCount, id: \.self) { index in
+            if UIImage(named: "\(areasViewModel.imagePath)/\(index)") != nil {
+              Image("\(areasViewModel.imagePath)/\(index)")
+                .resizable()
+                .scaledToFit()
+                .cornerRadius(25)
+            }
+          }
+          
+          if placesViewModel.visible == true && areasViewModel.imageCount < 10 {
+            ForEach(10..<15, id: \.self) { index in
+              if UIImage(named: "\(areasViewModel.imagePath)/\(index)") != nil {
+                ZStack(alignment: .bottomLeading) {
+                  Image("\(areasViewModel.imagePath)/\(index)")
+                    .resizable()
+                    .scaledToFill()
+                    .clipped()
+                    .cornerRadius(25)
+                }	
+              }
+            }
+          }
+        }
+        .tabViewStyle(PageTabViewStyle())
+//        .padding(.top, -60)
+        Button {
+          areasViewModel.showExpandedImage = false
+        }
+        label: {
+          Image(systemName: "xmark")
+        }
+        .padding(.top, UIScreen.main.bounds.size.height * 0.24)
+        .padding(.leading, UIScreen.main.bounds.size.width * 0.845)
+      }
+    }
+    .padding()
+    .frame(width: UIScreen.main.bounds.size.width * 0.99)
+  }
+
+}
+
+struct CustomPageControl: View {
+    let numberOfPages: Int
+    @Binding var currentPage: Int
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<numberOfPages, id: \.self) { index in
+                Circle()
+                    .fill(index == currentPage ? Color.white : Color.gray)
+                    .frame(width: 10, height: 10)
+                    .scaleEffect(index == currentPage ? 1.2 : 1.0)
+                    .animation(.spring(), value: currentPage)
+            }
+        }
+    }
 }
 
 class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {

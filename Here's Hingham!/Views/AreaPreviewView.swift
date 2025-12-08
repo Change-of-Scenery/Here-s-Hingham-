@@ -16,7 +16,9 @@ struct AreaPreviewView: View {
   @Binding var iconResizePercent: Double
   @Binding var showPlaceDetail: Bool
   @State private var scrollViewID = UUID()
-    
+  @State private var scrolledID = CGFloat.zero
+  @State private var addToBucketlistCaption = "Add to Bucket List"
+  
   let area: SchemaV1.Area
   let screenWidth = UIScreen.main.bounds.size.width
   
@@ -24,10 +26,17 @@ struct AreaPreviewView: View {
     VStack {
       HStack(alignment: .top, spacing: 0) {
         imageSection
-          .padding(.top, 2)
-          .padding(.trailing, 19)
-        viewDetailsButton
-        directionsButton
+          .padding(.top, -10)
+          .padding(.trailing, 0)
+        VStack {
+          HStack {
+            viewDetailsButton
+            directionsButton
+              .padding(.leading, -10)
+          }
+          .padding(.leading, 12)
+          addToBucketListButton
+        }
       }
       .padding(10)
       .padding([.leading, .trailing], 5)
@@ -72,20 +81,24 @@ struct AreaPreviewView: View {
 //}
 //
 
-extension AreaPreviewView {  
+extension AreaPreviewView {
   private var imageSection: some View {
     ZStack {
-      Image(areasViewModel.visible || placesViewModel.mapPlace.name == "" ? area.shortName + "/Area/1" : area.shortName + "/" + placesViewModel.mapPlace.name + "/0")
+      Image(getImageUrl())
         .resizable()
         .cornerRadius(10)
-        .frame(width: 100, height: 80)
+        .frame(width: 160, height: 128)
         .onTapGesture {
 //          areasViewModel.sheetArea = area
 //          areasViewModel.mapArea = area
           withAnimation(.easeInOut) {
-            let span = MKCoordinateSpan(latitudeDelta: areasViewModel.zoom, longitudeDelta:  areasViewModel.zoom)
-            areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
-            areasViewModel.visible = false
+            areasViewModel.imagePath = placesViewModel.visible == true ? "\(areasViewModel.mapArea.shortName)/\(placesViewModel.mapPlace.name)" : "\(areasViewModel.mapArea.shortName)/Area"
+            areasViewModel.imageCount = placesViewModel.visible == true ? placesViewModel.mapPlace.imageCount : areasViewModel.mapArea.imageCount == 0 ? 1 : areasViewModel.mapArea.imageCount
+            areasViewModel.showExpandedImage = true
+            
+//            let span = MKCoordinateSpan(latitudeDelta: areasViewModel.zoom, longitudeDelta:  areasViewModel.zoom)
+//            areasViewModel.mapCameraPosition = MapCameraPosition.region(MKCoordinateRegion(center: area.centerCoordinates, span: span))
+//            areasViewModel.visible = false
           }
         }
     }
@@ -95,9 +108,64 @@ extension AreaPreviewView {
     .shadow(color: .black.opacity(0.75), radius: 4, x: 3, y: 3)
   }
   
+  func getImageUrl() -> String {
+    let defaults = UserDefaults.standard
+    let type = areasViewModel.visible || placesViewModel.mapPlace.name == "" ? "Area" : "Place"
+    let documentID = areasViewModel.visible || placesViewModel.mapPlace.name == "" ? areasViewModel.mapArea.documentID : placesViewModel.mapPlace.documentID
+    
+    if let data = defaults.data(forKey: "BucketList") {
+      if let bucketList = try? JSONDecoder().decode([BucketListItem].self, from: data) {
+        if bucketList.first(where: { $0.documentID == documentID }) != nil {
+          addToBucketlistCaption = "Added to Bucket List"
+        }
+      }
+    }
+    
+    var imageUrl = ""
+    
+    if areasViewModel.previewImageUrl == "" {
+      if areasViewModel.visible || placesViewModel.mapPlace.name == "" {
+        imageUrl = area.shortName + "/Area/1"
+      } else {
+        imageUrl = area.shortName + "/" + placesViewModel.mapPlace.name + "/0"
+        if UIImage(named: imageUrl) != nil {
+          return imageUrl
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "Liberty")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "Liberty")
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "Square")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "Square")
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "Lincoln")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "Lincoln")
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "Crow Point")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "Crow Point")
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "Turkey Hill")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "Turkey Hill")
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "Glad Tidings")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "Glad Tidings")
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "East")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "East")
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "Center")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "Center")
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "Fort Hill")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "Fort Hill")
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "Shipyard")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "Shipyard")
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "Harbor")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "Harbor")
+        } else if UIImage(named: imageUrl.replacingOccurrences(of: area.shortName, with: "World's End")) != nil {
+          return imageUrl.replacingOccurrences(of: area.shortName, with: "World's End")
+        }
+      }
+    } else {
+      imageUrl = areasViewModel.previewImageUrl
+    }
+    
+    return imageUrl
+  }
+  
   private var titleSection: some View {
     let design = placesViewModel.mapPlace.type == 6 ? Font.Design.serif : Font.Design.default
-    let textHeight = placesViewModel.mapPlace.type == 6 ? 103.0 : 200.0
+    let textHeight = 180.0
     let weight = placesViewModel.mapPlace.type == 6 ? Font.Weight.semibold : Font.Weight.bold
     let bodySize = placesViewModel.mapPlace.type == 6 ? 12.0 : 14.0
     var name = areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.name : placesViewModel.mapPlace.name
@@ -141,14 +209,17 @@ extension AreaPreviewView {
 //        }
 //      }
       
+      Divider()
+      
       let descText: LocalizedStringKey = LocalizedStringKey(stringLiteral: areasViewModel.visible == true || placesViewModel.mapPlace.name == ""  ? area.desc : placesViewModel.mapPlace.notes)
       
       ScrollView(.vertical, showsIndicators: true) {
-        if placesViewModel.mapPlace.name == "" && area.desc.contains("•") {
-          let bulletLines = area.desc.filter { $0 != "\n" } .components(separatedBy: "•")
+        if placesViewModel.mapPlace.name == "" && area.desc.contains("•") || placesViewModel.mapPlace.notes.contains("•") {
+          let notes = placesViewModel.mapPlace.name == "" ? area.desc : placesViewModel.mapPlace.notes
+          let bulletLines = notes.filter { $0 != "\n" } .components(separatedBy: "•")
           
           VStack {
-            ForEach(bulletLines, id: \.self) { line in
+            ForEach(Array(bulletLines.enumerated()), id: \.offset) { index, line in
               HStack {
                 if line[line.index(line.startIndex, offsetBy: 1, limitedBy: line.endIndex)!] != " " {
                   Image("bucketpoint")
@@ -158,9 +229,16 @@ extension AreaPreviewView {
                 }
                 Text(LocalizedStringKey(stringLiteral:line))
                   .font(.system(size: bodySize, weight: .regular, design: Font.Design.default))
+                  .id(index)
                 Spacer()
               }
             }
+          }
+          .background(GeometryReader {
+            Color.clear.preference(key: ViewOffsetKey.self, value: -$0.frame(in: .named("scroll")).origin.y)
+          })
+          .onPreferenceChange(ViewOffsetKey.self) {
+            setBucketPointImage(offset: $0)
           }
         } else {
           Text(descText)
@@ -168,12 +246,85 @@ extension AreaPreviewView {
             .foregroundColor(.primary)
         }
       }
-      .id(self.scrollViewID)      
+      .coordinateSpace(name: "scroll")
     }
     .frame(width: 380, height: textHeight)
     .padding(.trailing, 10)
     .padding(.top, screenWidth < 360 ? -5 : 10)
     .padding(.bottom, -20)
+  }
+  
+  private func setBucketPointImage(offset: CGFloat) {
+//    print("offset:\(offset)")
+    withAnimation(.easeInOut) {
+      if area.name == "World's End" && placesViewModel.mapPlace.name != "Iron Horse Statue" {
+        let dir = "World's End/Area/"
+        if offset < 37.0 {
+          areasViewModel.previewImageUrl = "\(dir)1"
+        } else if offset < 80.0 {
+          areasViewModel.previewImageUrl = "\(dir)FourDrumlins"
+        } else if offset < 123.0 {
+          areasViewModel.previewImageUrl = "\(dir)RedwoodSequoia"
+        } else if offset < 166.0 {
+          areasViewModel.previewImageUrl = "\(dir)LandBridges"
+        } else if offset < 209.0 {
+          areasViewModel.previewImageUrl = "\(dir)WampanoagNipmuc"
+        } else if offset < 287.0 {
+          areasViewModel.previewImageUrl = "\(dir)AbrahamMartin"
+        } else if offset < 346.0 {
+          areasViewModel.previewImageUrl = "\(dir)StoneWallCarriagePath"
+        } else if offset < 421.0 {
+          areasViewModel.previewImageUrl = "\(dir)TwoTrunks"
+        } else if offset < 466.0 {
+          areasViewModel.previewImageUrl = "\(dir)TreeBoundary"
+        } else if offset < 524.0 {
+          areasViewModel.previewImageUrl = "\(dir)450acres"
+        } else if offset < 583.0 {
+          areasViewModel.previewImageUrl = "\(dir)SarahLanglee"
+        } else if offset < 638.0 {
+          areasViewModel.previewImageUrl = "\(dir)HayCart"
+        } else if offset < 684.0 {
+          areasViewModel.previewImageUrl = "\(dir)StoneColumns"
+        } else if offset < 729.0 {
+          areasViewModel.previewImageUrl = "\(dir)MapleOak"
+        } else if offset < 838.0 {
+          areasViewModel.previewImageUrl = "\(dir)FrederickLawOlmsted"
+        } else if offset < 958.0 {
+          areasViewModel.previewImageUrl = "\(dir)CurvingTreeLined"
+        } else if offset < 1002.0 {
+          areasViewModel.previewImageUrl = "\(dir)Swales"
+        } else if offset < 1064.0 {
+          areasViewModel.previewImageUrl = "\(dir)UnitedNations"
+        } else if offset < 1138.0 {
+          areasViewModel.previewImageUrl = "\(dir)PlymouthNuclearPowerPlant"
+        } else if offset < 1200.0 {
+          areasViewModel.previewImageUrl = "\(dir)CharlesEliot"
+        } else if offset < 1276.0 {
+          areasViewModel.previewImageUrl = "\(dir)NameOriginUnknown"
+//        } else if offset < 525.0 {
+//          previewImage = "\(dir)GentlemanFarmer"
+        }
+      } else if placesViewModel.mapPlace.name == "Iron Horse Statue" {
+        let dir = "Harbor/Iron Horse Statue/"
+        if offset < 37.0 {
+          areasViewModel.previewImageUrl = "\(dir)0"
+        } else if offset < 99.0 {
+          areasViewModel.previewImageUrl = "\(dir)TheoAliceRugglesKitson"
+        } else if offset < 148.0 {
+          areasViewModel.previewImageUrl = "\(dir)Spartacus"
+        } else if offset < 177.0 {
+          areasViewModel.previewImageUrl = "\(dir)LaurelWreath"
+        } else if offset < 224.0 {
+          areasViewModel.previewImageUrl = "\(dir)TorchRobeSword"
+        } else if offset < 268.0 {
+          areasViewModel.previewImageUrl = "\(dir)BareFoot"
+        } else if offset < 296.0 {
+          areasViewModel.previewImageUrl = "\(dir)BareFootAndShoe"
+        } else if offset < 327.0 {
+          areasViewModel.previewImageUrl = "\(dir)FootTooWide"
+        }
+      }
+    }
   }
   
   private var viewDetailsButton: some View {
@@ -207,15 +358,15 @@ extension AreaPreviewView {
         areasViewModel.firstScreenVisible = false
       }
     } label: {
-      Text("View Details")
+      Text("Details")
         .font(.system(.headline, design: design, weight: weight))
-        .frame(width: screenWidth < 360 ? 75 : 105, height: 35)
+        .frame(width: screenWidth < 360 ? 40 : 70, height: 25)
         .foregroundColor(.white)
     }
     .buttonStyle(.borderedProminent)
     .cornerRadius(10.0)
     .padding([.trailing], screenWidth < 360 ? 18 : 26)
-    .padding(.top, UIScreen.main.bounds.size.height < 800 ? 36.0 : 46.0)
+    .padding(.top, UIScreen.main.bounds.size.height < 800 ? 32.0 : 42.0)
   }
   
   private var directionsButton: some View {
@@ -247,15 +398,77 @@ extension AreaPreviewView {
       } label: {
         Text("Directions")
           .font(.system(.subheadline, design: design, weight: weight))
-          .frame(width: screenWidth < 360 ? 60 : 80, height: 35)
+          .frame(width: screenWidth < 360 ? 60 : 80, height: 25)
       }
       .buttonStyle(.bordered)
-      .padding(.top, UIScreen.main.bounds.size.height < 800 ? 36.0 : 46.0)
+      .padding(.top, UIScreen.main.bounds.size.height < 800 ? 32.0 : 42.0)
       .padding(.trailing, 16)
       .frame(width: 75.0)
     }
     .padding(.leading, 5)
   }
+  
+  private var addToBucketListButton: some View {
+    let design = placesViewModel.mapPlace.type == 6 ? Font.Design.serif : Font.Design.default
+    let weight = placesViewModel.mapPlace.type == 6 ? Font.Weight.bold : Font.Weight.bold
+    let defaults = UserDefaults.standard
+    let type = areasViewModel.visible || placesViewModel.mapPlace.name == "" ? "Area" : "Place"
+    let documentID = areasViewModel.visible || placesViewModel.mapPlace.name == "" ? areasViewModel.mapArea.documentID : placesViewModel.mapPlace.documentID
+    
+    return Button {
+      if let data = defaults.data(forKey: "BucketList") {
+        if var bucketList = try? JSONDecoder().decode([BucketListItem].self, from: data) {
+          if bucketList.first(where: { $0.documentID == documentID }) != nil {
+            addToBucketlistCaption = "Added to Bucket List"
+          } else {
+            let newItem = BucketListItem(type: type, documentID: documentID)
+            bucketList.append(newItem)
+          }
+        }
+      } else {
+        var bucketList: [BucketListItem] = []
+        let newItem = BucketListItem(type: type, documentID: documentID)
+        bucketList.append(newItem)
+        
+        if let encodedData = try? JSONEncoder().encode(newItem) {
+          defaults.set(encodedData, forKey: "BucketList")
+        }
+      }
+//      defaults.set("true", forKey: "Rated:\(place.documentID)")
+    } label: {
+      ZStack {
+        HStack {
+          Image("bucketlistUnselected")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 38, height: 38)
+            .padding(0)
+          Text(addToBucketlistCaption)
+            .font(.system(.subheadline, design: design, weight: weight))
+            .frame(width: screenWidth < 360 ? 100 : 136)
+            .padding(0)
+        }
+      }
+      .frame(height: 24)
+    }
+    .buttonStyle(.bordered)
+    .padding(.leading, 17)
+  }
+}
+
+struct ViewOffsetKey: PreferenceKey {
+    typealias Value = CGFloat
+    static var defaultValue = CGFloat.zero
+    static func reduce(value: inout Value, nextValue: () -> Value) {
+        value += nextValue()
+    }
+}
+
+import SwiftUI
+
+struct BucketListItem: Codable {
+    let type: String
+    let documentID: String
 }
 
 //#Preview {
