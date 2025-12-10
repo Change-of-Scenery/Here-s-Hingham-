@@ -31,7 +31,6 @@ struct MainView: View {
   @ObservedObject var location: LocationManager = LocationManager()
   let maxWidth: CGFloat = 475
   let maxHeight: CGFloat = 275
-  @State private var showPreviewView = true
   
   var body: some View {
     NavigationStack(path: $paths) {
@@ -76,7 +75,7 @@ struct MainView: View {
                 FilterButtonView(title: "Parks", imageName: "tree", type: 8)
                 FilterButtonView(title: "Events", imageName: "calendar", type: 100)
                 FilterButtonView(title: "Videos", imageName: "video", type: 100)
-                FilterButtonView(title: "\"Bucket List\"", imageName: "bucket", type: 11)
+                FilterButtonView(title: "Bucket List", imageName: "bucket", type: 11)
 //                FilterButtonView(title: "Update Yelp", imageName: "gear", type: 100)
 //                FilterButtonView(title: "Update Google", imageName: "gear", type: 100)
               }
@@ -105,6 +104,7 @@ struct MainView: View {
                   areasViewModel.visible = false
                 }
               } else {
+                placesViewModel.mapPlace = SchemaV1.Place()
                 placesViewModel.visible = false
                 areasViewModel.visible = true
                 areasViewModel.distance = 0.0
@@ -203,7 +203,7 @@ extension MainView {
             .scaleEffect(areasViewModel.mapArea == area ? 1.2 : 0.7)
             .shadow(radius: 10)
             .onTapGesture {
-              showPreviewView = true
+              areasViewModel.showPreviewView = true
               iconResizePercent = 0.0
               areasViewModel.previewImageUrl = ""
               areasViewModel.firstScreenVisible = false
@@ -266,7 +266,8 @@ extension MainView {
                   PlaceAnnotationView(areaName: place.areaName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity, iconResizePercent: iconResizePercent, filter: areasViewModel.filter)
                     .shadow(radius: 10)
                     .onTapGesture {
-                      showPreviewView = true
+                      areasViewModel.updateAddToBucketlist(place.documentID)
+                      areasViewModel.showPreviewView = true
                       areasViewModel.previewImageUrl = ""
                       withAnimation(.easeInOut) {
                         placesViewModel.showPlace(area, place)
@@ -314,6 +315,9 @@ extension MainView {
             Image(systemName: "location.fill")
           }
         }
+	      .onTapGesture(perform: {
+          areasViewModel.showPreviewView = false
+        })
         .simultaneousGesture (
           DragGesture(minimumDistance: 0.0)
             .onChanged { value in
@@ -371,24 +375,15 @@ extension MainView {
   private var areasPreviewStack: some View {
     ZStack {
       ForEach(areasViewModel.areas) { area in
-        if areasViewModel.mapArea == area && showPreviewView == true {
+        if areasViewModel.mapArea == area && areasViewModel.showPreviewView == true {
           AreaPreviewView(iconResizePercent: $iconResizePercent, showPlaceDetail: $showPlaceDetail, area: area)
             .shadow(color: .black.opacity(0.3), radius: 20)
-            .padding()
+            .padding(.bottom, 140)
             .frame(maxWidth: maxWidth, maxHeight: maxHeight)
             .transition(.asymmetric(insertion: .move(edge: .trailing) , removal: .move(edge: .leading)))
-          Button {
-            showPreviewView = false
-          }
-          label: {
-            Image(systemName: "xmark")
-          }
-          .padding(.leading, maxWidth - (UIDevice.current.userInterfaceIdiom == .pad ? 90.0: 95.0))
-          .padding(.top, 340)
         }
       }
     }
-    .padding(.bottom, 60)
   }
   
   private var expandedImageSection: some View {
@@ -419,13 +414,6 @@ extension MainView {
           }
         }
         .tabViewStyle(PageTabViewStyle())
-//        .padding(.top, -60)
-        Button {
-          areasViewModel.showExpandedImage = false
-        }
-        label: {
-          Image(systemName: "xmark")
-        }
         .padding(.top, UIScreen.main.bounds.size.height * 0.24)
         .padding(.leading, UIScreen.main.bounds.size.width * 0.845)
       }

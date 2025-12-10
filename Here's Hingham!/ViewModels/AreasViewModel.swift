@@ -14,9 +14,9 @@ import FirebaseCore
 import FirebaseFirestore
 
 class AreasViewModel: ObservableObject {
+  @EnvironmentObject private var placesViewModel: PlacesViewModel
   @Published var mapCameraPosition: MapCameraPosition = .userLocation(fallback: .automatic) {
     didSet {
-
     }
   }
 
@@ -41,6 +41,9 @@ class AreasViewModel: ObservableObject {
   @Published var distance: Double = 0.0
   @Published var imagePath = ""
   @Published var imageCount = 0
+  @Published var addToBucketlistCaption = "Add to Bucket List"
+  @Published var addToBucketlistImage = "bucketlist"
+  @Published var showPreviewView = true
 
   @Published var filter: Int = 0 {
     didSet {
@@ -88,6 +91,19 @@ class AreasViewModel: ObservableObject {
   public func toggleAreasList() {
     withAnimation(.easeInOut) {
       showAreasList = !showAreasList
+    }
+  }
+  
+  public func updateAddToBucketlist(_ documentID: String) {
+    @AppStorage("BucketList") var bucketList: String = ""
+    let bucketListArray = bucketList.components(separatedBy: ",")
+    
+    if bucketListArray.contains(documentID) {
+      addToBucketlistCaption = "Added to Bucket List"
+      addToBucketlistImage = "bucketlistAdded"
+    } else {
+      addToBucketlistCaption = "Add to Bucket List"
+      addToBucketlistImage = "bucketlist"
     }
   }
   

@@ -46,11 +46,11 @@ struct RatingsView: View {
           place.hinghamReviews += 1
           place.hinghamRatings += place.hinghamRatings == "" ? String(rating) : ";" + String(rating)
           place.updateHinghamRating()
-          let defaults = UserDefaults.standard
           let db = Firestore.firestore()
           let placeRef = db.collection("HinghamPlace").document(place.documentID)
           placeRef.updateData(["hinghamRatings" : place.hinghamRatings, "hinghamReviews" : place.hinghamReviews])
-          defaults.set("true", forKey: "Rated:\(place.id)")
+          @AppStorage("Rated:\(place.id)") var rated: String = ""
+          rated = "true"
         }
         showRatingSelector = false
       } label: {

@@ -202,8 +202,6 @@ enum SchemaV1: VersionedSchema {
       case areaId
       case centerCoordinateLat
       case centerCoordinateLng
-      case hinghamRatings
-      case hinghamReviews
       case iconCoordinateLat
       case iconCoordinateLng
       case name
@@ -219,8 +217,6 @@ enum SchemaV1: VersionedSchema {
     var areaId = 0
     var centerCoordinateLat = 0.0
     var centerCoordinateLng = 0.0
-    var hinghamRatings = ""
-    var hinghamReviews = 0.0
     var iconCoordinateLat = 0.0
     var iconCoordinateLng = 0.0
     @Attribute(.unique) var name = ""
@@ -253,8 +249,6 @@ enum SchemaV1: VersionedSchema {
       self.desc = try container.decode(String.self, forKey: .desc)
       self.centerCoordinateLat = try container.decode(Double.self, forKey: .centerCoordinateLat)
       self.centerCoordinateLng = try container.decode(Double.self, forKey: .centerCoordinateLng)
-      self.hinghamRatings = try container.decode(String.self, forKey: .hinghamRatings)
-      self.hinghamReviews = try container.decode(Double.self, forKey: .hinghamReviews)
       self.iconCoordinateLat = try container.decode(Double.self, forKey: .iconCoordinateLat)
       self.iconCoordinateLng = try container.decode(Double.self, forKey: .iconCoordinateLng)
       self.name = try container.decode(String.self, forKey: .name)
@@ -264,13 +258,11 @@ enum SchemaV1: VersionedSchema {
       self.imageCount = try container.decode(Int.self, forKey: .imageCount)
     }
     
-    init(areaId: Int, centerCoordinateLat: Double, centerCoordinateLng: Double, desc: String, hinghamRatings: String, hinghamReviews: Double, iconCoordinateLat: Double, iconCoordinateLng: Double, name: String, shortName: String, tilt: Int) {
+    init(areaId: Int, centerCoordinateLat: Double, centerCoordinateLng: Double, desc: String, iconCoordinateLat: Double, iconCoordinateLng: Double, name: String, shortName: String, tilt: Int) {
       self.areaId = areaId
       self.desc = desc
       self.centerCoordinateLat = centerCoordinateLat
       self.centerCoordinateLng = centerCoordinateLng
-      self.hinghamRatings = hinghamRatings
-      self.hinghamReviews = hinghamReviews
       self.iconCoordinateLat = iconCoordinateLat
       self.iconCoordinateLng = iconCoordinateLng
       self.name = name
@@ -291,41 +283,6 @@ enum SchemaV1: VersionedSchema {
     static func == (lhs: Area, rhs: Area) -> Bool {
       lhs.id == rhs.id
     }
-    
-    func updateHinghamRating() {
-      if hinghamRatings != "" {
-        let ratings = hinghamRatings.components(separatedBy: ";")
-        var ratingTotal = 0.0
-        
-        for rating in ratings {
-          ratingTotal += Double(rating)!
-        }
-        
-        let averageRating = ratingTotal / Double(ratings.count)
-        
-        if averageRating >= 1.0 && averageRating < 1.5 {
-          hinghamReviews = 1.0
-        } else if averageRating >= 1.5 && averageRating < 2.0 {
-          hinghamReviews = 1.5
-        } else if averageRating >= 2.0 && averageRating < 2.5 {
-          hinghamReviews = 2.0
-        } else if averageRating >= 2.5 && averageRating < 3.0 {
-          hinghamReviews = 2.5
-        } else if averageRating >= 3.0 && averageRating < 3.5 {
-          hinghamReviews = 3.0
-        } else if averageRating >= 3.5 && averageRating < 4.0 {
-          hinghamReviews = 3.5
-        } else if averageRating >= 4.0 && averageRating < 4.5 {
-          hinghamReviews = 4.0
-        } else if averageRating >= 4.5 && averageRating < 5.0 {
-          hinghamReviews = 4.5
-        } else {
-          hinghamReviews = 5.0
-        }
-      }
-    }
-    
-
   }
 }
 

@@ -142,8 +142,8 @@
             filePath = "Here&apos;s Hingham!/Models/Models.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "251"
-            endingLineNumber = "251"
+            startingLineNumber = "247"
+            endingLineNumber = "247"
             landmarkName = "init(from:)"
             landmarkType = "7">
          </BreakpointContent>

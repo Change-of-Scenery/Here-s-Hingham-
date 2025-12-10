@@ -583,8 +583,9 @@ struct AreaDetailView: View {
           }
           
           Button {
-            let defaults = UserDefaults.standard
-            if let _ = defaults.string(forKey: "Rated:\(placesViewModel.mapPlace.id)") {
+            @AppStorage("Rated:\(placesViewModel.mapPlace.id)") var rated: String = ""
+            
+            if rated != "" {
               message = "You've already rated this place."
               showMessage = true
             } else {

@@ -17,7 +17,6 @@ struct AreaPreviewView: View {
   @Binding var showPlaceDetail: Bool
   @State private var scrollViewID = UUID()
   @State private var scrolledID = CGFloat.zero
-  @State private var addToBucketlistCaption = "Add to Bucket List"
   
   let area: SchemaV1.Area
   let screenWidth = UIScreen.main.bounds.size.width
@@ -35,7 +34,9 @@ struct AreaPreviewView: View {
               .padding(.leading, -10)
           }
           .padding(.leading, 12)
-          addToBucketListButton
+          if placesViewModel.mapPlace.name != "" {
+            addToBucketListButton
+          }
         }
       }
       .padding(10)
@@ -109,18 +110,6 @@ extension AreaPreviewView {
   }
   
   func getImageUrl() -> String {
-    let defaults = UserDefaults.standard
-    let type = areasViewModel.visible || placesViewModel.mapPlace.name == "" ? "Area" : "Place"
-    let documentID = areasViewModel.visible || placesViewModel.mapPlace.name == "" ? areasViewModel.mapArea.documentID : placesViewModel.mapPlace.documentID
-    
-    if let data = defaults.data(forKey: "BucketList") {
-      if let bucketList = try? JSONDecoder().decode([BucketListItem].self, from: data) {
-        if bucketList.first(where: { $0.documentID == documentID }) != nil {
-          addToBucketlistCaption = "Added to Bucket List"
-        }
-      }
-    }
-    
     var imageUrl = ""
     
     if areasViewModel.previewImageUrl == "" {
@@ -356,6 +345,11 @@ extension AreaPreviewView {
         }
         
         areasViewModel.firstScreenVisible = false
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+          withAnimation(.easeInOut) {
+            areasViewModel.showPreviewView = false
+          }
+        }
       }
     } label: {
       Text("Details")
@@ -411,45 +405,40 @@ extension AreaPreviewView {
   private var addToBucketListButton: some View {
     let design = placesViewModel.mapPlace.type == 6 ? Font.Design.serif : Font.Design.default
     let weight = placesViewModel.mapPlace.type == 6 ? Font.Weight.bold : Font.Weight.bold
-    let defaults = UserDefaults.standard
-    let type = areasViewModel.visible || placesViewModel.mapPlace.name == "" ? "Area" : "Place"
-    let documentID = areasViewModel.visible || placesViewModel.mapPlace.name == "" ? areasViewModel.mapArea.documentID : placesViewModel.mapPlace.documentID
+    let documentID = placesViewModel.mapPlace.documentID
     
     return Button {
-      if let data = defaults.data(forKey: "BucketList") {
-        if var bucketList = try? JSONDecoder().decode([BucketListItem].self, from: data) {
-          if bucketList.first(where: { $0.documentID == documentID }) != nil {
-            addToBucketlistCaption = "Added to Bucket List"
-          } else {
-            let newItem = BucketListItem(type: type, documentID: documentID)
-            bucketList.append(newItem)
+      @AppStorage("BucketList") var bucketList: String = ""
+      var bucketListArray = bucketList.components(separatedBy: ",")
+      
+      if bucketListArray.count > 0 {
+          if !bucketListArray.contains(documentID) {
+            bucketListArray.append(documentID)
+            areasViewModel.addToBucketlistCaption = "Added to Bucket List"
+            areasViewModel.addToBucketlistImage = "bucketlistAdded"
           }
-        }
       } else {
-        var bucketList: [BucketListItem] = []
-        let newItem = BucketListItem(type: type, documentID: documentID)
-        bucketList.append(newItem)
-        
-        if let encodedData = try? JSONEncoder().encode(newItem) {
-          defaults.set(encodedData, forKey: "BucketList")
-        }
+        bucketListArray.append(documentID)
+        areasViewModel.addToBucketlistCaption = "Added to Bucket List"
+        areasViewModel.addToBucketlistImage = "bucketlistAdded"
       }
-//      defaults.set("true", forKey: "Rated:\(place.documentID)")
+      
+      bucketList = bucketListArray.joined(separator: ",")
     } label: {
       ZStack {
         HStack {
-          Image("bucketlistUnselected")
+          Image(areasViewModel.addToBucketlistImage)
             .resizable()
             .scaledToFit()
             .frame(width: 38, height: 38)
-            .padding(0)
-          Text(addToBucketlistCaption)
-            .font(.system(.subheadline, design: design, weight: weight))
+            .padding(.leading, -8)
+          Text(areasViewModel.addToBucketlistCaption)
+            .font(.system(size: 13, weight: weight, design: design))
             .frame(width: screenWidth < 360 ? 100 : 136)
-            .padding(0)
+            .padding(.leading, -8)
         }
       }
-      .frame(height: 24)
+      .frame(width: 180, height: 26)
     }
     .buttonStyle(.bordered)
     .padding(.leading, 17)
@@ -465,11 +454,6 @@ struct ViewOffsetKey: PreferenceKey {
 }
 
 import SwiftUI
-
-struct BucketListItem: Codable {
-    let type: String
-    let documentID: String
-}
 
 //#Preview {
 //  AreaPreviewView(area: AreasViewModel().areas.first!)
