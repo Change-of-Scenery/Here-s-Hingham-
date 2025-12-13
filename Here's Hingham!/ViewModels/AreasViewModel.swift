@@ -15,13 +15,9 @@ import FirebaseFirestore
 
 class AreasViewModel: ObservableObject {
   @EnvironmentObject private var placesViewModel: PlacesViewModel
-  @Published var mapCameraPosition: MapCameraPosition = .userLocation(fallback: .automatic) {
-    didSet {
-    }
-  }
-
+  @Published var mapCameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
   @Published var zoom: Double = 0.005
-  @Published var areas: [SchemaV1.Area] = []
+  @Published var areas: [SchemaV1.Area] = []	
   @Published var previewArea = SchemaV1.Area()
   @Published var mapArea: SchemaV1.Area = SchemaV1.Area() {
     didSet {
@@ -44,6 +40,7 @@ class AreasViewModel: ObservableObject {
   @Published var addToBucketlistCaption = "Add to Bucket List"
   @Published var addToBucketlistImage = "bucketlist"
   @Published var showPreviewView = true
+  @Published var showBucketListMap = false
 
   @Published var filter: Int = 0 {
     didSet {
@@ -82,7 +79,7 @@ class AreasViewModel: ObservableObject {
     areas.append(area)
   }
   
-  private func updateRegion(_ mapCameraPosition: MapCameraPosition) {
+  public func updateRegion(_ mapCameraPosition: MapCameraPosition) {
     withAnimation(.easeInOut) {
       self.mapCameraPosition = mapCameraPosition
     }

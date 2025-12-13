@@ -190,7 +190,7 @@ struct AreaDetailView: View {
   private var titleSection: some View {
     var name = area.name
     let place = placesViewModel.mapPlace
-    var url = URL(string: "https://en.wikipedia.org/wiki/\(area.wikiName)")!
+    var url = URL(string: "")!
     let font = place.type == 6 ? Font.system(size: 22.0, weight: .bold, design: .serif) : Font.system(size: 22.0, weight: .bold, design: .default)
     let smallFont = place.type == 6 ? Font.system(size: 16.0, weight: .bold, design: .serif) : Font.system(size: 16.0, weight: .bold, design: .default)
     let smallTextFont = place.type == 6 ? Font.system(size: 12.0, weight: .regular, design: .serif) : Font.system(size: 12.0, weight: .regular, design: .default)

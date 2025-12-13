@@ -310,9 +310,9 @@ struct Here_s_Hingham_App: App {
           place.yearBuilt = document.get("yearBuilt") as! Int
           place.instagram = document.get("instagram") as! String
           
-          if place.notes.contains("tavern") {
-            print(place.name, place.address)
-          }
+//          if place.notes.contains("tavern") {
+//            print(place.name, place.address)
+//          }
           
           placesViewModel.addPlace(place)
         }

@@ -153,28 +153,43 @@ extension AreaPreviewView {
   }
   
   private var titleSection: some View {
-    let design = placesViewModel.mapPlace.type == 6 ? Font.Design.serif : Font.Design.default
     let textHeight = 180.0
-    let weight = placesViewModel.mapPlace.type == 6 ? Font.Weight.semibold : Font.Weight.bold
+    let standardFont = Font.system(size: 24.0, weight: .bold, design: .default)
+    var url: URL? = nil
+    var name = ""
+    
+    if placesViewModel.mapPlace.name != "" {
+      let place = placesViewModel.mapPlace
+      if place.website != "" {
+        url = URL(string: place.website)!
+      }
+    }
+
     let bodySize = placesViewModel.mapPlace.type == 6 ? 12.0 : 14.0
-    var name = areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.name : placesViewModel.mapPlace.name
+    name = areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? area.name : placesViewModel.mapPlace.name
     name += name.hasSuffix("Historic") ? " District" : ""
     let address = areasViewModel.visible == true || placesViewModel.mapPlace.name == "" ? "" : placesViewModel.mapPlace.address
     
     return VStack(alignment: .leading, spacing: 4) {
       HStack {
-        Text(name)
-          .font(.system(.title2, design: design, weight: weight))
-          .foregroundColor(.primary)
-          .scaledToFill()
-          .minimumScaleFactor(0.5)
-          .lineLimit(1)
-          .onChange(of: placesViewModel.mapPlace) {
-            scrollViewID = UUID()
-          }
+        if url == nil {
+          Text(name)
+            .font(standardFont)
+            .foregroundColor(.primary)
+            .scaledToFill()
+            .minimumScaleFactor(0.5)
+            .lineLimit(1)
+            .onChange(of: placesViewModel.mapPlace) {
+              scrollViewID = UUID()
+            }
+        } else {
+          Link(name, destination: url!)
+            .font(name.count > 30 ? standardFont : Font.system(size: 20.0, weight: .bold, design: .default))
+            .foregroundColor(.red)
+        }
         Spacer()
         Text(address)
-          .font(.system(.footnote, design: design, weight: .regular))
+          .font(.system(.footnote, design: .default, weight: .regular))
       }
       
 //      if area.name == "World's End" {
@@ -231,7 +246,7 @@ extension AreaPreviewView {
           }
         } else {
           Text(descText)
-            .font(.system(size: bodySize, weight: .regular, design: design))
+            .font(.system(size: bodySize, weight: .regular, design: .default))
             .foregroundColor(.primary)
         }
       }
@@ -412,11 +427,15 @@ extension AreaPreviewView {
       var bucketListArray = bucketList.components(separatedBy: ",")
       
       if bucketListArray.count > 0 {
-          if !bucketListArray.contains(documentID) {
-            bucketListArray.append(documentID)
-            areasViewModel.addToBucketlistCaption = "Added to Bucket List"
-            areasViewModel.addToBucketlistImage = "bucketlistAdded"
-          }
+        if bucketListArray.contains(documentID) {
+          bucketListArray.remove(at: bucketListArray.firstIndex(of: documentID)!)
+          areasViewModel.addToBucketlistCaption = "Add to Bucket List"
+          areasViewModel.addToBucketlistImage = "bucketlist"
+        } else {
+          bucketListArray.append(documentID)
+          areasViewModel.addToBucketlistCaption = "Added to Bucket List"
+          areasViewModel.addToBucketlistImage = "bucketlistAdded"
+        }
       } else {
         bucketListArray.append(documentID)
         areasViewModel.addToBucketlistCaption = "Added to Bucket List"

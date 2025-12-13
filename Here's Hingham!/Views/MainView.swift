@@ -5,6 +5,7 @@
 //
 //  Created by Cameron Conway on 8/21/25.
 //
+import Foundation
 import SwiftUI
 import SwiftData
 import MapKit
@@ -68,6 +69,7 @@ struct MainView: View {
             ScrollView(.horizontal, showsIndicators: false) {
               LazyHStack(spacing: 10) {
                 FilterButtonView(title: "All", imageName: "globe", type: 0)
+                FilterButtonView(title: "Bucket List", imageName: "bucket", type: 11)
                 FilterButtonView(title: "Dining", imageName: "fork.knife", type: 1)
                 FilterButtonView(title: "Coffee", imageName: "cup.and.saucer", type: 7)
                 FilterButtonView(title: "Retail", imageName: "handbag", type: 2)
@@ -75,7 +77,6 @@ struct MainView: View {
                 FilterButtonView(title: "Parks", imageName: "tree", type: 8)
                 FilterButtonView(title: "Events", imageName: "calendar", type: 100)
                 FilterButtonView(title: "Videos", imageName: "video", type: 100)
-                FilterButtonView(title: "Bucket List", imageName: "bucket", type: 11)
 //                FilterButtonView(title: "Update Yelp", imageName: "gear", type: 100)
 //                FilterButtonView(title: "Update Google", imageName: "gear", type: 100)
               }
@@ -170,6 +171,22 @@ struct FilterButtonView: View {
         places.forEach { place in
           dataService.updateGoogle(name: place.name)
         }
+      } else if title == "Bucket List" {
+        areasViewModel.filter = type
+        areasViewModel.showBucketListMap = true
+        areasViewModel.mapArea = areasViewModel.areas.first!
+        areasViewModel.visible = false
+        let region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.24059, longitude: -70.88902), span: MKCoordinateSpan(latitudeDelta: 0.007, longitudeDelta: 0.007))
+        areasViewModel.mapCameraPosition = MapCameraPosition.region(region)
+        areasViewModel.updateRegion(areasViewModel.mapCameraPosition)
+
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+          withAnimation(.easeInOut) {
+            areasViewModel.showPreviewView = false
+            areasViewModel.visible = false
+            areasViewModel.firstScreenVisible = false
+          }
+        }
       } else if type < 100 {
         areasViewModel.filter = type
       }
@@ -235,6 +252,8 @@ extension MainView {
   }
   
   private var placeMapLayer: some View {
+    @AppStorage("BucketList") var bucketList: String = ""
+    let bucketListArray = bucketList.components(separatedBy: ",")
     let area = areasViewModel.mapArea
     var places = placesViewModel.places // .filter { $0.areaId == area.areaId || $0.areaId == 7}
         
@@ -244,6 +263,8 @@ extension MainView {
         places = places.filter { item in
           includedTypes.contains(item.type)
         }
+      } else if areasViewModel.filter == 11 {
+        places = places.filter { bucketListArray.contains($0.documentID) }
       } else {
         places = places.filter { $0.type == areasViewModel.filter }
       }
