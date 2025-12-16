@@ -40,7 +40,7 @@ class AreasViewModel: ObservableObject {
   @Published var addToBucketlistCaption = "Add to Bucket List"
   @Published var addToBucketlistImage = "bucketlist"
   @Published var showPreviewView = true
-  @Published var showBucketListMap = false
+  @Published var iconResizePercent: Double = 0.0
 
   @Published var filter: Int = 0 {
     didSet {
@@ -60,8 +60,6 @@ class AreasViewModel: ObservableObject {
               area.iconImage = "cup.and.saucer.circle.fill"
             case 8:
               area.iconImage = "tree.circle.fill"
-            case 11:
-              area.iconImage = "bucket.circle.fill"
             default:
               area.iconImage = "map.circle.fill"
             }

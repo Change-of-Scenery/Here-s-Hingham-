@@ -19,7 +19,6 @@ struct MainView: View {
   @State private var position = MapCameraPosition.region(
     MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.22127,longitude: -70.89328), span: MKCoordinateSpan(latitudeDelta: 0.075, longitudeDelta: 0.075)))
   @State private var annotationOpacity: Double = 1.0
-  @State private var iconResizePercent: Double = 0.0
   @State private var paths: [String] = []
   @State private var showPlaceDetail = false
   @State private var longPressCoordinate: CLLocationCoordinate2D?
@@ -110,6 +109,8 @@ struct MainView: View {
                 areasViewModel.visible = true
                 areasViewModel.distance = 0.0
                 areasViewModel.firstScreenVisible = true
+                areasViewModel.showPreviewView = true
+                areasViewModel.filter = 0
               }
             } label:
             {
@@ -172,8 +173,8 @@ struct FilterButtonView: View {
           dataService.updateGoogle(name: place.name)
         }
       } else if title == "Bucket List" {
+        areasViewModel.iconResizePercent = 0.75
         areasViewModel.filter = type
-        areasViewModel.showBucketListMap = true
         areasViewModel.mapArea = areasViewModel.areas.first!
         areasViewModel.visible = false
         let region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 42.24059, longitude: -70.88902), span: MKCoordinateSpan(latitudeDelta: 0.007, longitudeDelta: 0.007))
@@ -221,7 +222,7 @@ extension MainView {
             .shadow(radius: 10)
             .onTapGesture {
               areasViewModel.showPreviewView = true
-              iconResizePercent = 0.0
+              areasViewModel.iconResizePercent = 0.0
               areasViewModel.previewImageUrl = ""
               areasViewModel.firstScreenVisible = false
               if (area.areaId == areasViewModel.mapArea.areaId) {
@@ -284,7 +285,7 @@ extension MainView {
             ForEach(places) { place in
               Annotation("", coordinate: place.coordinates) {
                 withAnimation(.easeInOut) {
-                  PlaceAnnotationView(areaName: place.areaName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity, iconResizePercent: iconResizePercent, filter: areasViewModel.filter)
+                  PlaceAnnotationView(areaName: place.areaName, placeName: place.name, shortName: place.shortName, type: place.type, iconSize: place.iconSize, selected: place.selected, opacity: annotationOpacity, iconResizePercent: areasViewModel.iconResizePercent, filter: areasViewModel.filter)
                     .shadow(radius: 10)
                     .onTapGesture {
                       areasViewModel.updateAddToBucketlist(place.documentID)
@@ -311,12 +312,12 @@ extension MainView {
           let distanceDelta = areasViewModel.distance - context.camera.distance
           cameraIsChanging = true
           if areasViewModel.distance == 0.0 {
-            iconResizePercent = 0.0
+            areasViewModel.iconResizePercent = 0.0
             areasViewModel.distance = context.camera.distance
           } else if areasViewModel.distance != context.camera.distance && abs(distanceDelta) > 20 {
             let saveAreaId:Int = areasViewModel.mapArea.areaId
             areasViewModel.mapArea.areaId = -1
-            iconResizePercent = areasViewModel.distance / context.camera.distance
+            areasViewModel.iconResizePercent = areasViewModel.distance / context.camera.distance
             areasViewModel.mapArea.areaId = saveAreaId
           }
           
@@ -397,7 +398,7 @@ extension MainView {
     ZStack {
       ForEach(areasViewModel.areas) { area in
         if areasViewModel.mapArea == area && areasViewModel.showPreviewView == true {
-          AreaPreviewView(iconResizePercent: $iconResizePercent, showPlaceDetail: $showPlaceDetail, area: area)
+          AreaPreviewView(showPlaceDetail: $showPlaceDetail, area: area)
             .shadow(color: .black.opacity(0.3), radius: 20)
             .padding(.bottom, 140)
             .frame(maxWidth: maxWidth, maxHeight: maxHeight)

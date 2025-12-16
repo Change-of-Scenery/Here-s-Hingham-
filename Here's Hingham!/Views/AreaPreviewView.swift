@@ -13,7 +13,6 @@ struct AreaPreviewView: View {
   @EnvironmentObject private var placesViewModel: PlacesViewModel
   @Environment(\.colorScheme) var colorScheme
   @ObservedObject var location: LocationManager = LocationManager()
-  @Binding var iconResizePercent: Double
   @Binding var showPlaceDetail: Bool
   @State private var scrollViewID = UUID()
   @State private var scrolledID = CGFloat.zero
@@ -343,8 +342,7 @@ extension AreaPreviewView {
         placesViewModel.showPlace(area, placesViewModel.mapPlace)
         areasViewModel.visible = placesViewModel.mapPlace.name == ""
         showPlaceDetail = true
-      } else {
-        iconResizePercent = 0.0
+      } else {        
         if (area.areaId == areasViewModel.mapArea.areaId) {
           withAnimation(.easeInOut) {
             areasViewModel.distance = 0.0
